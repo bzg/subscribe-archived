@@ -18,13 +18,6 @@
 (def mailgun-mailing-list (or (System/getenv "MAILGUN_MAILING_LIST") ""))
 (def mailgun-subscribe-endpoint (str "/lists/" mailgun-mailing-list "/members"))
 (def return-url (or (System/getenv "MAILGUN_RETURN_URL") ""))
-(def token (.toString (java.util.UUID/randomUUID)))
-
-(def dummy-captcha
-  ["35 + 7" "32 + 10" "84 / 2" "21 * 2" "44 - 2"
-   "36 + 6" "31 + 11" "126 / 3" "40 + 2" "46 - 4"
-   "29 + 12" "12 + 30" "9 + 33" "14 * 3" "17 + 25"
-   "126 / 3" "168 / 4" "41 + 1"])
 
 (defmacro default-page [content]
   `(h/html5
@@ -49,7 +42,6 @@
                :size        "30"    :class "form-control"
                :placeholder ~(i18n [:email-address])
                :required    true}]
-      [:input {:name "hidden-field" :type "hidden" :value ~token}]
       [:br]
       [:input {:type  "submit" :value ~(i18n [:subscribe])
                :class "btn btn-warning btn-lg"}]])))
@@ -71,12 +63,10 @@
   (GET "/" [] (home-page))
   (GET "/thanks" [] (thanks-page))
   (POST "/subscribe" [email hidden-field]
-        (if (not (= hidden-field token))
-          (response/redirect "/")
-          (do (subscribe-address email)
-              (println
-               (str email " subscribed to " mailgun-mailing-list))
-              (response/redirect "/thanks"))))
+        (do (subscribe-address email)
+            (println
+             (str email " subscribed to " mailgun-mailing-list))
+            (response/redirect "/thanks")))
   (route/resources "/")
   (route/not-found "404 error"))
 
