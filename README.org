@@ -1,0 +1,49 @@
+#+title: Subscribe
+
+* What it does?
+
+Given a mailgun mailing list, create a subscription page.
+
+* Configure
+
+Add these variable environments:
+
+| Env                  | What it defines     | Fallback value |
+|----------------------+---------------------+----------------|
+| SUBSCRIBE_PORT       | The listening port  | 4321           |
+| MAILGUN_MAILING_LIST | The mailing list    | N/A            |
+| MAILGUN_API_KEY      | The mailgun API key | N/A            |
+
+* Run
+
+** With =lein run=
+
+: ~$ git clone https://github.com/etalab/subscribe
+: ~$ cd subscribe/
+: ~$ lein run
+
+Then go to http://localhost:4321.
+
+** With =java -jar=
+
+: ~$ git clone https://github.com/etalab/subscribe
+: ~$ cd subscribe/
+: ~$ lein uberjar
+: ~$ java -jar target/subscribe-x.x.x-standalone.jar
+
+** Changing the environment variables
+
+To use a different port:
+
+: ~$ SUBSCRIBE_PORT="1234" lein run
+
+will run the application at http://localhost:1234
+
+: ~$ SUBSCRIBE_PORT="1234" java -jar subscribe-x.x.x-standalone.jar
+
+will do the same while running the application from a jar file.
+
+* License
+
+=subscribe= is licensed under the [[http://www.eclipse.org/legal/epl-v10.html][Eclipse Public License 1.0]], the same
+as Clojure.
