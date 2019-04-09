@@ -8,6 +8,7 @@
                  [compojure "1.6.1"]
                  [hiccup "1.0.5"]
                  [ring "1.7.1"]
+                 [ring/ring-defaults "0.3.2"]
                  [http-kit "2.3.0"]
                  [cheshire "5.8.1"]
                  [clj-http "3.9.1"]

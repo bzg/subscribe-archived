@@ -2,6 +2,7 @@
   (:gen-class)
   (:require [org.httpkit.server :as http-kit]
             [ring.middleware.reload :refer [wrap-reload]]
+            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.params :as params]
             [ring.util.response :as response]
             [compojure.core :as compojure :refer (GET POST defroutes)]
@@ -80,6 +81,7 @@
   (route/not-found "404 error"))
 
 (def app (-> app-routes
+             (wrap-defaults site-defaults)
              wrap-reload
              params/wrap-params))
 
