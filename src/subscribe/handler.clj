@@ -1,3 +1,8 @@
+;; Copyright (c) 2019 Bastien Guerry <bzg@bzg.fr>
+
+;; SPDX-License-Identifier: EPL-2.0
+;; License-Filename: LICENSES/EPL-2.0.txt
+
 (ns subscribe.handler
   (:gen-class)
   (:require [org.httpkit.server :as http-kit]
@@ -18,7 +23,6 @@
 
 ;; TODO
 ;;
-;; - Commit
 ;; - Update license to v2
 ;; - Fix already subscribed feedback
 ;; - Enhance UI strings

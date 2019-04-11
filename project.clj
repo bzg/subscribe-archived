@@ -1,8 +1,13 @@
+;; Copyright (c) 2019 Bastien Guerry <bzg@bzg.fr>
+
+;; SPDX-License-Identifier: EPL-2.0
+;; License-Filename: LICENSES/EPL-2.0.txt
+
 (defproject
   subscribe "0.1.1"
   :url "https://github.com/etalab/subscribe"
-  :license {:name "Eclipse Public License"
-            :url  "http://www.eclipse.org/legal/epl-v10.html"}
+  :license {:name "Eclipse Public License v2.0"
+            :url  "https://www.eclipse.org/legal/epl-2.0/"}
   :plugins [[lein-ancient "0.6.14"]]
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/core.async "0.4.490"

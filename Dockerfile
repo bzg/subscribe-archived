@@ -1,3 +1,8 @@
+# Copyright (c) 2019 Bastien Guerry <bzg@bzg.fr>
+
+# SPDX-License-Identifier: EPL-2.0
+# License-Filename: LICENSES/EPL-2.0.txt
+
 FROM java:8-alpine
 ADD target/subscribe-0.1.1-standalone.jar /subscribe/subscribe-0.1.1-standalone.jar
 ENV SUBSCRIBE_PORT ${SUBSCRIBE_PORT}
