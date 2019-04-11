@@ -17,49 +17,33 @@
             [hiccup.element :as he]
             [clj-http.client :as http]
             [subscribe.i18n :refer [i18n]]
+            [subscribe.config :as config]
             [postal.core :as postal]
             [clojure.core.async :as async]
-            [datahike.api :as d]))
+            [datahike.api :as d]
+            [cheshire.core :as json]))
 
-;; TODO
+;; TODO:
 ;;
-;; - Update license to v2
-;; - Fix already subscribed feedback
-;; - Enhance UI strings
-;; - Use bulma
+;; - Check email format
+;; - Fix/enhance UI strings
 ;; - Enable antiforgery
 ;; - Add unsubscribe link
-;; - Add email validation?
-
-(def mailgun-api-url "https://api.mailgun.net/v3")
-(def mailgun-api-key (or (System/getenv "MAILGUN_API_KEY") ""))
-(def mailgun-login (or (System/getenv "MAILGUN_LOGIN") ""))
-(def mailgun-password (or (System/getenv "MAILGUN_PASSWORD") ""))
-(def mailgun-from (or (System/getenv "MAILGUN_FROM") (System/getenv "MAILGUN_LOGIN") ""))
-(def mailgun-mailing-list (or (System/getenv "MAILGUN_MAILING_LIST") ""))
-(def mailgun-subscribe-endpoint (str "/lists/" mailgun-mailing-list "/members"))
-
-(def base-url (or (System/getenv "MAILGUN_BASE_URL") ""))
-(def return-url (or (System/getenv "MAILGUN_RETURN_URL") ""))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Create db and db connection
 
-(def db-uri "datahike:mem:///mailgun-subscribe")
-(d/create-database db-uri)
-(def db-conn (d/connect db-uri))
+(d/create-database config/db-uri)
+(def db-conn (d/connect config/db-uri))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Handle token creation and validation
+;;; Handle email token creation and validation
 
 (defn create-email-token [token email]
   (let [emails (d/q `[:find ?e :where [?e :email ~email]] @db-conn)]
     (if-not (empty? emails)
-      (println (format "%s already in the db" email))
-      @(d/transact db-conn
-                   [{:db/id (d/tempid -1)
-                     :email email
-                     :token token}]))))
+      @(d/transact db-conn [[:db.fn/retractEntity (ffirst emails)]]))
+    @(d/transact db-conn [{:db/id (d/tempid -1) :email email :token token}])))
 
 (defn validate-token [token]
   (let [eids (d/q `[:find ?e :where [?e :token ~token]] @db-conn)
@@ -67,67 +51,84 @@
     (when eid
       (let [email (:email (d/pull @db-conn '[:email] eid))]
         @(d/transact db-conn [[:db.fn/retractEntity eid]])
+        ;; Return the email address
         email))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email
 
-(defn send-email [{:keys [email subject body]}]
+(defn send-email [{:keys [email subject body log]}]
   (postal/send-message
-   {:host "smtp.mailgun.org"
+   {:host config/mailgun-host
     :port 587
-    :user mailgun-login
-    :pass mailgun-password}
-   {:from    mailgun-from
+    :user (config/mailgun-login)
+    :pass (config/mailgun-password)}
+   {:from    (config/mailgun-from)
     :to      email
     :subject subject
-    :body    body}))
+    :body    body})
+  (println log))
 
 (defn send-validation-link [email]
   (let [token (.toString (java.util.UUID/randomUUID))]
-    (if (create-email-token token email)
-      (send-email
-       {:email   email
-        :subject (format "Confirmez votre inscription à %s" mailgun-mailing-list)
-        :body    (format "%s/confirm/%s" base-url token)}))))
+    ;; FIXME: check email format
+    (create-email-token token email)
+    (send-email
+     {:email   email
+      :subject (format "Confirmez votre inscription à %s" (config/mailgun-mailing-list))
+      :body    (format "%s/confirm/%s" (config/base-url) token)
+      :log     (str "Validation link sent to " email)})))
 
 (defn subscribe-address [email]
-  (http/post (str mailgun-api-url mailgun-subscribe-endpoint)
-             {:basic-auth  ["api" mailgun-api-key]
-              :form-params {:address email}}))
+  (try
+    (let [req (http/post
+               (str config/mailgun-api-url config/mailgun-subscribe-endpoint)
+               {:basic-auth  ["api" (config/mailgun-api-key)]
+                :form-params {:address email}})]
+      {:message (:message (json/parse-string (:body req) true))
+       :result  "SUBSCRIBED"})
+    (catch Exception e
+      (let [message (:message (json/parse-string (:body (ex-data e)) true))]
+        {:message message
+         :result  "ERROR"}))))
+
+(defn check-already-subscribed [email]
+  (try
+    (let [req  (http/get
+                (str config/mailgun-api-url config/mailgun-subscribe-endpoint "/" email)
+                {:basic-auth ["api" (config/mailgun-api-key)]})
+          body (json/parse-string (:body req) true)]
+      (:subscribed (:member body)))
+    (catch Exception e false)))
 
 (defn subscribe-and-send-confirmation [token]
   (when-let [email (validate-token token)]
-    (try
-      (do (subscribe-address email)
-          (send-email
-           {:email   email
-            :subject (format "Votre inscription à la liste %s est bien prise en compte" mailgun-mailing-list)
-            :body    "Merci"}))
-      (catch Throwable e
-        (println "Can't subscribe to mailgun")))))
+    (let [result (subscribe-address email)]
+      (if-not (= (:result result) "SUBSCRIBED")
+        (println (:message result))
+        (send-email
+         {:email   email
+          :subject (format "Votre inscription à la liste %s est bien prise en compte" (config/mailgun-mailing-list))
+          :body    "Merci"
+          :log     "Final confirmation email sent"})))))
 
-(def email-channel (async/chan 10))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Define async channels
 
-(defn start-email-loop []
+(def subscribe-channel (async/chan 10))
+
+(defn start-subscription-loop []
   (async/go
-    (loop [email (async/<! email-channel)]
-      (try
-        (do (send-validation-link email)
-            (println email "subscribed"))
-        (catch Throwable e
-          (println "Can't create token or send email")))
-      (recur (async/<! email-channel)))))
+    (loop [email (async/<! subscribe-channel)]
+      (send-validation-link email)        
+      (recur (async/<! subscribe-channel)))))
 
 (def confirm-channel (async/chan 10))
 
 (defn start-confirmation-loop []
   (async/go
     (loop [token (async/<! confirm-channel)]
-      (try
-        (do (subscribe-and-send-confirmation token)
-            (println "Confirmation email sent"))
-        (catch Throwable e (println "Can't confirm token")))
+      (subscribe-and-send-confirmation token)
       (recur (async/<! confirm-channel)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -148,7 +149,7 @@
 
 (defn- home-page []
   (default-page
-   `([:h1 ~mailgun-mailing-list]
+   `([:h1 ~(config/mailgun-mailing-list)]
      [:br]
      [:form
       {:action "/subscribe" :method "post"}
@@ -160,20 +161,27 @@
       [:input {:type  "submit" :value ~(i18n [:subscribe])
                :class "btn btn-warning btn-lg"}]])))
 
-(defn- thanks-page []
+(defn- feedback-page [message]
   (default-page
-   `([:h1 ~mailgun-mailing-list]
+   `([:h1 ~(config/mailgun-mailing-list)]
      [:br]
-     [:h2 ~(i18n [:successful-subscription])]
+     [:h2 ~message]
      [:br]
-     [:a {:href ~return-url} ~(i18n [:return-to-site])])))
+     [:a {:href ~(config/return-url)} ~(i18n [:return-to-site])])))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Application routes
 
 (defroutes app-routes
   (GET "/" [] (home-page))
-  (GET "/thanks" [] (thanks-page))
+  (GET "/already-subscribed" [] (feedback-page "Already subscribed"))
+  (GET "/email-sent" [] (feedback-page "Email sent with validation link"))
+  (GET "/thanks" [] (feedback-page (i18n [:successful-subscription])))
   (POST "/subscribe" [email]
-        (do (async/go (async/>! email-channel email))
-            (response/redirect "/thanks")))
+        (if (check-already-subscribed email)
+          (response/redirect "/already-subscribed")
+          (do (async/go (async/>! subscribe-channel email))
+              (response/redirect "/email-sent"))))
   (GET "/confirm/:token" [token]
        (do (async/go (async/>! confirm-channel token))
            (response/redirect "/thanks")))
@@ -188,9 +196,7 @@
              params/wrap-params))
 
 (defn -main [& args]
-  (start-email-loop)
+  (start-subscription-loop)
   (start-confirmation-loop)
   (http-kit/run-server
-   #'app {:port (Integer/parseInt (or (System/getenv "SUBSCRIBE_PORT") "3000"))}))
-
-;; (-main)
+   #'app {:port (Integer/parseInt (config/port))}))
