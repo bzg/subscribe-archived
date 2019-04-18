@@ -12,10 +12,6 @@
 
 (def mailgun-host "smtp.mailgun.org")
 
-(defn db-uri []
-  (or (System/getenv "SUBSCRIBE_DB_URI")
-      "datahike:mem:///subscribe"))
-
 (defn mailgun-api-key
   []
   (or (System/getenv "MAILGUN_API_KEY")
@@ -62,3 +58,14 @@
   "URL to redirect the user to when subscribed."
   [] ;; Optional
   (or (System/getenv "MAILGUN_RETURN_URL") "/"))
+
+(defn db-uri
+  "The db URI for datahike."
+  [] ;; Optional
+  (or (System/getenv "SUBSCRIBE_DB_URI")
+      "datahike:mem:///subscribe"))
+
+(defn log-file
+  "Filename to store logs."
+  [] ;; Optional
+  (or (System/getenv "SUBSCRIBE_LOG_FILE") "log.txt"))

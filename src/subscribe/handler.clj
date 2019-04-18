@@ -46,7 +46,7 @@
   :output-fn (partial timbre/default-output-fn {:stacktrace-fonts {}})
   :appenders
   {:println (timbre/println-appender {:stream :auto})
-   :spit    (appenders/spit-appender {:fname "log.txt"})
+   :spit    (appenders/spit-appender {:fname (config/log-file)})
    :postal  (postal-appender/postal-appender ;; :min-level :warn
              ^{:host config/mailgun-host
                :user (config/mailgun-login)
