@@ -37,6 +37,10 @@
 (def mailgun-subscribe-endpoint
   (str "/lists/" (mailgun-mailing-list) "/members"))
 
+(defn admin-email []
+  (or (System/getenv "SUBSCRIBE_ADMIN_EMAIL")
+      (throw (Exception. "Missing admin email address"))))
+
 (defn base-url []
   (or (System/getenv "MAILGUN_BASE_URL")
       (throw (Exception. "Missing base URL"))))

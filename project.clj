@@ -22,7 +22,8 @@
                  [com.taoensso/tempura "1.2.1"]
                  [io.replikativ/datahike "0.1.3"]
                  [com.draines/postal "2.0.3"]
-                 [cheshire "5.8.1"]]
+                 [cheshire "5.8.1"]
+                 [com.taoensso/timbre "4.10.0"]]
   :description "Subscribe to a mailgun mailing list."
   :main subscribe.handler
   :profiles {:uberjar {:aot :all}})

@@ -4,7 +4,6 @@
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
 (ns subscribe.handler
-  (:gen-class)
   (:require [org.httpkit.server :as http-kit]
             [ring.middleware.reload :refer [wrap-reload]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
@@ -21,11 +20,14 @@
             [postal.core :as postal]
             [clojure.core.async :as async]
             [datahike.api :as d]
-            [cheshire.core :as json]))
+            [cheshire.core :as json]
+            [taoensso.timbre :as timbre]
+            [taoensso.timbre.appenders.core :as appenders]
+            [taoensso.timbre.appenders (postal :as postal-appender)])
+  (:gen-class))
 
 ;; TODO:
 ;;
-;; - Use timbre for logging
 ;; - Send an email when set up
 ;; - Add docstrings
 ;; - Refactor HTML pages
@@ -39,6 +41,22 @@
 ;; - Add tests (authentication)
 ;; - Update README.org
 ;; - Don't use wrap-reload in prod
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Setup logging
+
+(timbre/set-config!
+ {:level     :debug
+  :output-fn (partial timbre/default-output-fn {:stacktrace-fonts {}})
+  :appenders
+  {:println (timbre/println-appender {:stream :auto})
+   :spit    (appenders/spit-appender {:fname "log.txt"})
+   :postal  (postal-appender/postal-appender ;; :min-level :warn
+             ^{:host config/mailgun-host
+               :user (config/mailgun-login)
+               :pass (config/mailgun-password)}
+             {:from (config/mailgun-from)
+              :to   (config/admin-email)})}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Create db and db connection
@@ -77,7 +95,7 @@
     :to      email
     :subject subject
     :body    body})
-  (println log))
+  (timbre/info log))
 
 (defn send-validation-link [email]
   (let [token (.toString (java.util.UUID/randomUUID))]
@@ -115,7 +133,7 @@
   (when-let [email (validate-token token)]
     (let [result (subscribe-address email)]
       (if-not (= (:result result) "SUBSCRIBED")
-        (println (:message result))
+        (timbre/info (:message result))
         (send-email
          {:email   email
           :subject (format "Votre inscription à la liste %s est bien prise en compte" (config/mailgun-mailing-list))
