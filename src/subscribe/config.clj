@@ -12,7 +12,9 @@
 
 (def mailgun-host "smtp.mailgun.org")
 
-(def db-uri "datahike:mem:///subscribe")
+(defn db-uri []
+  (or (System/getenv "SUBSCRIBE_DB_URI")
+      "datahike:mem:///subscribe"))
 
 (defn mailgun-api-key
   []

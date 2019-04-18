@@ -12,9 +12,8 @@
             [compojure.core :as compojure :refer (GET POST defroutes)]
             [compojure.handler :as handler]
             [compojure.route :as route]
-            [hiccup.page :as h]
-            [hiccup.element :as he]
             [clj-http.client :as http]
+            [subscribe.pages :as pages]
             [subscribe.i18n :refer [i18n]]
             [subscribe.config :as config]
             [postal.core :as postal]
@@ -28,7 +27,6 @@
 
 ;; TODO:
 ;;
-;; - Refactor HTML pages
 ;; - Fix/enhance UI strings
 ;; - Test and use bulma
 ;; - Add unsubscribe link
@@ -59,8 +57,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Create db and db connection
 
-(d/create-database config/db-uri)
-(def db-conn (d/connect config/db-uri))
+(d/create-database (config/db-uri))
+(def db-conn (d/connect (config/db-uri)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email token creation and validation
@@ -175,52 +173,15 @@
       (subscribe-and-send-confirmation token)
       (recur (async/<! confirm-channel)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; HTML content
-
-(defmacro default-page [content]
-  `(h/html5
-    {:lang "fr"}
-    [:head
-     [:title (i18n [:title])]
-     [:meta {:charset "utf-8"}]
-     [:meta {:name "viewport" :content "width=device-width, initial-scale=1, shrink-to-fit=yes"}]
-     (h/include-css "https://maxcdn.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css")
-     [:style "body {margin-top: 2em;}"]]
-    [:body {:class "bg-light"}
-     [:div {:class "container" :style "width:70%"}
-      ~content]]))
-
-(defn home-page []
-  (default-page
-   `([:h1 ~(config/mailgun-mailing-list)]
-     [:br]
-     [:form
-      {:action "/subscribe" :method "post"}
-      [:input {:name        "email" :type  "text"
-               :size        "30"    :class "form-control"
-               :placeholder ~(i18n [:email-address])
-               :required    true}]
-      [:br]
-      [:input {:type  "submit" :value ~(i18n [:subscribe])
-               :class "btn btn-warning btn-lg"}]])))
-
-(defn feedback-page [message]
-  (default-page
-   `([:h1 ~(config/mailgun-mailing-list)]
-     [:br]
-     [:h2 ~message]
-     [:br]
-     [:a {:href ~(config/return-url)} ~(i18n [:return-to-site])])))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Application routes
 
 (defroutes app-routes
   (GET "/" [] (home-page))
-  (GET "/already-subscribed" [] (feedback-page "Already subscribed"))
-  (GET "/email-sent" [] (feedback-page "Email sent with validation link"))
-  (GET "/thanks" [] (feedback-page (i18n [:successful-subscription])))
+  (GET "/already-subscribed" [] (pages/feedback "Already subscribed"))
+  (GET "/email-sent" [] (pages/feedback "Email sent with validation link"))
+  (GET "/thanks" [] (pages/feedback (i18n [:successful-subscription])))
   (POST "/subscribe" [email]
         (if (check-already-subscribed email)
           (response/redirect "/already-subscribed")
