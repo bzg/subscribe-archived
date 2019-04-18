@@ -14,37 +14,49 @@
 
 (def db-uri "datahike:mem:///subscribe")
 
-(defn mailgun-api-key []
+(defn mailgun-api-key
+  []
   (or (System/getenv "MAILGUN_API_KEY")
       (throw (Exception. "Missing API key"))))
 
-(defn mailgun-login []
+(defn mailgun-login
+  []
   (or (System/getenv "MAILGUN_LOGIN")
       (throw (Exception. "Missing login"))))
 
-(defn mailgun-password []
+(defn mailgun-password
+  []
   (or (System/getenv "MAILGUN_PASSWORD")
       (throw (Exception. "Missing password"))))
 
-(defn mailgun-from []
+(defn mailgun-from
+  "The address to send transactional emails from."
+  []
   (or (System/getenv "MAILGUN_FROM")
       (throw (Exception. "Missing from address"))))
 
-(defn mailgun-mailing-list []
+(defn mailgun-mailing-list
+  "The name of the mailing list."
+  []
   (or (System/getenv "MAILGUN_MAILING_LIST")
       (throw (Exception. "Missing mailing list"))))
 
 (def mailgun-subscribe-endpoint
   (str "/lists/" (mailgun-mailing-list) "/members"))
 
-(defn admin-email []
+(defn admin-email
+  "The email address where to send warnings."
+  []
   (or (System/getenv "SUBSCRIBE_ADMIN_EMAIL")
       (throw (Exception. "Missing admin email address"))))
 
-(defn base-url []
+(defn base-url
+  "The base URL of the subscription page."
+  []
   (or (System/getenv "MAILGUN_BASE_URL")
       (throw (Exception. "Missing base URL"))))
 
-(defn return-url [] ;; Optional
+(defn return-url
+  "URL to redirect the user to when subscribed."
+  [] ;; Optional
   (or (System/getenv "MAILGUN_RETURN_URL") "/"))
-

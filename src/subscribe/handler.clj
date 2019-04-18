@@ -28,8 +28,6 @@
 
 ;; TODO:
 ;;
-;; - Send an email when set up
-;; - Add docstrings
 ;; - Refactor HTML pages
 ;; - Fix/enhance UI strings
 ;; - Test and use bulma
@@ -67,13 +65,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email token creation and validation
 
-(defn create-email-token [token email]
+(defn create-email-token
+  "Store an email along with a token in the database."
+  [token email]
   (let [emails (d/q `[:find ?e :where [?e :email ~email]] @db-conn)]
     (if-not (empty? emails)
       @(d/transact db-conn [[:db.fn/retractEntity (ffirst emails)]]))
     @(d/transact db-conn [{:db/id (d/tempid -1) :email email :token token}])))
 
-(defn validate-token [token]
+(defn validate-token
+  "Validate a token and delete the email/token pair."
+  [token]
   (let [eids (d/q `[:find ?e :where [?e :token ~token]] @db-conn)
         eid  (ffirst eids)]
     (when eid
@@ -85,7 +87,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email
 
-(defn send-email [{:keys [email subject body log]}]
+(defn send-email
+  "Send an email."
+  [{:keys [email subject body log]}]
   (postal/send-message
    {:host config/mailgun-host
     :port 587
@@ -97,7 +101,9 @@
     :body    body})
   (timbre/info log))
 
-(defn send-validation-link [email]
+(defn send-validation-link
+  "Create a validation link and send it by email."
+  [email]
   (let [token (.toString (java.util.UUID/randomUUID))]
     ;; FIXME: check email format
     (create-email-token token email)
@@ -107,7 +113,9 @@
       :body    (format "%s/confirm/%s" (config/base-url) token)
       :log     (str "Validation link sent to " email)})))
 
-(defn subscribe-address [email]
+(defn subscribe-address
+  "Perform the actual email subscription to the mailing list."
+  [email]
   (try
     (let [req (http/post
                (str config/mailgun-api-url config/mailgun-subscribe-endpoint)
@@ -120,7 +128,9 @@
         {:message message
          :result  "ERROR"}))))
 
-(defn check-already-subscribed [email]
+(defn check-already-subscribed
+  "Check if an email is already subscribed to the mailing list."
+  [email]
   (try
     (let [req  (http/get
                 (str config/mailgun-api-url config/mailgun-subscribe-endpoint "/" email)
@@ -129,7 +139,9 @@
       (:subscribed (:member body)))
     (catch Exception e false)))
 
-(defn subscribe-and-send-confirmation [token]
+(defn subscribe-and-send-confirmation
+  "Try to subscribe an email address to the mailing list."
+  [token]
   (when-let [email (validate-token token)]
     (let [result (subscribe-address email)]
       (if-not (= (:result result) "SUBSCRIBED")
@@ -145,7 +157,9 @@
 
 (def subscribe-channel (async/chan 10))
 
-(defn start-subscription-loop []
+(defn start-subscription-loop
+  "Intercept subscription requests and send validation links."
+  []
   (async/go
     (loop [email (async/<! subscribe-channel)]
       (send-validation-link email)        
@@ -153,7 +167,9 @@
 
 (def confirm-channel (async/chan 10))
 
-(defn start-confirmation-loop []
+(defn start-confirmation-loop
+  "Intercept confirmations and send confirmation email."
+  []
   (async/go
     (loop [token (async/<! confirm-channel)]
       (subscribe-and-send-confirmation token)
@@ -175,7 +191,7 @@
      [:div {:class "container" :style "width:70%"}
       ~content]]))
 
-(defn- home-page []
+(defn home-page []
   (default-page
    `([:h1 ~(config/mailgun-mailing-list)]
      [:br]
@@ -189,7 +205,7 @@
       [:input {:type  "submit" :value ~(i18n [:subscribe])
                :class "btn btn-warning btn-lg"}]])))
 
-(defn- feedback-page [message]
+(defn feedback-page [message]
   (default-page
    `([:h1 ~(config/mailgun-mailing-list)]
      [:br]
