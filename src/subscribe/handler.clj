@@ -27,7 +27,6 @@
 
 ;; TODO:
 ;;
-;; - Fix/enhance UI strings
 ;; - Test and use bulma
 ;; - Add unsubscribe link
 ;; - Enable antiforgery
@@ -68,7 +67,8 @@
   [token email]
   (let [emails (d/q `[:find ?e :where [?e :email ~email]] @db-conn)]
     (if-not (empty? emails)
-      @(d/transact db-conn [[:db.fn/retractEntity (ffirst emails)]]))
+      (do @(d/transact db-conn [[:db.fn/retractEntity (ffirst emails)]])
+          (timbre/info (format (i18n [:regenerate-token]) email))))
     @(d/transact db-conn [{:db/id (d/tempid -1) :email email :token token}])))
 
 (defn validate-token
@@ -107,9 +107,9 @@
     (create-email-token token email)
     (send-email
      {:email   email
-      :subject (format "Confirmez votre inscription à %s" (config/mailgun-mailing-list))
+      :subject (format (i18n [:confirm-subscription]) (config/mailgun-mailing-list))
       :body    (format "%s/confirm/%s" (config/base-url) token)
-      :log     (str "Validation link sent to " email)})))
+      :log     (format (i18n [:validation-sent-to]) email)})))
 
 (defn subscribe-address
   "Perform the actual email subscription to the mailing list."
@@ -146,9 +146,9 @@
         (timbre/info (:message result))
         (send-email
          {:email   email
-          :subject (format "Votre inscription à la liste %s est bien prise en compte" (config/mailgun-mailing-list))
-          :body    "Merci"
-          :log     "Final confirmation email sent"})))))
+          :subject (format (config/mailgun-mailing-list))
+          :body    (i18n [:thanks])
+          :log     (format (i18n [:confirmation-sent-to]) email)})))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Define async channels
@@ -178,9 +178,9 @@
 ;;; Application routes
 
 (defroutes app-routes
-  (GET "/" [] (home-page))
-  (GET "/already-subscribed" [] (pages/feedback "Already subscribed"))
-  (GET "/email-sent" [] (pages/feedback "Email sent with validation link"))
+  (GET "/" [] (pages/home))
+  (GET "/already-subscribed" [] (pages/feedback (i18n [:already-subscribed])))
+  (GET "/email-sent" [] (pages/feedback (i18n [:validation-sent])))
   (GET "/thanks" [] (pages/feedback (i18n [:successful-subscription])))
   (POST "/subscribe" [email]
         (if (check-already-subscribed email)
