@@ -25,10 +25,20 @@
 
 ;; TODO:
 ;;
-;; - Check email format
+;; - Use timbre for logging
+;; - Send an email when set up
+;; - Add docstrings
+;; - Refactor HTML pages
 ;; - Fix/enhance UI strings
-;; - Enable antiforgery
+;; - Test and use bulma
 ;; - Add unsubscribe link
+;; - Enable antiforgery
+;; - Use /lists/ in slug?
+;; - Send a nice error when email format is wrong (no js)
+;; - Send an email to admin every X subscribers
+;; - Add tests (authentication)
+;; - Update README.org
+;; - Don't use wrap-reload in prod
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Create db and db connection
