@@ -47,6 +47,20 @@
 (d/create-database (config/db-uri))
 (def db-conn (d/connect (config/db-uri)))
 
+(defn increment-subscribers
+  "Increment the count of new subscribers to a mailing list.
+  Send an email every X new subscribers, X being defined by
+  `config/warn-every-x-subscribers`."
+  [mailing-list]
+  (let [count-id (ffirst (d/q `[:find ?c :where [?c :address ~mailing-list]] @db-conn))
+        count    (:members_new (d/pull @db-conn '[:members_new] count-id))]
+    @(d/transact db-conn [{:db/id count-id :members_new (inc count)}])
+    (when (= (mod (inc count) config/warn-every-x-subscribers) 0)
+      (timbre/warn
+       (format "%s subscribers added to %s"
+               config/warn-every-x-subscribers
+               mailing-list)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email token creation and validation
 
@@ -91,15 +105,20 @@
   []
   (let [lists (get-lists-from-server)]
     (doall
-     (map (fn [l] @(d/transact db-conn [(merge {:db/id (d/tempid -1)} l)]))
+     (map (fn [l] @(d/transact
+                    db-conn [(merge {:db/id (d/tempid -1) :members_new 0} l)]))
           lists))))
 
 (defn get-lists-from-db []
-  (let [lists (d/q `[:find ?e :where [?e :description]] @db-conn)]
-    (map (fn [l]
-           (d/pull @db-conn '[:address :description :name :members_count]
-                   (first l)))
+  (let [lists (d/q '[:find ?e :where [?e :description]] @db-conn)]
+    (map #(d/pull @db-conn '[:address :description
+                             :name :members_count :members_new]
+                  (first %))
          lists)))
+
+;; FIXME: unused yet
+;; (defn get-list-from-db [address]
+;;   (first (filter #(= (:address %) address) (get-lists-from-db))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email sending
@@ -107,15 +126,18 @@
 (defn send-email
   "Send an email."
   [{:keys [email subject body log]}]
-  (postal/send-message
-   {:host config/mailgun-host
-    :port 587
-    :user (config/mailgun-login)
-    :pass (config/mailgun-password)}
-   {:from    (config/mailgun-from)
-    :to      email
-    :subject subject
-    :body    body})
+  (try
+    (postal/send-message
+     {:host config/mailgun-host
+      :port 587
+      :user (config/mailgun-login)
+      :pass (config/mailgun-password)}
+     {:from    (config/mailgun-from)
+      :to      email
+      :subject subject
+      :body    body})
+    (catch Exception e
+      (timbre/error (ex-data e))))
   (timbre/info log))
 
 (defn send-validation-link
@@ -163,18 +185,21 @@
       (catch Exception e false))))
 
 (defn subscribe-and-send-confirmation
-  "Try to subscribe an email address to the mailing list."
+  "Subscribe an email address to a mailing list.
+  Send confirmation email."
   [token]
   (when-let [infos (validate-token token)]
-    (let [result     (subscribe-address infos)
-          subscriber (:subscriber infos)]
+    (let [result       (subscribe-address infos)
+          subscriber   (:subscriber infos)
+          mailing-list (:mailing-list infos)]
       (if-not (= (:result result) "SUBSCRIBED")
         (timbre/info (:message result))
-        (send-email
-         {:email   subscriber
-          :subject (format (:mailing-list infos))
-          :body    (i18n [:thanks])
-          :log     (format (i18n [:confirmation-sent-to]) subscriber)})))))
+        (do (increment-subscribers mailing-list)
+            (send-email
+             {:email   subscriber
+              :subject mailing-list
+              :body    (i18n [:thanks])
+              :log     (format (i18n [:confirmation-sent-to]) subscriber)}))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Define async channels
@@ -192,7 +217,7 @@
 (def confirm-channel (async/chan 10))
 
 (defn start-confirmation-loop
-  "Intercept confirmations and send confirmation email."
+  "Intercept confirmations and send confirmation emails."
   []
   (async/go
     (loop [token (async/<! confirm-channel)]

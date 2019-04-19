@@ -38,6 +38,8 @@
 (defn mailgun-subscribe-endpoint [list]
   (str "/lists/" list "/members"))
 
+(def warn-every-x-subscribers 10)
+
 (defn admin-email
   "The email address where to send warnings."
   []

@@ -56,9 +56,11 @@ will do the same while running the application from a jar file.
 - Add unsubscribe link
 - Enable antiforgery
 - Send a nice error when email format is wrong (no js)
-- Send an email to admin every X subscribers
 - Add authentication tests
 - Don't use wrap-reload in prod
+- Enhance UI strings again
+- Allow to configure UI strings
+- Enhance 404 page
 - Update README.org
 
 * License
