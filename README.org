@@ -43,6 +43,18 @@ will run the application at http://localhost:1234
 
 will do the same while running the application from a jar file.
 
+* Todo
+
+- Test and use bulma
+- Add unsubscribe link
+- Enable antiforgery
+- Use /lists/ in slug?
+- Send a nice error when email format is wrong (no js)
+- Send an email to admin every X subscribers
+- Add tests (authentication)
+- Update README.org
+- Don't use wrap-reload in prod
+
 * License
 
 =subscribe= is licensed under the [[http://www.eclipse.org/legal/epl-v10.html][Eclipse Public License 1.0]], the same

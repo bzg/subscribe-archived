@@ -25,18 +25,6 @@
             [taoensso.timbre.appenders (postal :as postal-appender)])
   (:gen-class))
 
-;; TODO:
-;;
-;; - Test and use bulma
-;; - Add unsubscribe link
-;; - Enable antiforgery
-;; - Use /lists/ in slug?
-;; - Send a nice error when email format is wrong (no js)
-;; - Send an email to admin every X subscribers
-;; - Add tests (authentication)
-;; - Update README.org
-;; - Don't use wrap-reload in prod
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Setup logging
 
@@ -54,7 +42,7 @@
               :to   (config/admin-email)})}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Create db and db connection
+;;; Create db and connect to it
 
 (d/create-database (config/db-uri))
 (def db-conn (d/connect (config/db-uri)))
@@ -83,7 +71,7 @@
         email))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Handle email
+;;; Handle email sending
 
 (defn send-email
   "Send an email."
@@ -172,7 +160,6 @@
     (loop [token (async/<! confirm-channel)]
       (subscribe-and-send-confirmation token)
       (recur (async/<! confirm-channel)))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Application routes
