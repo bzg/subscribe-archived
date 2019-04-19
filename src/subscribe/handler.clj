@@ -245,7 +245,7 @@
        (do (async/go (async/>! confirm-channel token))
            (response/redirect "/thanks")))
   (route/resources "/")
-  (route/not-found "404 error"))
+  (route/not-found (views/error)))
 
 (def app (-> app-routes
              (wrap-defaults (assoc site-defaults

@@ -26,6 +26,12 @@
      [:div {:class "content has-text-centered"}
       [:p "Made with Subscribe"]]]))
 
+(defn error []
+  (default
+   (i18n [:error])
+   `[:div {:class "container"}
+     [:p [:a {:href ~(config/return-url)} ~(i18n [:return-to-site])]]]))
+
 (defn mailing-lists [lists]
   (default
    (i18n [:mailing-lists])
