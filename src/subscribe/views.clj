@@ -3,7 +3,7 @@
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
-(ns subscribe.pages
+(ns subscribe.views
   (:require [hiccup.page :as h]
             [hiccup.element :as he]
             [subscribe.i18n :refer [i18n]]

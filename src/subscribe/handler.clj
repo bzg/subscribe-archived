@@ -13,7 +13,7 @@
             [compojure.handler :as handler]
             [compojure.route :as route]
             [clj-http.client :as http]
-            [subscribe.pages :as pages]
+            [subscribe.views :as views]
             [subscribe.i18n :refer [i18n]]
             [subscribe.config :as config]
             [postal.core :as postal]
@@ -178,10 +178,10 @@
 ;;; Application routes
 
 (defroutes app-routes
-  (GET "/" [] (pages/home))
-  (GET "/already-subscribed" [] (pages/feedback (i18n [:already-subscribed])))
-  (GET "/email-sent" [] (pages/feedback (i18n [:validation-sent])))
-  (GET "/thanks" [] (pages/feedback (i18n [:successful-subscription])))
+  (GET "/" [] (views/home))
+  (GET "/already-subscribed" [] (views/feedback (i18n [:already-subscribed])))
+  (GET "/email-sent" [] (views/feedback (i18n [:validation-sent])))
+  (GET "/thanks" [] (views/feedback (i18n [:successful-subscription])))
   (POST "/subscribe" [email]
         (if (check-already-subscribed email)
           (response/redirect "/already-subscribed")
