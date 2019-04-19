@@ -42,6 +42,12 @@
                 :value ~(i18n [:subscribe])
                 :class "button is-primary"}]]])))
 
+(defn lists [lists]
+  (default
+   [:div {:class "container"}
+    (for [l lists]
+      [:p (:description l)])]))
+
 (defn feedback [message]
   (default
    `([:div {:class "container"}

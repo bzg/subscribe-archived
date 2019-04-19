@@ -71,6 +71,33 @@
         email))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Get mailing lists informations
+
+(defn get-lists-from-server
+  "Get information for lists from the server."
+  []
+  (let [req  (http/get
+              (str config/mailgun-api-url config/mailgun-lists-endpoint)
+              {:basic-auth ["api" (config/mailgun-api-key)]})
+        body (json/parse-string (:body req) true)]
+    (:items body)))
+
+(defn store-lists-information
+  "Store lists information in the db."
+  []
+  (let [lists (get-lists-from-server)]
+    (doall
+     (map (fn [l] @(d/transact db-conn [(merge {:db/id (d/tempid -1)} l)]))
+          lists))))
+
+(defn get-lists-from-db []
+  (let [lists (d/q `[:find ?e :where [?e :description]] @db-conn)]
+    (map (fn [l]
+           (d/pull @db-conn '[:address :description :name :members_count]
+                   (first l)))
+         lists)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email sending
 
 (defn send-email
@@ -169,6 +196,7 @@
   (GET "/already-subscribed" [] (views/feedback (i18n [:already-subscribed])))
   (GET "/email-sent" [] (views/feedback (i18n [:validation-sent])))
   (GET "/thanks" [] (views/feedback (i18n [:successful-subscription])))
+  (GET "/lists" [] (views/lists (get-lists-from-db)))
   (POST "/subscribe" [email]
         (if (check-already-subscribed email)
           (response/redirect "/already-subscribed")
@@ -190,5 +218,6 @@
 (defn -main [& args]
   (start-subscription-loop)
   (start-confirmation-loop)
+  (store-lists-information)
   (http-kit/run-server
    #'app {:port (Integer/parseInt (config/port))}))

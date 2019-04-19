@@ -39,6 +39,8 @@
   (or (System/getenv "MAILGUN_MAILING_LIST")
       (throw (Exception. "Missing mailing list"))))
 
+(def mailgun-lists-endpoint "/lists/pages")
+
 (def mailgun-subscribe-endpoint
   (str "/lists/" (mailgun-mailing-list) "/members"))
 
