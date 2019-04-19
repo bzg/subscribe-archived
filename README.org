@@ -45,8 +45,8 @@ will do the same while running the application from a jar file.
 
 * Todo
 
-- Test and use bulma
 - Add unsubscribe link
+- Add list name and description
 - Enable antiforgery
 - Use /lists/ in slug?
 - Send a nice error when email format is wrong (no js)
