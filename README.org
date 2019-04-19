@@ -53,15 +53,18 @@ will do the same while running the application from a jar file.
 
 * Todo
 
+- Better exception handling in config
+- Add authentication tests at init time
+- Add first and last name when subscribing
 - Add unsubscribe link
-- Enable antiforgery
-- Send a nice error when email format is wrong (no js)
-- Add authentication tests
-- Don't use wrap-reload in prod
-- Enhance UI strings again
-- Allow to configure UI strings
+- Use antiforgery token
+- Check email formatting
+- Check environment variables format
+- Enhance UI strings (again)
 - Enhance 404 page
+- Allow to configure UI strings
 - Update README.org
+- Don't use wrap-reload in prod
 
 * License
 
