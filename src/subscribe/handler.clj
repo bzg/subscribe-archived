@@ -50,25 +50,29 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email token creation and validation
 
-(defn create-email-token
-  "Store an email along with a token in the database."
-  [token email]
-  (let [emails (d/q `[:find ?e :where [?e :email ~email]] @db-conn)]
-    (if-not (empty? emails)
-      (do @(d/transact db-conn [[:db.fn/retractEntity (ffirst emails)]])
-          (timbre/info (format (i18n [:regenerate-token]) email))))
-    @(d/transact db-conn [{:db/id (d/tempid -1) :email email :token token}])))
+(defn create-subscriber-token
+  "Create a token in the database for a subscriber/mailing-list."
+  [token subscriber mailing-list]
+  (let [subscribers (d/q `[:find ?e :where [?e :subscriber ~subscriber]] @db-conn)]
+    (if-not (empty? subscribers)
+      (do @(d/transact db-conn [[:db.fn/retractEntity (ffirst subscribers)]])
+          (timbre/info
+           (format (i18n [:regenerate-token]) subscriber mailing-list))))
+    @(d/transact db-conn [{:db/id        (d/tempid -1)
+                           :token        token
+                           :subscriber   subscriber
+                           :mailing-list mailing-list}])))
 
 (defn validate-token
-  "Validate a token and delete the email/token pair."
+  "Validate a token and delete the subscriber/token pair."
   [token]
   (let [eids (d/q `[:find ?e :where [?e :token ~token]] @db-conn)
         eid  (ffirst eids)]
     (when eid
-      (let [email (:email (d/pull @db-conn '[:email] eid))]
+      (let [infos (d/pull @db-conn '[:subscriber :mailing-list] eid)]
         @(d/transact db-conn [[:db.fn/retractEntity eid]])
-        ;; Return the email address
-        email))))
+        ;; Return {:subscriber "..." :mailing-list "..."}
+        infos))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Get mailing lists informations
@@ -116,24 +120,27 @@
 
 (defn send-validation-link
   "Create a validation link and send it by email."
-  [email]
-  (let [token (.toString (java.util.UUID/randomUUID))]
+  [email-and-list]
+  (let [subscriber   (get email-and-list "subscriber")
+        mailing-list (get email-and-list "mailing-list")
+        token        (.toString (java.util.UUID/randomUUID))]
     ;; FIXME: check email format
-    (create-email-token token email)
+    (create-subscriber-token token subscriber mailing-list)
     (send-email
-     {:email   email
-      :subject (format (i18n [:confirm-subscription]) (config/mailgun-mailing-list))
+     {:email   subscriber
+      :subject (format (i18n [:confirm-subscription]) mailing-list)
       :body    (format "%s/confirm/%s" (config/base-url) token)
-      :log     (format (i18n [:validation-sent-to]) email)})))
+      :log     (format (i18n [:validation-sent-to]) subscriber)})))
 
 (defn subscribe-address
   "Perform the actual email subscription to the mailing list."
-  [email]
+  [{:keys [subscriber mailing-list]}]
   (try
     (let [req (http/post
-               (str config/mailgun-api-url config/mailgun-subscribe-endpoint)
+               (str config/mailgun-api-url
+                    (config/mailgun-subscribe-endpoint mailing-list))
                {:basic-auth  ["api" (config/mailgun-api-key)]
-                :form-params {:address email}})]
+                :form-params {:address subscriber}})]
       {:message (:message (json/parse-string (:body req) true))
        :result  "SUBSCRIBED"})
     (catch Exception e
@@ -143,27 +150,31 @@
 
 (defn check-already-subscribed
   "Check if an email is already subscribed to the mailing list."
-  [email]
-  (try
-    (let [req  (http/get
-                (str config/mailgun-api-url config/mailgun-subscribe-endpoint "/" email)
-                {:basic-auth ["api" (config/mailgun-api-key)]})
-          body (json/parse-string (:body req) true)]
-      (:subscribed (:member body)))
-    (catch Exception e false)))
+  [email-and-list]
+  (let [subscriber   (get email-and-list "subscriber")
+        mailing-list (get email-and-list "mailing-list")
+        endpoint     (config/mailgun-subscribe-endpoint mailing-list)]
+    (try
+      (let [req  (http/get
+                  (str config/mailgun-api-url endpoint "/" subscriber)
+                  {:basic-auth ["api" (config/mailgun-api-key)]})
+            body (json/parse-string (:body req) true)]
+        (:subscribed (:member body)))
+      (catch Exception e false))))
 
 (defn subscribe-and-send-confirmation
   "Try to subscribe an email address to the mailing list."
   [token]
-  (when-let [email (validate-token token)]
-    (let [result (subscribe-address email)]
+  (when-let [infos (validate-token token)]
+    (let [result     (subscribe-address infos)
+          subscriber (:subscriber infos)]
       (if-not (= (:result result) "SUBSCRIBED")
         (timbre/info (:message result))
         (send-email
-         {:email   email
-          :subject (format (config/mailgun-mailing-list))
+         {:email   subscriber
+          :subject (format (:mailing-list infos))
           :body    (i18n [:thanks])
-          :log     (format (i18n [:confirmation-sent-to]) email)})))))
+          :log     (format (i18n [:confirmation-sent-to]) subscriber)})))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Define async channels
@@ -174,8 +185,8 @@
   "Intercept subscription requests and send validation links."
   []
   (async/go
-    (loop [email (async/<! subscribe-channel)]
-      (send-validation-link email)        
+    (loop [req (async/<! subscribe-channel)]
+      (send-validation-link req)        
       (recur (async/<! subscribe-channel)))))
 
 (def confirm-channel (async/chan 10))
@@ -192,15 +203,18 @@
 ;;; Application routes
 
 (defroutes app-routes
-  (GET "/" [] (views/home))
-  (GET "/already-subscribed" [] (views/feedback (i18n [:already-subscribed])))
-  (GET "/email-sent" [] (views/feedback (i18n [:validation-sent])))
-  (GET "/thanks" [] (views/feedback (i18n [:successful-subscription])))
-  (GET "/lists" [] (views/lists (get-lists-from-db)))
-  (POST "/subscribe" [email]
-        (if (check-already-subscribed email)
+  (GET "/" [] (views/mailing-lists (get-lists-from-db)))
+  (GET "/already-subscribed" []
+       (views/feedback (i18n [:error]) (i18n [:already-subscribed])))
+  (GET "/email-sent" []
+       (views/feedback (i18n [:thanks]) (i18n [:validation-sent])))
+  (GET "/thanks" []
+       (views/feedback (i18n [:done]) (i18n [:successful-subscription])))
+  (GET "/list/:address" [address] (views/mailing-list address))
+  (POST "/subscribe" req
+        (if (check-already-subscribed (:form-params req))
           (response/redirect "/already-subscribed")
-          (do (async/go (async/>! subscribe-channel email))
+          (do (async/go (async/>! subscribe-channel (:form-params req)))
               (response/redirect "/email-sent"))))
   (GET "/confirm/:token" [token]
        (do (async/go (async/>! confirm-channel token))

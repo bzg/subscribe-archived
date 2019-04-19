@@ -8,11 +8,17 @@ Given a mailgun mailing list, create a subscription page.
 
 Add these variable environments:
 
-| Env                  | What it defines     | Fallback value |
-|----------------------+---------------------+----------------|
-| SUBSCRIBE_PORT       | The listening port  | 4321           |
-| MAILGUN_MAILING_LIST | The mailing list    | N/A            |
-| MAILGUN_API_KEY      | The mailgun API key | N/A            |
+| Env                   | What it defines     | Fallback value |
+|-----------------------+---------------------+----------------|
+| SUBSCRIBE_PORT        | The listening port  | 4321           |
+| SUBSCRIBE_DB_URI      | The db URI          |                |
+| SUBSCRIBE_BASE_URL    |                     |                |
+| SUBSCRIBE_ADMIN_EMAIL |                     |                |
+| SUBSCRIBE_RETURN_URL  |                     |                |
+| MAILGUN_API_KEY       | The mailgun API key | N/A            |
+| MAILGUN_FROM          |                     | N/A            |
+| MAILGUN_LOGIN         |                     | N/A            |
+| MAILGUN_PASSWORD      |                     | N/A            |
 
 * Run
 
@@ -46,14 +52,12 @@ will do the same while running the application from a jar file.
 * Todo
 
 - Add unsubscribe link
-- Add list name and description
 - Enable antiforgery
-- Use /lists/ in slug?
 - Send a nice error when email format is wrong (no js)
 - Send an email to admin every X subscribers
-- Add tests (authentication)
-- Update README.org
+- Add authentication tests
 - Don't use wrap-reload in prod
+- Update README.org
 
 * License
 

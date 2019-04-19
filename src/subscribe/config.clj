@@ -33,16 +33,10 @@
   (or (System/getenv "MAILGUN_FROM")
       (throw (Exception. "Missing from address"))))
 
-(defn mailgun-mailing-list
-  "The name of the mailing list."
-  []
-  (or (System/getenv "MAILGUN_MAILING_LIST")
-      (throw (Exception. "Missing mailing list"))))
-
 (def mailgun-lists-endpoint "/lists/pages")
 
-(def mailgun-subscribe-endpoint
-  (str "/lists/" (mailgun-mailing-list) "/members"))
+(defn mailgun-subscribe-endpoint [list]
+  (str "/lists/" list "/members"))
 
 (defn admin-email
   "The email address where to send warnings."
@@ -53,13 +47,13 @@
 (defn base-url
   "The base URL of the subscription page."
   []
-  (or (System/getenv "MAILGUN_BASE_URL")
+  (or (System/getenv "SUBSCRIBE_BASE_URL")
       (throw (Exception. "Missing base URL"))))
 
 (defn return-url
   "URL to redirect the user to when subscribed."
   [] ;; Optional
-  (or (System/getenv "MAILGUN_RETURN_URL") "/"))
+  (or (System/getenv "SUBSCRIBE_RETURN_URL") "/"))
 
 (defn db-uri
   "The db URI for datahike."
