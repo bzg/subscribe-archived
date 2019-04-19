@@ -2,7 +2,9 @@
 
 * What it does?
 
-Given a mailgun mailing list, create a subscription page.
+If you manage mailing lists through [[https://www.mailgun.com/][mailgun]], this application displays
+a web page with a list of your lists, allowing people to (un)subcribe
+from any of them.
 
 * Configure
 
