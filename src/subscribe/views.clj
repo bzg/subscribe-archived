@@ -53,7 +53,7 @@
        [:input {:name  "mailing-list" :type "hidden"
                 :value ~address}]
        [:label {:class "label"} ~(i18n [:email-address])]
-       [:input {:name        "subscriber" :type  "text"
+       [:input {:name        "subscriber" :type  "email"
                 :size        "30"         :class "input"
                 :placeholder ~(i18n [:email-address])
                 :required    true}]
