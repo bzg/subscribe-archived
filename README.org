@@ -69,6 +69,11 @@ Then go to http://localhost:3000
 - Update README.org
 - Don't use wrap-reload in prod
 
+* Support the Clojure ecosystem
+
+If you like Clojure, please consider supporting Clojure developers by
+donating to [[https://www.clojuriststogether.org][clojuriststogether.org]].  Thanks!
+
 * License
 
 =subscribe= is licensed under the [[http://www.eclipse.org/legal/epl-v10.html][Eclipse Public License 1.0]], the same
