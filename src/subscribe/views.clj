@@ -30,7 +30,7 @@
   (default
    (i18n [:error])
    `[:div {:class "container"}
-     [:p [:a {:href ~(config/return-url)} ~(i18n [:return-to-site])]]]))
+     [:p [:a {:href ~config/return-url} ~(i18n [:return-to-site])]]]))
 
 (defn mailing-lists [lists]
   (default
@@ -68,6 +68,6 @@
    title
    `([:div {:class "container"}
       [:p {:class "subtitle"} ~message]
-      [:p [:a {:href ~(config/return-url)} ~(i18n [:return-to-site])]]])))
+      [:p [:a {:href ~config/return-url} ~(i18n [:return-to-site])]]])))
 
 

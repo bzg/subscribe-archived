@@ -4,7 +4,8 @@
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
 (ns subscribe.i18n
-  (:require [taoensso.tempura :refer [tr]]))
+  (:require [taoensso.tempura :refer [tr]]
+            [subscribe.config :as config]))
 
 (def localization
   {:en-GB
@@ -46,7 +47,7 @@
     :validation-sent         "Lien de validation envoyé."
     :validation-sent-to      "Lien de validation envoyé à %s."}})
 
-(def lang (keyword (or (System/getenv "SUBSCRIBE_LOCALE") "en-GB")))
+(def lang (keyword (or (not-empty (:locale (config/config))) "en-GB")))
 
 (def opts {:dict localization})
 

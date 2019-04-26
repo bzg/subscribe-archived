@@ -1,0 +1,12 @@
+{:mailgun-api-key          "your_api_key"
+ :mailgun-login            "postmaster@your.domain.com"
+ :mailgun-password         "your_mailgun_password"
+ :mailgun-from             "your_from_address"
+ :locale                   "en-GB" ; or "fr-FR" etc.
+ :admin-email              "your@email.com"
+ :base-url                 "http://yoursite.com"
+ :return-url               "https://yoursite.com"
+ :port                     3000 ; must be an integer
+ :db-uri                   ""   ; optional
+ :log-file                 ""   ; optional 
+ :warn-every-x-subscribers 10}

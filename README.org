@@ -2,25 +2,38 @@
 
 * What it does?
 
-If you manage mailing lists through [[https://www.mailgun.com/][mailgun]], this application displays
-a web page with a list of your lists, allowing people to (un)subcribe
-from any of them.
+If you manage mailing lists through [[https://www.mailgun.com/][mailgun.com]], =Subscribe= creates
+webpages where users can (un)subscribe (from)to your mailing lists.
 
 * Configure
 
-Add these variable environments:
+1. Set =SUBSCRIBE_CONFIG= in your =~/.profile= file to the path of your
+   configuration file.
 
-| Env                   | What it defines     | Fallback value |
-|-----------------------+---------------------+----------------|
-| SUBSCRIBE_PORT        | The listening port  | 4321           |
-| SUBSCRIBE_DB_URI      | The db URI          |                |
-| SUBSCRIBE_BASE_URL    |                     |                |
-| SUBSCRIBE_ADMIN_EMAIL |                     |                |
-| SUBSCRIBE_RETURN_URL  |                     |                |
-| MAILGUN_API_KEY       | The mailgun API key | N/A            |
-| MAILGUN_FROM          |                     | N/A            |
-| MAILGUN_LOGIN         |                     | N/A            |
-| MAILGUN_PASSWORD      |                     | N/A            |
+2. Add a configuration in this configuration file:
+
+: {:mailgun-api-key          "your_api_key"
+:  :mailgun-login            "postmaster@your.domain.com"
+:  :mailgun-password         "your_mailgun_password"
+:  :mailgun-from             "your_from_address"
+:  :locale                   "en-GB" ; or "fr-FR" etc.
+:  :admin-email              "your@email.com"
+:  :base-url                 "http://yoursite.com"
+:  :return-url               "https://yoursite.com"
+:  :port                     3000 ; must be an integer
+:  :db-uri                   ""   ; optional
+:  :log-file                 ""   ; optional 
+:  :warn-every-x-subscribers 10}
+   
+* Test
+
+Run =lein test= to test the configuration before running the
+application.
+
+: ~$ git clone https://github.com/etalab/subscribe
+: ~$ cd subscribe/
+: ... [Setup your configuration]
+: ~$ lein test
 
 * Run
 
@@ -28,28 +41,18 @@ Add these variable environments:
 
 : ~$ git clone https://github.com/etalab/subscribe
 : ~$ cd subscribe/
+: ... [Setup your configuration]
 : ~$ lein run
 
-Then go to http://localhost:4321.
+Then go to http://localhost:3000
 
 ** With =java -jar=
 
 : ~$ git clone https://github.com/etalab/subscribe
 : ~$ cd subscribe/
+: ... [Setup your configuration]
 : ~$ lein uberjar
 : ~$ java -jar target/subscribe-x.x.x-standalone.jar
-
-** Changing the environment variables
-
-To use a different port:
-
-: ~$ SUBSCRIBE_PORT="1234" lein run
-
-will run the application at http://localhost:1234
-
-: ~$ SUBSCRIBE_PORT="1234" java -jar subscribe-x.x.x-standalone.jar
-
-will do the same while running the application from a jar file.
 
 * Todo
 

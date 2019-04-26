@@ -36,10 +36,10 @@
    :spit    (appenders/spit-appender {:fname (config/log-file)})
    :postal  (postal-appender/postal-appender ;; :min-level :warn
              ^{:host config/mailgun-host
-               :user (config/mailgun-login)
-               :pass (config/mailgun-password)}
-             {:from (config/mailgun-from)
-              :to   (config/admin-email)})}})
+               :user config/mailgun-login
+               :pass config/mailgun-password}
+             {:from config/mailgun-from
+              :to   config/admin-email})}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Create db and connect to it
@@ -96,7 +96,7 @@
   []
   (let [req  (http/get
               (str config/mailgun-api-url config/mailgun-lists-endpoint)
-              {:basic-auth ["api" (config/mailgun-api-key)]})
+              {:basic-auth ["api" config/mailgun-api-key]})
         body (json/parse-string (:body req) true)]
     (:items body)))
 
@@ -130,9 +130,9 @@
     (postal/send-message
      {:host config/mailgun-host
       :port 587
-      :user (config/mailgun-login)
-      :pass (config/mailgun-password)}
-     {:from    (config/mailgun-from)
+      :user config/mailgun-login
+      :pass config/mailgun-password}
+     {:from    config/mailgun-from
       :to      email
       :subject subject
       :body    body})
@@ -151,7 +151,7 @@
     (send-email
      {:email   subscriber
       :subject (format (i18n [:confirm-subscription]) mailing-list)
-      :body    (format "%s/confirm/%s" (config/base-url) token)
+      :body    (format "%s/confirm/%s" config/base-url token)
       :log     (format (i18n [:validation-sent-to]) subscriber)})))
 
 (defn subscribe-address
@@ -161,7 +161,7 @@
     (let [req (http/post
                (str config/mailgun-api-url
                     (config/mailgun-subscribe-endpoint mailing-list))
-               {:basic-auth  ["api" (config/mailgun-api-key)]
+               {:basic-auth  ["api" config/mailgun-api-key]
                 :form-params {:address subscriber}})]
       {:message (:message (json/parse-string (:body req) true))
        :result  "SUBSCRIBED"})
@@ -179,7 +179,7 @@
     (try
       (let [req  (http/get
                   (str config/mailgun-api-url endpoint "/" subscriber)
-                  {:basic-auth ["api" (config/mailgun-api-key)]})
+                  {:basic-auth ["api" config/mailgun-api-key]})
             body (json/parse-string (:body req) true)]
         (:subscribed (:member body)))
       (catch Exception e false))))
@@ -259,4 +259,5 @@
   (start-confirmation-loop)
   (store-lists-information)
   (http-kit/run-server
-   #'app {:port (Integer/parseInt (config/port))}))
+   #'app {:port config/port}))
+
