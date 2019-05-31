@@ -87,6 +87,7 @@
      [:div {:class "container"}
       [:form
        {:action "/unsubscribe" :method "post"}
+       (afu/anti-forgery-field)
        [:input {:name  "mailing-list" :type "hidden"
                 :value address}]
        [:label {:class "label"} email-ui]
