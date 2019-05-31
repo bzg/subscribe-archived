@@ -23,7 +23,9 @@
      [:div {:class "hero-body"}
       [:div {:class "container"}
        [:h1 {:class "title has-text-centered"} title]]]]
-    [:section {:class "section"} content]]
+    [:section {:class "section"}
+     [:div {:class "column is-8 is-offset-2"}
+      content]]]
    [:footer {:class "footer"}
     [:div {:class "content has-text-centered"}
      [:p "Made with " [:a {:href   "https://github.com/bzg/subscribe"
@@ -53,51 +55,50 @@
          (i18n [:go-unsubscribe-page])]]])]))
 
 (defn subscribe-to-mailing-list [address]
-  (default
-   address
-   [:div {:class "container"}
-    [:div {:class "column is-8 is-offset-2"}
-     [:form
-      {:action "/subscribe" :method "post"}
-      (afu/anti-forgery-field)
-      [:input {:name  "mailing-list" :type "hidden"
-               :value address}]
-      [:label {:class "label"} (i18n [:name])]
-      [:input {:name        "name" :type  "text"
-               :size        "30"   :class "input"
-               :placeholder (i18n [:first-name])}]
-      [:br]
-      [:br]
-      [:label {:class "label"} (i18n [:email-address])]
-      [:input {:name        "subscriber" :type  "email"
-               :size        "30"         :class "input"
-               :placeholder (i18n [:email-address])
-               :required    true}]
-      [:br]
-      [:br]
-      [:input {:type  "submit"
-               :value (i18n [:subscribe])
-               :class "button is-link"}]]]]))
+  (let [email-ui (i18n [:email-address])
+        name-ui  (i18n [:name])]
+    (default
+     address
+     [:div {:class "container"}
+      [:form
+       {:action "/subscribe" :method "post"}
+       (afu/anti-forgery-field)
+       [:input {:name  "mailing-list" :type "hidden"
+                :value address}]
+       [:label {:class "label"} name-ui]
+       [:input {:name        "name" :type  "text"
+                :size        "30"   :class "input"
+                :placeholder name-ui}]
+       [:br]
+       [:br]
+       [:label {:class "label"} email-ui]
+       [:input {:name        "subscriber" :type     "email"
+                :size        "30"         :class    "input"
+                :placeholder email-ui     :required true}]
+       [:br]
+       [:br]
+       [:input {:type  "submit"
+                :value (i18n [:subscribe])
+                :class "button is-link"}]]])))
 
 (defn unsubscribe-to-mailing-list [address]
-  (default
-   address
-   [:div {:class "container"}
-    [:div {:class "column is-8 is-offset-2"}
-     [:form
-      {:action "/unsubscribe" :method "post"}
-      [:input {:name  "mailing-list" :type "hidden"
-               :value address}]
-      [:label {:class "label"} (i18n [:email-address])]
-      [:input {:name        "subscriber" :type  "email"
-               :size        "30"         :class "input"
-               :placeholder (i18n [:email-address])
-               :required    true}]
-      [:br]
-      [:br]
-      [:input {:type  "submit"
-               :value (i18n [:unsubscribe])
-               :class "button is-danger"}]]]]))
+  (let [email-ui (i18n [:email-address])]
+    (default
+     address
+     [:div {:class "container"}
+      [:form
+       {:action "/unsubscribe" :method "post"}
+       [:input {:name  "mailing-list" :type "hidden"
+                :value address}]
+       [:label {:class "label"} email-ui]
+       [:input {:name        "subscriber" :type     "email"
+                :size        "30"         :class    "input"
+                :placeholder email-ui     :required true}]
+       [:br]
+       [:br]
+       [:input {:type  "submit"
+                :value (i18n [:unsubscribe])
+                :class "button is-danger"}]]])))
 
 (defn feedback [title message]
   (default
@@ -105,5 +106,3 @@
    [:div {:class "container"}
     [:p {:class "subtitle"} message]
     [:p [:a {:href config/return-url} (i18n [:return-to-site])]]]))
-
-
