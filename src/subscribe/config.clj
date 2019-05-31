@@ -33,7 +33,7 @@
 (def port (or (:port (config)) 3000))
 (def base-url (or (:base-url (config)) (str "http://localhost:" port)))
 (def return-url (or (:return-url (config)) base-url))
-(def warn-every-x-subscribers (:warn-every-x-subscribers (config)))
+(def warn-every-x-subscribers (or (:warn-every-x-subscribers (config)) 100))
 (def lists-exclude-regexp (or (:lists-exclude-regexp (config)) #""))
 (def lists-include-regexp (or (:lists-include-regexp (config)) #".*"))
 (def db-uri (or (not-empty (:db-uri (config))) "datahike:mem:///subscribe"))
