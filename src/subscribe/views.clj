@@ -16,7 +16,7 @@
      [:title (i18n [:title])]
      [:meta {:charset "utf-8"}]
      [:meta {:name "viewport" :content "width=device-width, initial-scale=1, shrink-to-fit=yes"}]
-     (h/include-css "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css")]
+     (h/include-css "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css")]
     [:body
      [:section {:class "section"}
       [:div {:class "container"}
