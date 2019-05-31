@@ -68,7 +68,7 @@
 
 (defn create-action-token
   "Create a token in the database for a subscriber/mailing-list."
-  [token subscriber mailing-list]
+  [token subscriber name mailing-list]
   (let [subscribers (d/q `[:find ?e :where [?e :subscriber ~subscriber]] @db-conn)]
     (if-not (empty? subscribers)
       (do @(d/transact db-conn [[:db.fn/retractEntity (ffirst subscribers)]])
@@ -76,6 +76,7 @@
            (format (i18n [:regenerate-token]) subscriber mailing-list))))
     @(d/transact db-conn [{:db/id        (d/tempid -1)
                            :token        token
+                           :name         name
                            :subscriber   subscriber
                            :mailing-list mailing-list}])))
 
@@ -85,9 +86,9 @@
   (let [eids (d/q `[:find ?e :where [?e :token ~token]] @db-conn)
         eid  (ffirst eids)]
     (when eid
-      (let [infos (d/pull @db-conn '[:subscriber :mailing-list] eid)]
+      (let [infos (d/pull @db-conn '[:subscriber :name :mailing-list] eid)]
         @(d/transact db-conn [[:db.fn/retractEntity eid]])
-        ;; Return {:subscriber "..." :mailing-list "..."}
+        ;; Return {:subscriber "..." :mailing-list "..." :name "..."}
         infos))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -118,10 +119,6 @@
                   (first %))
          lists)))
 
-;; FIXME: unused yet
-;; (defn get-list-from-db [address]
-;;   (first (filter #(= (:address %) address) (get-lists-from-db))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email sending
 
@@ -146,10 +143,11 @@
   "Create a validation link and send it by email."
   [email-and-list & unsubscribe?]
   (let [subscriber   (get email-and-list "subscriber")
+        name         (or (get email-and-list "name") "")
         mailing-list (get email-and-list "mailing-list")
         token        (.toString (java.util.UUID/randomUUID))]
     ;; FIXME: check email format
-    (create-action-token token subscriber mailing-list)
+    (create-action-token token subscriber name mailing-list)
     (send-email
      {:email   subscriber
       :subject (format (i18n (if unsubscribe?
@@ -178,13 +176,13 @@
 
 (defn subscribe-address
   "Perform the actual email subscription to the mailing list."
-  [{:keys [subscriber mailing-list]}]
+  [{:keys [subscriber name mailing-list]}]
   (try
     (let [req (http/post
                (str config/mailgun-api-url
                     (config/mailgun-subscribe-endpoint mailing-list))
                {:basic-auth  ["api" config/mailgun-api-key]
-                :form-params {:address subscriber}})]
+                :form-params {:address subscriber :name name}})]
       {:message (:message (json/parse-string (:body req) true))
        :result  "SUBSCRIBED"})
     (catch Exception e
@@ -212,6 +210,7 @@
   [token]
   (when-let [infos (validate-token token)]
     (let [result       (subscribe-address infos)
+          name         (:name infos)
           subscriber   (:subscriber infos)
           mailing-list (:mailing-list infos)]
       (if-not (= (:result result) "SUBSCRIBED")

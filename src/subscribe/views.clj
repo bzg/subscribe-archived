@@ -55,39 +55,47 @@
   (default
    address
    [:div {:class "container"}
-    [:form
-     {:action "/subscribe" :method "post"}
-     [:input {:name  "mailing-list" :type "hidden"
-              :value address}]
-     [:label {:class "label"} (i18n [:email-address])]
-     [:input {:name        "subscriber" :type  "email"
-              :size        "30"         :class "input"
-              :placeholder (i18n [:email-address])
-              :required    true}]
-     [:br]
-     [:br]
-     [:input {:type  "submit"
-              :value (i18n [:subscribe])
-              :class "button is-primary"}]]]))
+    [:div {:class "column is-8 is-offset-2"}
+     [:form
+      {:action "/subscribe" :method "post"}
+      [:input {:name  "mailing-list" :type "hidden"
+               :value address}]
+      [:label {:class "label"} (i18n [:name])]
+      [:input {:name        "name" :type  "text"
+               :size        "30"   :class "input"
+               :placeholder (i18n [:first-name])}]
+      [:br]
+      [:br]
+      [:label {:class "label"} (i18n [:email-address])]
+      [:input {:name        "subscriber" :type  "email"
+               :size        "30"         :class "input"
+               :placeholder (i18n [:email-address])
+               :required    true}]
+      [:br]
+      [:br]
+      [:input {:type  "submit"
+               :value (i18n [:subscribe])
+               :class "button is-link"}]]]]))
 
 (defn unsubscribe-to-mailing-list [address]
   (default
    address
    [:div {:class "container"}
-    [:form
-     {:action "/unsubscribe" :method "post"}
-     [:input {:name  "mailing-list" :type "hidden"
-              :value address}]
-     [:label {:class "label"} (i18n [:email-address])]
-     [:input {:name        "subscriber" :type  "email"
-              :size        "30"         :class "input"
-              :placeholder (i18n [:email-address])
-              :required    true}]
-     [:br]
-     [:br]
-     [:input {:type  "submit"
-              :value (i18n [:unsubscribe])
-              :class "button is-primary"}]]]))
+    [:div {:class "column is-8 is-offset-2"}
+     [:form
+      {:action "/unsubscribe" :method "post"}
+      [:input {:name  "mailing-list" :type "hidden"
+               :value address}]
+      [:label {:class "label"} (i18n [:email-address])]
+      [:input {:name        "subscriber" :type  "email"
+               :size        "30"         :class "input"
+               :placeholder (i18n [:email-address])
+               :required    true}]
+      [:br]
+      [:br]
+      [:input {:type  "submit"
+               :value (i18n [:unsubscribe])
+               :class "button is-danger"}]]]]))
 
 (defn feedback [title message]
   (default
