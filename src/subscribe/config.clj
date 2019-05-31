@@ -31,6 +31,8 @@
 (def base-url (:base-url (config)))
 (def return-url (:return-url (config)))
 (def warn-every-x-subscribers (:warn-every-x-subscribers (config)))
+(def lists-exclude-regexp (or (:lists-exclude-regexp (config)) #""))
+(def lists-include-regexp (or (:lists-include-regexp (config)) #".*"))
 
 (defn db-uri
   "The db URI for datahike."

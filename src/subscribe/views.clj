@@ -6,6 +6,7 @@
 (ns subscribe.views
   (:require [hiccup.page :as h]
             [hiccup.element :as he]
+            [ring.util.anti-forgery :as afu]
             [subscribe.i18n :refer [i18n]]
             [subscribe.config :as config]))
 
@@ -58,6 +59,7 @@
     [:div {:class "column is-8 is-offset-2"}
      [:form
       {:action "/subscribe" :method "post"}
+      (afu/anti-forgery-field)
       [:input {:name  "mailing-list" :type "hidden"
                :value address}]
       [:label {:class "label"} (i18n [:name])]

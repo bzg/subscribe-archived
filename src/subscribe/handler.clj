@@ -103,7 +103,7 @@
         body (json/parse-string (:body req) true)]
     (:items body)))
 
-(defn store-lists-information
+(defn initialize-lists-information
   "Store lists information in the db."
   []
   (let [lists (get-lists-from-server)]
@@ -115,9 +115,15 @@
 (defn get-lists-from-db []
   (let [lists (d/q '[:find ?e :where [?e :description]] @db-conn)]
     (map #(d/pull @db-conn '[:address :description
-                             :name :members_count :members_new]
+                             :name :members_count
+                             :members_new]
                   (first %))
          lists)))
+
+(defn get-lists-filtered [lists]
+  (->> lists
+       (filter #(not (re-matches config/lists-exclude-regexp (:address %))))
+       (filter #(re-matches config/lists-include-regexp (:address %)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email sending
@@ -283,7 +289,7 @@
 ;;; Application routes
 
 (defroutes app-routes
-  (GET "/" [] (views/mailing-lists (get-lists-from-db)))
+  (GET "/" [] (views/mailing-lists (get-lists-filtered (get-lists-from-db))))
   (GET "/already-subscribed" []
        (views/feedback (i18n [:error]) (i18n [:already-subscribed])))
   (GET "/not-subscribed" []
@@ -316,13 +322,12 @@
   (route/not-found (views/error)))
 
 (def app (-> app-routes
-             (wrap-defaults (assoc site-defaults
-                                   :security {:anti-forgery false}))
+             (wrap-defaults site-defaults)
              params/wrap-params
              wrap-reload))
 
 (defn -main [& args]
-  (store-lists-information)
+  (initialize-lists-information)
   (start-subscription-loop)
   (start-unsubscription-loop)
   (start-subscribe-confirmation-loop)
