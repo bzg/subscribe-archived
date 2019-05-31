@@ -51,7 +51,7 @@
              :href  (str "/unsubscribe/" (:address l))}
          (i18n [:go-unsubscribe-page])]]])]))
 
-(defn mailing-list [address]
+(defn subscribe-to-mailing-list [address]
   (default
    address
    [:div {:class "container"}
@@ -68,6 +68,25 @@
      [:br]
      [:input {:type  "submit"
               :value (i18n [:subscribe])
+              :class "button is-primary"}]]]))
+
+(defn unsubscribe-to-mailing-list [address]
+  (default
+   address
+   [:div {:class "container"}
+    [:form
+     {:action "/unsubscribe" :method "post"}
+     [:input {:name  "mailing-list" :type "hidden"
+              :value address}]
+     [:label {:class "label"} (i18n [:email-address])]
+     [:input {:name        "subscriber" :type  "email"
+              :size        "30"         :class "input"
+              :placeholder (i18n [:email-address])
+              :required    true}]
+     [:br]
+     [:br]
+     [:input {:type  "submit"
+              :value (i18n [:unsubscribe])
               :class "button is-primary"}]]]))
 
 (defn feedback [title message]

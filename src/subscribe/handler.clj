@@ -50,20 +50,23 @@
   "Increment the count of new subscribers to a mailing list.
   Send an email every X new subscribers, X being defined by
   `config/warn-every-x-subscribers`."
-  [mailing-list]
+  [mailing-list & dec?]
   (let [count-id (ffirst (d/q `[:find ?c :where [?c :address ~mailing-list]] @db-conn))
         count    (:members_new (d/pull @db-conn '[:members_new] count-id))]
-    @(d/transact db-conn [{:db/id count-id :members_new (inc count)}])
-    (when (= (mod (inc count) config/warn-every-x-subscribers) 0)
+    @(d/transact db-conn [{:db/id count-id :members_new (if dec? (dec count) (inc count))}])
+    (when (and (not dec?) (= (mod (inc count) config/warn-every-x-subscribers) 0))
       (timbre/warn
        (format "%s subscribers added to %s"
                config/warn-every-x-subscribers
                mailing-list)))))
 
+(defn decrement-subscribers [mailing-list]
+  (increment-subscribers mailing-list true))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email token creation and validation
 
-(defn create-subscriber-token
+(defn create-action-token
   "Create a token in the database for a subscriber/mailing-list."
   [token subscriber mailing-list]
   (let [subscribers (d/q `[:find ?e :where [?e :subscriber ~subscriber]] @db-conn)]
@@ -141,17 +144,37 @@
 
 (defn send-validation-link
   "Create a validation link and send it by email."
-  [email-and-list]
+  [email-and-list & unsubscribe?]
   (let [subscriber   (get email-and-list "subscriber")
         mailing-list (get email-and-list "mailing-list")
         token        (.toString (java.util.UUID/randomUUID))]
     ;; FIXME: check email format
-    (create-subscriber-token token subscriber mailing-list)
+    (create-action-token token subscriber mailing-list)
     (send-email
      {:email   subscriber
-      :subject (format (i18n [:confirm-subscription]) mailing-list)
-      :body    (format "%s/confirm/%s" config/base-url token)
+      :subject (format (i18n (if unsubscribe?
+                               [:confirm-unsubscription]
+                               [:confirm-subscription])) mailing-list)
+      :body    (format (str "%s/confirm-"
+                            (if unsubscribe? "un")
+                            "subscription/%s") config/base-url token)
       :log     (format (i18n [:validation-sent-to]) subscriber)})))
+
+(defn unsubscribe-address
+  "Perform the actual email unsubscription to the mailing list."
+  [{:keys [subscriber mailing-list]}]
+  (try
+    (let [req (http/delete
+               (str config/mailgun-api-url
+                    (config/mailgun-subscribe-endpoint mailing-list)
+                    "/" subscriber)
+               {:basic-auth ["api" config/mailgun-api-key]})]
+      {:message (:message (json/parse-string (:body req) true))
+       :result  "UNSUBSCRIBED"})
+    (catch Exception e
+      (let [message (:message (json/parse-string (:body (ex-data e)) true))]
+        {:message message
+         :result  "ERROR"}))))
 
 (defn subscribe-address
   "Perform the actual email subscription to the mailing list."
@@ -200,10 +223,30 @@
               :body    (i18n [:thanks])
               :log     (format (i18n [:confirmation-sent-to]) subscriber)}))))))
 
+(defn unsubscribe-and-send-confirmation
+  "Unsubscribe an email address from a mailing list.
+  Send confirmation email."
+  [token]
+  (when-let [infos (validate-token token)]
+    (let [result       (unsubscribe-address infos)
+          subscriber   (:subscriber infos)
+          mailing-list (:mailing-list infos)]
+      (if-not (= (:result result) "UNSUBSCRIBED")
+        (timbre/info (:message result))
+        (do (decrement-subscribers mailing-list)
+            (send-email
+             {:email   subscriber
+              :subject mailing-list
+              :body    (i18n [:bye])
+              :log     (format (i18n [:confirmation-sent-to]) subscriber)}))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Define async channels
 
 (def subscribe-channel (async/chan 10))
+(def unsubscribe-channel (async/chan 10))
+(def subscribe-confirmation-channel (async/chan 10))
+(def unsubscribe-confirmation-channel (async/chan 10))
 
 (defn start-subscription-loop
   "Intercept subscription requests and send validation links."
@@ -213,15 +256,29 @@
       (send-validation-link req)        
       (recur (async/<! subscribe-channel)))))
 
-(def confirm-channel (async/chan 10))
+(defn start-unsubscription-loop
+  "Intercept unsubscription requests and send validation links."
+  []
+  (async/go
+    (loop [req (async/<! unsubscribe-channel)]
+      (send-validation-link req true)        
+      (recur (async/<! unsubscribe-channel)))))
 
-(defn start-confirmation-loop
+(defn start-subscribe-confirmation-loop
   "Intercept confirmations and send confirmation emails."
   []
   (async/go
-    (loop [token (async/<! confirm-channel)]
+    (loop [token (async/<! subscribe-confirmation-channel)]
       (subscribe-and-send-confirmation token)
-      (recur (async/<! confirm-channel)))))
+      (recur (async/<! subscribe-confirmation-channel)))))
+
+(defn start-unsubscribe-confirmation-loop
+  "Intercept confirmations and send confirmation emails."
+  []
+  (async/go
+    (loop [token (async/<! unsubscribe-confirmation-channel)]
+      (unsubscribe-and-send-confirmation token)
+      (recur (async/<! unsubscribe-confirmation-channel)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Application routes
@@ -230,34 +287,47 @@
   (GET "/" [] (views/mailing-lists (get-lists-from-db)))
   (GET "/already-subscribed" []
        (views/feedback (i18n [:error]) (i18n [:already-subscribed])))
+  (GET "/not-subscribed" []
+       (views/feedback (i18n [:error]) (i18n [:not-subscribed])))
   (GET "/email-sent" []
        (views/feedback (i18n [:thanks]) (i18n [:validation-sent])))
   (GET "/thanks" []
        (views/feedback (i18n [:done]) (i18n [:successful-subscription])))
-  (GET "/subscribe/:address" [address] (views/mailing-list address))
-  (GET "/unsubscribe/:address" [address] (views/mailing-list address))
+  (GET "/bye" []
+       (views/feedback (i18n [:done]) (i18n [:successful-unsubscription])))
+  (GET "/subscribe/:address" [address] (views/subscribe-to-mailing-list address))
+  (GET "/unsubscribe/:address" [address] (views/unsubscribe-to-mailing-list address))
   (POST "/subscribe" req
         (if (check-already-subscribed (:form-params req))
           (response/redirect "/already-subscribed")
           (do (async/go (async/>! subscribe-channel (:form-params req)))
               (response/redirect "/email-sent"))))
-  (GET "/confirm/:token" [token]
-       (do (async/go (async/>! confirm-channel token))
+  (POST "/unsubscribe" req
+        (if-not (check-already-subscribed (:form-params req))
+          (response/redirect "/not-subscribed")
+          (do (async/go (async/>! unsubscribe-channel (:form-params req)))
+              (response/redirect "/email-sent"))))
+  (GET "/confirm-subscription/:token" [token]
+       (do (async/go (async/>! subscribe-confirmation-channel token))
            (response/redirect "/thanks")))
+  (GET "/confirm-unsubscription/:token" [token]
+       (do (async/go (async/>! unsubscribe-confirmation-channel token))
+           (response/redirect "/bye")))
   (route/resources "/")
   (route/not-found (views/error)))
 
 (def app (-> app-routes
-             
              (wrap-defaults (assoc site-defaults
                                    :security {:anti-forgery false}))
              params/wrap-params
              wrap-reload))
 
 (defn -main [& args]
-  (start-subscription-loop)
-  (start-confirmation-loop)
   (store-lists-information)
+  (start-subscription-loop)
+  (start-unsubscription-loop)
+  (start-subscribe-confirmation-loop)
+  (start-unsubscribe-confirmation-loop)
   (http-kit/run-server
    #'app {:port config/port})
   (println "Subscribe application started"))

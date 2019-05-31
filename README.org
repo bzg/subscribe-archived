@@ -57,18 +57,17 @@ Then go to http://localhost:3000
 * Todo
 
 - [ ] Add first and last name when subscribing
-- [ ] Use better routes
-- [ ] Add unsubscribe link
 - [ ] Add authentication tests at init time
 - [ ] Better exception handling in config
 - [ ] Use antiforgery token
 - [ ] Check email formatting
 - [ ] Check environment variables format
+- [ ] Catch errors before redirecting to confirmation page
 - [ ] Enhance UI strings (again)
 - [ ] Enhance 404 page
 - [ ] Don't use wrap-reload in prod
-- [ ] Update README.org
 - [ ] Allow to configure UI strings
+- [ ] Update README.org
 
 * Support the Clojure ecosystem
 
