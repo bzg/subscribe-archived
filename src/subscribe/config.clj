@@ -25,6 +25,7 @@
 (defn mailgun-subscribe-endpoint [list]
   (str "/lists/" list "/members"))
 
+(def locale (:locale (config)))
 (def port (:port (config)))
 (def admin-email (:admin-email (config)))
 (def base-url (:base-url (config)))

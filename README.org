@@ -56,7 +56,6 @@ Then go to http://localhost:3000
 
 * Todo
 
-- [ ] Add hero in home page
 - [ ] Use buttons for links in home page
 - [ ] Add first and last name when subscribing
 - [ ] Add unsubscribe link

@@ -9,28 +9,30 @@
             [subscribe.i18n :refer [i18n]]
             [subscribe.config :as config]))
 
-(defmacro default [title content]
-  `(h/html5
-    {:lang "fr"}
-    [:head
-     [:title (i18n [:title])]
-     [:meta {:charset "utf-8"}]
-     [:meta {:name "viewport" :content "width=device-width, initial-scale=1, shrink-to-fit=yes"}]
-     (h/include-css "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css")]
-    [:body
-     [:section {:class "section"}
+(defn default [title content]
+  (h/html5
+   {:lang config/locale}
+   [:head
+    [:title (i18n [:title])]
+    [:meta {:charset "utf-8"}]
+    [:meta {:name "viewport" :content "width=device-width, initial-scale=1, shrink-to-fit=yes"}]
+    (h/include-css "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css")]
+   [:body
+    [:section {:class "hero is-primary"}
+     [:div {:class "hero-body"}
       [:div {:class "container"}
-       [:h1 {:class "title"} ~title]]]
-     [:section {:class "section"} ~content]]
-    [:footer {:class "footer"}
-     [:div {:class "content has-text-centered"}
-      [:p "Made with Subscribe"]]]))
+       [:h1 {:class "title has-text-centered"} title]]]]
+    [:section {:class "section"} content]]
+   [:footer {:class "footer"}
+    [:div {:class "content has-text-centered"}
+     [:p "Made with " [:a {:href   "https://github.com/bzg/subscribe"
+                           :target "new"} "Subscribe"]]]]))
 
 (defn error []
   (default
    (i18n [:error])
-   `[:div {:class "container"}
-     [:p [:a {:href ~config/return-url} ~(i18n [:return-to-site])]]]))
+   [:div {:class "container"}
+    [:p [:a {:href config/return-url} (i18n [:return-to-site])]]]))
 
 (defn mailing-lists [lists]
   (default
