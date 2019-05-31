@@ -21,7 +21,8 @@
                  [com.taoensso/tempura "1.2.1"]
                  [io.replikativ/datahike "0.2.0-beta"]
                  [com.draines/postal "2.0.3"]
-                 [com.taoensso/timbre "4.10.0"]]
+                 [com.taoensso/timbre "4.10.0"]
+                 [commons-validator "1.6"]]
   :description "Subscribe to a mailgun mailing list."
   :main subscribe.handler
   :profiles {:uberjar {:aot :all}})
