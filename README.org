@@ -56,23 +56,27 @@ Then go to http://localhost:3000
 
 * Todo
 
-- Better exception handling in config
-- Add authentication tests at init time
-- Add first and last name when subscribing
-- Add unsubscribe link
-- Use antiforgery token
-- Check email formatting
-- Check environment variables format
-- Enhance UI strings (again)
-- Enhance 404 page
-- Allow to configure UI strings
-- Update README.org
-- Don't use wrap-reload in prod
+- [ ] Add hero in home page
+- [ ] Use buttons for links in home page
+- [ ] Add first and last name when subscribing
+- [ ] Add unsubscribe link
+- [ ] Add authentication tests at init time
+- [ ] Better exception handling in config
+- [ ] Use antiforgery token
+- [ ] Check email formatting
+- [ ] Check environment variables format
+- [ ] Enhance UI strings (again)
+- [ ] Enhance 404 page
+- [ ] Don't use wrap-reload in prod
+- [ ] Update README.org
+- [ ] Allow to configure UI strings
 
 * Support the Clojure ecosystem
 
-If you like Clojure, please consider supporting Clojure developers by
-donating to [[https://www.clojuriststogether.org][clojuriststogether.org]].  Thanks!
+If you like Clojure(script), please consider supporting its
+development developers by donating to [[https://www.clojuriststogether.org][clojuriststogether.org]].
+
+Thanks!
 
 * License
 
