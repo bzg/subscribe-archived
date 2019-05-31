@@ -4,11 +4,10 @@
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
 (defproject
-  subscribe "0.1.2"
+  subscribe "0.1.3"
   :url "https://github.com/etalab/subscribe"
   :license {:name "Eclipse Public License v2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
-  :plugins [[lein-ancient "0.6.14"]]
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/core.async "0.4.490"
                   :exclusions [org.clojure/tools.reader]]
@@ -18,11 +17,10 @@
                  [ring/ring-defaults "0.3.2"]
                  [http-kit "2.3.0"]
                  [cheshire "5.8.1"]
-                 [clj-http "3.9.1"]
+                 [clj-http "3.10.0"]
                  [com.taoensso/tempura "1.2.1"]
-                 [io.replikativ/datahike "0.1.3"]
+                 [io.replikativ/datahike "0.2.0-beta"]
                  [com.draines/postal "2.0.3"]
-                 [cheshire "5.8.1"]
                  [com.taoensso/timbre "4.10.0"]]
   :description "Subscribe to a mailgun mailing list."
   :main subscribe.handler
