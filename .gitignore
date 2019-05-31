@@ -1,3 +1,4 @@
 .nrepl-port
 target/
 .lein-repl-history
+log.txt
