@@ -14,4 +14,5 @@
  :log-file                 ""                 ; optional, e.g. "my-log-file.txt"
  :lists-exclude-regexp     nil                ; nil or a regexp to exclude matching lists
  :lists-include-regexp     nil                ; nil or a regexp to include matching lists
- :warn-every-x-subscribers 10}     ; optional, an integer
+ :warn-every-x-subscribers 10                 ; optional, an integer
+ :ui-strings               {:thanks "Thank you very much!"}} ; override i18n UI strings
