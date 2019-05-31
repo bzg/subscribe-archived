@@ -4,7 +4,6 @@
 
 (ns subscribe.handler
   (:require [org.httpkit.server :as http-kit]
-            [ring.middleware.reload :refer [wrap-reload]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.params :as params]
             [ring.util.response :as response]
@@ -323,8 +322,7 @@
 
 (def app (-> app-routes
              (wrap-defaults site-defaults)
-             params/wrap-params
-             wrap-reload))
+             params/wrap-params))
 
 (defn -main [& args]
   (initialize-lists-information)
