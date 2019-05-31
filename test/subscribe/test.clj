@@ -22,6 +22,7 @@
   (testing "Checking mailgun connection and existing list(s)."
     (is (boolean (not-empty (get-lists-from-server))))))
 
+;; Mandatory configuration keys
 (s/def ::mailgun-api-key string?)
 (s/def ::mailgun-login string?)
 (s/def ::mailgun-password string?)
@@ -29,13 +30,15 @@
 (s/def ::base-url valid-url?)
 (s/def ::return-url valid-url?)
 (s/def ::admin-email string?)
-(s/def ::locale string?)
+
+;; Optional configuration keys
 (s/def ::port int?)
-(s/def ::db-uri string?)
-(s/def ::log-file string?)
+(s/def ::locale string?)
+(s/def ::db-uri (s/nilable string?))
+(s/def ::log-file (s/nilable string?))
 (s/def ::lists-exclude-regexp (s/nilable regexp?))
 (s/def ::lists-include-regexp (s/nilable regexp?))
-(s/def ::warn-every-x-subscribers int?)
+(s/def ::warn-every-x-subscribers (s/nilable int?))
 
 (s/def ::config
   (s/keys :req-un [::mailgun-api-key
