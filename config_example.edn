@@ -7,6 +7,7 @@
  :base-url                 "https://site.com" ; fall back to http://localhost[:port]
  :return-url               "https://site.com" ; fall back to base-url
  ;; Optional keys
+ :team                     "My company"
  :locale                   "en-GB"            ; or "fr-FR" etc.
  :port                     3000               ; must be an integer
  :db-uri                   ""                 ; optional, e.g. "datahike:mem:///your-db"

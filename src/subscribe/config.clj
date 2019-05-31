@@ -27,8 +27,10 @@
 
 ;;Configuration from your config file
 (def locale (:locale (config)))
-(def port (or (:port (config)) 3000))
+(def ui-strings (:ui-strings (config)))
+(def team (:team (config)))
 (def admin-email (:admin-email (config)))
+(def port (or (:port (config)) 3000))
 (def base-url (or (:base-url (config)) (str "http://localhost:" port)))
 (def return-url (or (:return-url (config)) base-url))
 (def warn-every-x-subscribers (:warn-every-x-subscribers (config)))

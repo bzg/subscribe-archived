@@ -7,8 +7,8 @@ webpages where users can (un)subscribe (from)to your mailing lists.
 
 * Configure
 
-1. Set =SUBSCRIBE_CONFIG= in your =~/.profile= file to the path of your
-   configuration file.
+1. Set =SUBSCRIBE_CONFIG= in your =~/.profile= file (or any other relevant
+   file) to the path of your configuration file.
 
 2. Add a configuration in this configuration file:
 
@@ -20,6 +20,7 @@ webpages where users can (un)subscribe (from)to your mailing lists.
 :  :admin-email              "your@email.com"
 :  :base-url                 "http://yoursite.com"
 :  :return-url               "https://yoursite.com"
+:  :team                     "Your team name"
 :  :port                     3000 ; must be an integer
 :  :db-uri                   ""   ; optional
 :  :log-file                 ""   ; optional 
@@ -46,7 +47,7 @@ application.
 : ... [Setup your configuration]
 : ~$ lein run
 
-Then go to http://localhost:3000
+Then go to http://localhost:3000 or to your custom base URL.
 
 ** With =java -jar=
 
@@ -58,11 +59,7 @@ Then go to http://localhost:3000
 
 * Todo
 
-- [ ] Enhance UI strings
-- [ ] Enhance the 404 page
-- [ ] Catch errors before redirecting to confirmation page
-- [ ] Allow to configure UI strings
-- [ ] Update README.org
+- [ ] Catch errors before redirecting to the confirmation pages
 
 * Support the Clojure ecosystem
 

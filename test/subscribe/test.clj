@@ -38,6 +38,7 @@
 ;; Optional configuration keys
 (s/def ::port int?)
 (s/def ::locale string?)
+(s/def ::team string?)
 (s/def ::db-uri (s/nilable string?))
 (s/def ::log-file (s/nilable string?))
 (s/def ::lists-exclude-regexp (s/nilable regexp?))
@@ -53,6 +54,7 @@
                    ::return-url
                    ::admin-email]
           :opt-un [::locale
+                   ::team
                    ::log-file
                    ::port
                    ::db-uri

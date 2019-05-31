@@ -38,7 +38,7 @@
 
 (defn mailing-lists [lists]
   (default
-   (i18n [:mailing-lists])
+   (or config/team (i18n [:mailing-lists]))
    [:div {:class "container"}
     (for [l lists]
       [:div {:style "margin: 1.4em;"}
@@ -48,10 +48,10 @@
        [:div {:class "level-left"}
         [:a {:class "level-item button is-link"
              :href  (str "/subscribe/" (:address l))}
-         (i18n [:go-subscribe-page])]
+         (i18n [:subscribe-button])]
         [:a {:class "level-item button is-danger"
              :href  (str "/unsubscribe/" (:address l))}
-         (i18n [:go-unsubscribe-page])]]])]))
+         (i18n [:unsubscribe-button])]]])]))
 
 (defn subscribe-to-mailing-list [address]
   (let [email-ui (i18n [:email-address])

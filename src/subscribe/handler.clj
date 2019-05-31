@@ -139,7 +139,10 @@
      {:from    config/mailgun-from
       :to      email
       :subject subject
-      :body    body})
+      :body    (str (i18n [:opening])
+                    "\n\n" body "\n\n"
+                    (i18n [:closing]) "\n\n"
+                    (format "-- \n%s" (or config/team config/return-url)))})
     (catch Exception e
       (timbre/error (ex-data e))))
   (timbre/info log))
@@ -158,9 +161,14 @@
       :subject (format (i18n (if unsubscribe?
                                [:confirm-unsubscription]
                                [:confirm-subscription])) mailing-list)
-      :body    (format (str "%s/confirm-"
-                            (if unsubscribe? "un")
-                            "subscription/%s") config/base-url token)
+      :body    (str
+                (format (i18n (if unsubscribe?
+                                [:confirm-unsubscription]
+                                [:confirm-subscription])) mailing-list)
+                ":\n"
+                (format (str "%s/confirm-"
+                             (if unsubscribe? "un")
+                             "subscription/%s") config/base-url token))
       :log     (format (i18n [:validation-sent-to]) subscriber)})))
 
 (defn unsubscribe-address
@@ -223,8 +231,8 @@
         (do (increment-subscribers mailing-list)
             (send-email
              {:email   subscriber
-              :subject mailing-list
-              :body    (i18n [:thanks])
+              :subject (format (i18n [:subscribed-to]) mailing-list)
+              :body    (format (i18n [:subscribed-message]) mailing-list)
               :log     (format (i18n [:confirmation-sent-to]) subscriber)}))))))
 
 (defn unsubscribe-and-send-confirmation
@@ -240,8 +248,8 @@
         (do (decrement-subscribers mailing-list)
             (send-email
              {:email   subscriber
-              :subject mailing-list
-              :body    (i18n [:bye])
+              :subject (format (i18n [:unsubscribed-from]) mailing-list)
+              :body    (format (i18n [:unsubscribed-message]) mailing-list)
               :log     (format (i18n [:confirmation-sent-to]) subscriber)}))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
