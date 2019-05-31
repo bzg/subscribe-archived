@@ -1,3 +1,7 @@
+;; Copyright (c) 2019 Bastien Guerry <bzg@bzg.fr>
+;; SPDX-License-Identifier: EPL-2.0
+;; License-Filename: LICENSES/EPL-2.0.txt
+
 (ns subscribe.test
   (:require [clojure.test :refer :all]
             [clojure.spec.alpha :as s]

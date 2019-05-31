@@ -3,14 +3,14 @@
  :mailgun-login            "postmaster@your.domain.com"
  :mailgun-password         "your_mailgun_password"
  :mailgun-from             "your_from_address"
- :admin-email              "your@email.com"
- :base-url                 "https://yoursite.com"
- :return-url               "https://yoursite.com"
+ :admin-email              "your@email.com" 
+ :base-url                 "https://site.com" ; fall back to http://localhost[:port]
+ :return-url               "https://site.com" ; fall back to base-url
  ;; Optional keys
- :locale                   "en-GB" ; or "fr-FR" etc.
- :port                     3000    ; must be an integer
- :db-uri                   ""      ; optional, e.g. "datahike:mem:///your-db"
- :log-file                 ""      ; optional, e.g. "my-log-file.txt"
- :lists-exclude-regexp     nil     ; nil or a regexp to exclude matching lists
- :lists-include-regexp     nil     ; nil or a regexp to include matching lists
+ :locale                   "en-GB"            ; or "fr-FR" etc.
+ :port                     3000               ; must be an integer
+ :db-uri                   ""                 ; optional, e.g. "datahike:mem:///your-db"
+ :log-file                 ""                 ; optional, e.g. "my-log-file.txt"
+ :lists-exclude-regexp     nil                ; nil or a regexp to exclude matching lists
+ :lists-include-regexp     nil                ; nil or a regexp to include matching lists
  :warn-every-x-subscribers 10}     ; optional, an integer

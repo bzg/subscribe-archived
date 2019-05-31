@@ -31,7 +31,7 @@
   :output-fn (partial timbre/default-output-fn {:stacktrace-fonts {}})
   :appenders
   {:println (timbre/println-appender {:stream :auto})
-   :spit    (appenders/spit-appender {:fname (config/log-file)})
+   :spit    (appenders/spit-appender {:fname config/log-file})
    :postal  (postal-appender/postal-appender ;; :min-level :warn
              ^{:host config/mailgun-host
                :user config/mailgun-login
@@ -42,8 +42,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Create db and connect to it
 
-(d/create-database (config/db-uri))
-(def db-conn (d/connect (config/db-uri)))
+(d/create-database config/db-uri)
+(def db-conn (d/connect config/db-uri))
 
 (defn increment-subscribers
   "Increment the count of new subscribers to a mailing list.
