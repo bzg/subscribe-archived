@@ -57,6 +57,7 @@ Then go to http://localhost:3000
 * Todo
 
 - [ ] Add first and last name when subscribing
+- [ ] Allow to filter visible lists with a regexp filter
 - [ ] Add authentication tests at init time
 - [ ] Better exception handling in config
 - [ ] Use antiforgery token
