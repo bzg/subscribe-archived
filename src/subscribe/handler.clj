@@ -234,7 +234,8 @@
        (views/feedback (i18n [:thanks]) (i18n [:validation-sent])))
   (GET "/thanks" []
        (views/feedback (i18n [:done]) (i18n [:successful-subscription])))
-  (GET "/list/:address" [address] (views/mailing-list address))
+  (GET "/subscribe/:address" [address] (views/mailing-list address))
+  (GET "/unsubscribe/:address" [address] (views/mailing-list address))
   (POST "/subscribe" req
         (if (check-already-subscribed (:form-params req))
           (response/redirect "/already-subscribed")
@@ -247,10 +248,11 @@
   (route/not-found (views/error)))
 
 (def app (-> app-routes
+             
              (wrap-defaults (assoc site-defaults
                                    :security {:anti-forgery false}))
-             wrap-reload
-             params/wrap-params))
+             params/wrap-params
+             wrap-reload))
 
 (defn -main [& args]
   (start-subscription-loop)

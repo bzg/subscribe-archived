@@ -40,36 +40,41 @@
    [:div {:class "container"}
     (for [l lists]
       [:div {:style "margin: 1.4em;"}
-       [:p {:class "title"} (:name l)]
+       [:p {:title (:address l)
+            :class "title"} (:name l)]
        [:p {:class "subtitle"} (:description l)]
-       [:p (:address l)]
-       [:p [:a {:href (str "/list/" (:address l))}
-            (i18n [:go-subscription-page])]]])]))
+       [:div {:class "level-left"}
+        [:a {:class "level-item button is-link"
+             :href  (str "/subscribe/" (:address l))}
+         (i18n [:go-subscribe-page])]
+        [:a {:class "level-item button is-danger"
+             :href  (str "/unsubscribe/" (:address l))}
+         (i18n [:go-unsubscribe-page])]]])]))
 
 (defn mailing-list [address]
   (default
    address
-   `([:div {:class "container"}
-      [:form
-       {:action "/subscribe" :method "post"}
-       [:input {:name  "mailing-list" :type "hidden"
-                :value ~address}]
-       [:label {:class "label"} ~(i18n [:email-address])]
-       [:input {:name        "subscriber" :type  "email"
-                :size        "30"         :class "input"
-                :placeholder ~(i18n [:email-address])
-                :required    true}]
-       [:br]
-       [:br]
-       [:input {:type  "submit"
-                :value ~(i18n [:subscribe])
-                :class "button is-primary"}]]])))
+   [:div {:class "container"}
+    [:form
+     {:action "/subscribe" :method "post"}
+     [:input {:name  "mailing-list" :type "hidden"
+              :value address}]
+     [:label {:class "label"} (i18n [:email-address])]
+     [:input {:name        "subscriber" :type  "email"
+              :size        "30"         :class "input"
+              :placeholder (i18n [:email-address])
+              :required    true}]
+     [:br]
+     [:br]
+     [:input {:type  "submit"
+              :value (i18n [:subscribe])
+              :class "button is-primary"}]]]))
 
 (defn feedback [title message]
   (default
    title
-   `([:div {:class "container"}
-      [:p {:class "subtitle"} ~message]
-      [:p [:a {:href ~config/return-url} ~(i18n [:return-to-site])]]])))
+   [:div {:class "container"}
+    [:p {:class "subtitle"} message]
+    [:p [:a {:href config/return-url} (i18n [:return-to-site])]]]))
 
 

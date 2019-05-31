@@ -56,8 +56,8 @@ Then go to http://localhost:3000
 
 * Todo
 
-- [ ] Use buttons for links in home page
 - [ ] Add first and last name when subscribing
+- [ ] Use better routes
 - [ ] Add unsubscribe link
 - [ ] Add authentication tests at init time
 - [ ] Better exception handling in config
