@@ -4,5 +4,5 @@
 
 FROM java:8-alpine
 ENV SUBSCRIBE_CONFIG ${SUBSCRIBE_CONFIG}
-ADD target/subscribe-0.1.3-standalone.jar /subscribe/subscribe-0.1.3-standalone.jar
-CMD ["java", "-jar", "/subscribe/subscribe-0.1.3-standalone.jar"]
+ADD target/subscribe-0.2.0-standalone.jar /subscribe/subscribe-0.2.0-standalone.jar
+CMD ["java", "-jar", "/subscribe/subscribe-0.2.0-standalone.jar"]
