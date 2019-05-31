@@ -1,5 +1,4 @@
 ;; Copyright (c) 2019 Bastien Guerry <bzg@bzg.fr>
-
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
@@ -250,7 +249,6 @@
 (def app (-> app-routes
              (wrap-defaults (assoc site-defaults
                                    :security {:anti-forgery false}))
-             ;; (wrap-defaults site-defaults)
              wrap-reload
              params/wrap-params))
 
@@ -259,5 +257,5 @@
   (start-confirmation-loop)
   (store-lists-information)
   (http-kit/run-server
-   #'app {:port config/port}))
-
+   #'app {:port config/port})
+  (println "Subscribe application started"))
