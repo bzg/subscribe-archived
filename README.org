@@ -2,8 +2,9 @@
 
 * What it does?
 
-If you manage mailing lists through [[https://www.mailgun.com/][mailgun.com]], =Subscribe= creates
-webpages where users can (un)subscribe (from)to your mailing lists.
+If you manage mailing lists through [[https://www.mailgun.com/][mailgun.com]], =Subscribe= let you
+create webpages from where users can (un)subscribe (from)to your
+mailing lists.
 
 [[file:subscribe.png]]
 
