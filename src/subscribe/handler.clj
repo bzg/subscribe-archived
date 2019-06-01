@@ -36,7 +36,7 @@
              ^{:host config/mailgun-host
                :user config/mailgun-login
                :pass config/mailgun-password}
-             {:from config/mailgun-from
+             {:from config/from
               :to   config/admin-email})}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -44,6 +44,9 @@
 
 (d/create-database config/db-uri)
 (def db-conn (d/connect config/db-uri))
+
+(defn mailgun-subscribe-endpoint [list]
+  (str "/lists/" list "/members"))
 
 (defn increment-subscribers
   "Increment the count of new subscribers to a mailing list.
@@ -136,7 +139,7 @@
       :port 587
       :user config/mailgun-login
       :pass config/mailgun-password}
-     {:from    config/mailgun-from
+     {:from    config/from
       :to      email
       :subject subject
       :body    (str (i18n [:opening])
@@ -177,7 +180,7 @@
   (try
     (let [req (http/delete
                (str config/mailgun-api-url
-                    (config/mailgun-subscribe-endpoint mailing-list)
+                    (mailgun-subscribe-endpoint mailing-list)
                     "/" subscriber)
                {:basic-auth ["api" config/mailgun-api-key]})]
       {:message (:message (json/parse-string (:body req) true))
@@ -193,7 +196,7 @@
   (try
     (let [req (http/post
                (str config/mailgun-api-url
-                    (config/mailgun-subscribe-endpoint mailing-list))
+                    (mailgun-subscribe-endpoint mailing-list))
                {:basic-auth  ["api" config/mailgun-api-key]
                 :form-params {:address subscriber :name name}})]
       {:message (:message (json/parse-string (:body req) true))
@@ -208,7 +211,7 @@
   [email-and-list]
   (let [subscriber   (get email-and-list "subscriber")
         mailing-list (get email-and-list "mailing-list")
-        endpoint     (config/mailgun-subscribe-endpoint mailing-list)]
+        endpoint     (mailgun-subscribe-endpoint mailing-list)]
     (try
       (let [req  (http/get
                   (str config/mailgun-api-url endpoint "/" subscriber)

@@ -1,0 +1,11 @@
+{;; :from                 "postmaster@yourdomain"
+ ;; :team                 "The name of my team"
+ ;; :locale               "gb-EN"
+ ;; :admin-email          "your@email.com"
+ ;; :tos-url              "http://localhost/tos"
+ ;; :db-uri               "datahike:mem:///subscribe"
+ ;; :lists-exclude-regexp #""
+ ;; :lists-include-regexp #""
+ ;; :warn-every-x-subscribers 10
+ ;; :ui-strings           {:mailing-lists "Title for this website"}
+ }

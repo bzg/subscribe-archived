@@ -3,7 +3,7 @@
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
 (defproject
-  subscribe "0.2.0"
+  subscribe "0.3.0"
   :url "https://github.com/etalab/subscribe"
   :license {:name "Eclipse Public License v2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
@@ -22,7 +22,7 @@
                  [com.draines/postal "2.0.3"]
                  [com.taoensso/timbre "4.10.0"]
                  [commons-validator "1.6"]]
-  :description "Subscribe to a mailgun mailing list."
+  :description "Web app to subscribe to mailgun mailing lists."
   :main subscribe.handler
   :jvm-opts ["-Xmx500m"]
   :profiles {:uberjar {:aot :all}})

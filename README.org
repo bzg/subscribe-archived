@@ -7,26 +7,30 @@ webpages where users can (un)subscribe (from)to your mailing lists.
 
 * Configure
 
-1. Set =SUBSCRIBE_CONFIG= in your =~/.profile= file (or any other relevant
-   file) to the path of your configuration file.
+** Setup environment variables
 
-2. Add a configuration in this configuration file:
+Add this to your ~./profile~ file:
 
-: {:mailgun-api-key          "your_api_key"
-:  :mailgun-login            "postmaster@your.domain.com"
-:  :mailgun-password         "your_mailgun_password"
-:  :mailgun-from             "your_from_address"
+: export MAILGUN_API_KEY="your-key"
+: export MAILGUN_LOGIN="postmaster@xxx"
+: export MAILGUN_PASSWORD="your-password"
+: export SUBSCRIBE_PORT=3000
+: export SUBSCRIBE_BASEURL="http://yourdomain.com"
+
+** Optionally define more options in ~resources/config.edn~
+
+: {:from                     "your_from_address"
 :  :locale                   "en-GB" ; or "fr-FR" etc.
 :  :admin-email              "your@email.com"
-:  :base-url                 "http://yoursite.com"
 :  :return-url               "https://yoursite.com"
 :  :team                     "Your team name"
-:  :port                     3000 ; must be an integer
-:  :db-uri                   ""   ; optional
-:  :log-file                 ""   ; optional 
-:  :lists-exclude-regexp     nil  ; A regexp or nil
-:  :lists-include-regexp     nil  ; A regexp or nil
-:  :warn-every-x-subscribers 10}
+:  :tos-url                  "https://yoursite.com/tos"
+:  :port                     3000 ; an integer
+:  :db-uri                   ""   ; local database
+:  :log-file                 ""   ; log file name
+:  :lists-exclude-regexp     nil  ; regexp
+:  :lists-include-regexp     nil  ; regexp
+:  :warn-every-x-subscribers 10   ; an integer}
    
 * Test
 
@@ -40,7 +44,19 @@ application.
 
 * Run
 
-** With =lein run=
+** With docker
+
+Assuming your environments variables are stored in ~~/.subscribe_envs~
+and you want to expose the 3000 port:
+
+: ~$ git clone https://github.com/etalab/subscribe
+: ~$ cd subscribe/
+: ~$ docker build -t subscribe .
+: ~$ docker run -it -p 3000:3000 --env-file=~/.subscribe_envs subscribe
+
+Then go to http://localhost:3000.
+
+** With ~lein run~
 
 : ~$ git clone https://github.com/etalab/subscribe
 : ~$ cd subscribe/
@@ -57,7 +73,7 @@ Then go to http://localhost:3000 or to your custom base URL.
 : ~$ lein uberjar
 : ~$ java -jar target/subscribe-x.x.x-standalone.jar
 
-* Todo
+* TODOs
 
 - [ ] Catch errors before redirecting to the confirmation pages
 
@@ -66,9 +82,6 @@ Then go to http://localhost:3000 or to your custom base URL.
 If you like Clojure(script), please consider supporting its
 development developers by donating to [[https://www.clojuriststogether.org][clojuriststogether.org]].
 
-Thanks!
-
 * License
 
-=subscribe= is licensed under the [[http://www.eclipse.org/legal/epl-v10.html][Eclipse Public License 1.0]], the same
-as Clojure.
+=subscribe= is licensed under the [[http://www.eclipse.org/legal/epl-v10.html][Eclipse Public License 2.0]].

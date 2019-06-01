@@ -24,6 +24,8 @@
     :unsubscribed-from         "Unsubscribed from the %s mailing list"
     :mailing-lists             "Mailing lists"
     :subscribe-button          "Subscribe"
+    :made-with                 "Made with"
+    :tos                       "Terms of service"
     :unsubscribe-button        "Unsubscribe"
     :regenerate-token          "The token of %s for %s has been regenerated."
     :return-to-site            "Click here to return to our website."
@@ -56,6 +58,8 @@
     :subscribed-to             "Inscription à la liste %s"
     :unsubscribed-from         "Désinscription de la liste %s"
     :subscribe-button          "Inscription"
+    :made-with                 "Fait avec"
+    :tos                       "Conditions générales d'utilisation"
     :unsubscribe-button        "Désincription"
     :regenerate-token          "Le jeton de %s pour la liste %s a été renouvelé."
     :return-to-site            "Cliquez pour revenir au site."
@@ -77,7 +81,7 @@
                            (merge (val locale) config/ui-strings)})
              localization)))
 
-(def lang (keyword (or (not-empty (:locale (config/config))) "en-GB")))
+(def lang (keyword (or (not-empty (:locale config/config)) "en-GB")))
 
 (def opts {:dict localization-custom})
 

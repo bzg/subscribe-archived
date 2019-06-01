@@ -18,50 +18,38 @@
 (defn regexp? [re-str]
   (= (re-pattern re-str) re-str))
 
-(deftest test-config-exists
-  (testing "Checking if SUBSCRIBE_CONFIG points to an existing file."
-    (is (.exists (io/file (System/getenv "SUBSCRIBE_CONFIG"))))))
+(deftest test-environment-variables
+  (testing "Checking if all environment variables contain strings."
+    (is (and (string? (System/getenv "MAILGUN_API_KEY"))
+             (string? (System/getenv "MAILGUN_LOGIN"))
+             (string? (System/getenv "MAILGUN_PASSWORD"))
+             (string? (System/getenv "SUBSCRIBE_PORT"))
+             (string? (System/getenv "SUBSCRIBE_BASEURL"))))))
 
 (deftest test-lists-exists
   (testing "Checking mailgun connection and existing list(s)."
     (is (boolean (not-empty (get-lists-from-server))))))
 
-;; Mandatory configuration keys
-(s/def ::mailgun-api-key string?)
-(s/def ::mailgun-login string?)
-(s/def ::mailgun-password string?)
-(s/def ::mailgun-from string?)
-(s/def ::base-url valid-url?)
+;; Configuration keys
+(s/def ::from string?)
 (s/def ::return-url valid-url?)
 (s/def ::admin-email string?)
-
-;; Optional configuration keys
 (s/def ::port int?)
 (s/def ::locale string?)
 (s/def ::team string?)
-(s/def ::db-uri (s/nilable string?))
-(s/def ::log-file (s/nilable string?))
-(s/def ::lists-exclude-regexp (s/nilable regexp?))
-(s/def ::lists-include-regexp (s/nilable regexp?))
-(s/def ::warn-every-x-subscribers (s/nilable int?))
+(s/def ::tos-url valid-url?)
+(s/def ::db-uri string?)
+(s/def ::log-file string?)
+(s/def ::lists-exclude-regexp regexp?)
+(s/def ::lists-include-regexp regexp?)
+(s/def ::warn-every-x-subscribers int?)
 
 (s/def ::config
-  (s/keys :req-un [::mailgun-api-key
-                   ::mailgun-login
-                   ::mailgun-password
-                   ::mailgun-from
-                   ::base-url
-                   ::return-url
-                   ::admin-email]
-          :opt-un [::locale
-                   ::team
-                   ::log-file
-                   ::port
-                   ::db-uri
-                   ::lists-exclude-regexp
-                   ::lists-include-regexp
+  (s/keys :opt-un [::from  ::return-url ::admin-email ::tos-url
+                   ::locale ::team ::log-file ::port ::db-uri
+                   ::lists-exclude-regexp ::lists-include-regexp
                    ::warn-every-x-subscribers]))
 
 (deftest test-config-specs
   (testing "Checking entries in the configuration map."
-    (is (s/valid? ::config (config/config)))))
+    (is (s/valid? ::config config/config))))

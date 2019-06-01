@@ -27,8 +27,11 @@
       content]]]
    [:footer {:class "footer"}
     [:div {:class "content has-text-centered"}
-     [:p "Made with " [:a {:href   "https://github.com/bzg/subscribe"
-                           :target "new"} "Subscribe"]]]]))
+     (if config/tos-url
+       [:p [:a {:href config/tos-url :target "new"} (i18n [:tos])]])
+     [:p (i18n [:made-with]) " "
+      [:a {:href   "https://github.com/bzg/subscribe"
+           :target "new"} "Subscribe"]]]]))
 
 (defn error []
   (default
