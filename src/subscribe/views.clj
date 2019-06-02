@@ -3,6 +3,7 @@
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
 (ns subscribe.views
+  "Subscribe application views."
   (:require [hiccup.page :as h]
             [hiccup.element :as he]
             [ring.util.anti-forgery :as afu]

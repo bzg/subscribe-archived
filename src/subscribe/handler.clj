@@ -3,6 +3,7 @@
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
 (ns subscribe.handler
+  "Subscribe core functions."
   (:require [org.httpkit.server :as http-kit]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.params :as params]
@@ -45,8 +46,10 @@
 (d/create-database config/db-uri)
 (def db-conn (d/connect config/db-uri))
 
-(defn mailgun-subscribe-endpoint [list]
-  (str "/lists/" list "/members"))
+(defn mailgun-subscribe-endpoint
+  "Return the mailgun API endpoint for `mailing-list`."
+  [mailing-list]
+  (str "/lists/" mailing-list "/members"))
 
 (defn increment-subscribers
   "Increment the count of new subscribers to a mailing list.
@@ -62,7 +65,9 @@
                config/warn-every-x-subscribers
                mailing-list)))))
 
-(defn decrement-subscribers [mailing-list]
+(defn decrement-subscribers
+  "Decrement the count of new subscribers to a mailing list."
+  [mailing-list]
   (increment-subscribers mailing-list true))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -70,7 +75,7 @@
 
 (defn create-action-token
   "Create a token in the database for a subscriber/mailing-list."
-  [token subscriber name mailing-list]
+  [token subscriber full-name mailing-list]
   (let [subscribers (d/q `[:find ?e :where [?e :subscriber ~subscriber]] @db-conn)]
     (when-not (empty? subscribers)
       @(d/transact db-conn [[:db.fn/retractEntity (ffirst subscribers)]])
@@ -78,7 +83,7 @@
        (format (i18n [:regenerate-token]) subscriber mailing-list)))
     @(d/transact db-conn [{:db/id        (d/tempid -1)
                            :token        token
-                           :name         name
+                           :name         full-name
                            :subscriber   subscriber
                            :mailing-list mailing-list}])))
 
@@ -114,7 +119,9 @@
                     db-conn [(merge {:db/id (d/tempid -1) :members_new 0} l)]))
           lists))))
 
-(defn get-lists-from-db []
+(defn get-lists-from-db
+  "Get the list of mailing lists stored in the database."
+  []
   (let [lists (d/q '[:find ?e :where [?e :description]] @db-conn)]
     (map #(d/pull @db-conn '[:address :description
                              :name :members_count
@@ -122,7 +129,10 @@
                   (first %))
          lists)))
 
-(defn get-lists-filtered [lists]
+(defn get-lists-filtered
+  "Get the list of mailing list while including and excluding lists
+  depending on `config/lists-include/exclude-regexp`."
+  [lists]
   (->> lists
        (filter #(not (re-matches config/lists-exclude-regexp (:address %))))
        (filter #(re-matches config/lists-include-regexp (:address %)))))
@@ -131,7 +141,7 @@
 ;;; Handle email sending
 
 (defn send-email
-  "Send an email."
+  "Send a templated email."
   [{:keys [email subject body log]}]
   (try
     (postal/send-message
@@ -222,7 +232,7 @@
 
 (defn subscribe-and-send-confirmation
   "Subscribe an email address to a mailing list.
-  Send confirmation email."
+  Send a confirmation email."
   [token]
   (when-let [infos (validate-token token)]
     (let [result       (subscribe-address infos)
@@ -240,7 +250,7 @@
 
 (defn unsubscribe-and-send-confirmation
   "Unsubscribe an email address from a mailing list.
-  Send confirmation email."
+  Send a confirmation email."
   [token]
   (when-let [infos (validate-token token)]
     (let [result       (unsubscribe-address infos)
@@ -280,7 +290,7 @@
       (recur (async/<! unsubscribe-channel)))))
 
 (defn start-subscribe-confirmation-loop
-  "Intercept confirmations and send confirmation emails."
+  "Intercept confirmations and send corresponding emails."
   []
   (async/go
     (loop [token (async/<! subscribe-confirmation-channel)]
@@ -288,7 +298,7 @@
       (recur (async/<! subscribe-confirmation-channel)))))
 
 (defn start-unsubscribe-confirmation-loop
-  "Intercept confirmations and send confirmation emails."
+  "Intercept confirmations and send the corresponding emails."
   []
   (async/go
     (loop [token (async/<! unsubscribe-confirmation-channel)]
@@ -335,7 +345,9 @@
              (wrap-defaults site-defaults)
              params/wrap-params))
 
-(defn -main [& args]
+(defn -main
+  "Initialize the db, the loops and the web serveur."
+  [& args]
   (initialize-lists-information)
   (start-subscription-loop)
   (start-unsubscription-loop)

@@ -3,6 +3,7 @@
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
 (ns subscribe.i18n
+  "Subscribe localization."
   (:require [taoensso.tempura :refer [tr]]
             [subscribe.config :as config]))
 

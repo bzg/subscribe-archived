@@ -3,6 +3,7 @@
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
 (ns subscribe.config
+  "Subscribe configuration variables."
   (:require [clojure.java.io :as io]))
 
 ;; Mailgun constants
