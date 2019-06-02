@@ -56,7 +56,7 @@
   (let [count-id (ffirst (d/q `[:find ?c :where [?c :address ~mailing-list]] @db-conn))
         count    (:members_new (d/pull @db-conn '[:members_new] count-id))]
     @(d/transact db-conn [{:db/id count-id :members_new (if dec? (dec count) (inc count))}])
-    (when (and (not dec?) (= (mod (inc count) config/warn-every-x-subscribers) 0))
+    (when (and (not dec?) (zero? (mod (inc count) config/warn-every-x-subscribers)))
       (timbre/warn
        (format "%s subscribers added to %s"
                config/warn-every-x-subscribers
@@ -72,10 +72,10 @@
   "Create a token in the database for a subscriber/mailing-list."
   [token subscriber name mailing-list]
   (let [subscribers (d/q `[:find ?e :where [?e :subscriber ~subscriber]] @db-conn)]
-    (if-not (empty? subscribers)
-      (do @(d/transact db-conn [[:db.fn/retractEntity (ffirst subscribers)]])
-          (timbre/info
-           (format (i18n [:regenerate-token]) subscriber mailing-list))))
+    (when-not (empty? subscribers)
+      @(d/transact db-conn [[:db.fn/retractEntity (ffirst subscribers)]])
+      (timbre/info
+       (format (i18n [:regenerate-token]) subscriber mailing-list)))
     @(d/transact db-conn [{:db/id        (d/tempid -1)
                            :token        token
                            :name         name
@@ -156,7 +156,7 @@
   (let [subscriber   (get email-and-list "subscriber")
         name         (or (get email-and-list "name") "")
         mailing-list (get email-and-list "mailing-list")
-        token        (.toString (java.util.UUID/randomUUID))]
+        token        (str (java.util.UUID/randomUUID))]
     ;; FIXME: check email format
     (create-action-token token subscriber name mailing-list)
     (send-email
@@ -268,7 +268,7 @@
   []
   (async/go
     (loop [req (async/<! subscribe-channel)]
-      (send-validation-link req)        
+      (send-validation-link req)
       (recur (async/<! subscribe-channel)))))
 
 (defn start-unsubscription-loop
@@ -276,7 +276,7 @@
   []
   (async/go
     (loop [req (async/<! unsubscribe-channel)]
-      (send-validation-link req true)        
+      (send-validation-link req true)
       (recur (async/<! unsubscribe-channel)))))
 
 (defn start-subscribe-confirmation-loop

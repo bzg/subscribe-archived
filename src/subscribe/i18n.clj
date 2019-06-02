@@ -86,4 +86,3 @@
 (def opts {:dict localization-custom})
 
 (def i18n (partial tr opts [lang]))
-
