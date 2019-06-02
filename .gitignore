@@ -3,3 +3,4 @@ target/
 .lein-repl-history
 log.txt
 .lein-failures
+.eastwood
