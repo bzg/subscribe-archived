@@ -8,5 +8,5 @@ ENV MAILGUN_LOGIN ${MAILGUN_LOGIN}
 ENV MAILGUN_PASSWORD ${MAILGUN_PASSWORD}
 ENV SUBSCRIBE_PORT ${SUBSCRIBE_PORT}
 ENV SUBSCRIBE_BASEURL ${SUBSCRIBE_BASEURL}
-ADD target/subscribe-0.3.0-standalone.jar /subscribe/subscribe-0.3.0-standalone.jar
-CMD ["java", "-jar", "/subscribe/subscribe-0.3.0-standalone.jar"]
+ADD target/subscribe-0.3.1-standalone.jar /subscribe/subscribe-0.3.1-standalone.jar
+CMD ["java", "-jar", "/subscribe/subscribe-0.3.1-standalone.jar"]

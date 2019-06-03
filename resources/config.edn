@@ -4,6 +4,7 @@
  ;; :admin-email          "your@email.com"
  ;; :tos-url              "http://localhost/tos"
  ;; :db-uri               "datahike:mem:///subscribe"
+ ;; :css                  "/css/your-stylesheet.css"
  ;; :lists-exclude-regexp #""
  ;; :lists-include-regexp #""
  ;; :warn-every-x-subscribers 10

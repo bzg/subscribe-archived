@@ -30,6 +30,7 @@ Add this to your ~./profile~ file:
 :  :tos-url                  "https://yoursite.com/tos"
 :  :port                     3000 ; an integer
 :  :db-uri                   ""   ; local database
+:  :css                      ""   ; local stylesheet
 :  :log-file                 ""   ; log file name
 :  :lists-exclude-regexp     nil  ; regexp
 :  :lists-include-regexp     nil  ; regexp
@@ -79,6 +80,7 @@ Then go to http://localhost:3000 or to your custom base URL.
 * TODOs
 
 - [ ] Catch errors before redirecting to the confirmation pages
+- [ ] Connect to other services than mailgun
 
 * Support the Clojure ecosystem
 

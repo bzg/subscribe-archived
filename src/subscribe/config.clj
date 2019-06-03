@@ -33,3 +33,5 @@
 (def lists-include-regexp (or (:lists-include-regexp config) #".*"))
 (def db-uri (or (not-empty (:db-uri config)) "datahike:mem:///subscribe"))
 (def log-file (or (not-empty (:log-file config)) "log.txt"))
+(def css (or (:css config)
+             "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css"))
