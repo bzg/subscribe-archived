@@ -2,11 +2,17 @@
 
 * What it does?
 
-If you manage mailing lists through [[https://www.mailgun.com/][mailgun.com]], =Subscribe= let you
+If you manage mailing lists through [[https://www.mailgun.com/][mailgun.com]], =Subscribe= lets you
 create webpages from where users can (un)subscribe (from)to your
 mailing lists.
 
 [[file:subscribe.png]]
+
+* Features
+
+- Filter displayed mailing list
+- Receive an email very x subscription
+- Use your own stylesheet based on [[https://bulma.io][bulma.io]]
 
 * Configure
 
