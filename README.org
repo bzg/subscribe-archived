@@ -90,8 +90,8 @@ Then go to http://localhost:3000 or to your custom base URL.
 
 * Support the Clojure ecosystem
 
-If you like Clojure(script), please consider supporting its
-development developers by donating to [[https://www.clojuriststogether.org][clojuriststogether.org]].
+If you like Clojure(script), please consider supporting maintainers by
+donating to [[https://www.clojuriststogether.org][clojuriststogether.org]].
 
 * License
 
