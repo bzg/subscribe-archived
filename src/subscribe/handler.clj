@@ -353,6 +353,5 @@
   (start-unsubscription-loop)
   (start-subscribe-confirmation-loop)
   (start-unsubscribe-confirmation-loop)
-  (http-kit/run-server
-   #'app {:port config/port})
-  (println "Subscribe application started"))
+  (http-kit/run-server #'app {:port config/port})
+  (println (str "Subscribe application started on localhost:" {:port config/port})))
