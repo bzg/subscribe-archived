@@ -68,21 +68,23 @@
        (afu/anti-forgery-field)
        [:input {:name  "mailing-list" :type "hidden"
                 :value address}]
-       [:label {:class "label"} name-ui]
-       [:input {:name        "name" :type  "text"
-                :size        "30"   :class "input"
-                :placeholder name-ui}]
-       [:br]
-       [:br]
-       [:label {:class "label"} email-ui]
-       [:input {:name        "subscriber" :type     "email"
-                :size        "30"         :class    "input"
-                :placeholder email-ui     :required true}]
-       [:br]
-       [:br]
-       [:input {:type  "submit"
-                :value (i18n [:subscribe])
-                :class "button is-success"}]]])))
+       [:div {:class "field"}
+        [:label {:class "label"} name-ui]
+        [:div {:class "control"}
+         [:input {:name        "name" :type  "text"
+                  :size        "30"   :class "input"
+                  :placeholder name-ui}]]]
+       [:div {:class "field"}
+        [:label {:class "label"} email-ui]
+        [:div {:class "control"}
+         [:input {:name        "subscriber" :type     "email"
+                  :size        "30"         :class    "input"
+                  :placeholder email-ui     :required true}]]]
+       [:div {:class "field"}
+        [:div {:class "control"}
+         [:input {:type  "submit"
+                  :value (i18n [:subscribe])
+                  :class "button is-success"}]]]]])))
 
 (defn unsubscribe-to-mailing-list [address]
   (let [email-ui (i18n [:email-address])]
