@@ -142,7 +142,7 @@
 
 (defn send-email
   "Send a templated email."
-  [{:keys [email subject body log]}]
+  [{:keys [email name subject body log]}]
   (try
     (postal/send-message
      {:host config/mailgun-host
@@ -152,7 +152,8 @@
      {:from    config/from
       :to      email
       :subject subject
-      :body    (str (i18n [:opening])
+      :body    (str (if name (format (i18n [:opening-name]) name)
+                        (i18n [:opening-no-name]))
                     "\n\n" body "\n\n"
                     (i18n [:closing]) "\n\n"
                     (format "-- \n%s" (or config/team config/return-url)))})
@@ -171,6 +172,7 @@
     (create-action-token token subscriber name mailing-list)
     (send-email
      {:email   subscriber
+      :name    name
       :subject (format (i18n (if unsubscribe?
                                [:confirm-unsubscription]
                                [:confirm-subscription])) mailing-list)
@@ -244,6 +246,7 @@
         (do (increment-subscribers mailing-list)
             (send-email
              {:email   subscriber
+              :name    name
               :subject (format (i18n [:subscribed-to]) mailing-list)
               :body    (format (i18n [:subscribed-message]) mailing-list)
               :log     (format (i18n [:confirmation-sent-to]) mailing-list subscriber)}))))))
@@ -254,6 +257,7 @@
   [token]
   (when-let [infos (validate-token token)]
     (let [result       (unsubscribe-address infos)
+          name         (:name infos)
           subscriber   (:subscriber infos)
           mailing-list (:mailing-list infos)]
       (if-not (= (:result result) "UNSUBSCRIBED")
@@ -261,6 +265,7 @@
         (do (decrement-subscribers mailing-list)
             (send-email
              {:email   subscriber
+              :name    name
               :subject (format (i18n [:unsubscribed-from]) mailing-list)
               :body    (format (i18n [:unsubscribed-message]) mailing-list)
               :log     (format (i18n [:confirmation-sent-to]) mailing-list subscriber)}))))))
