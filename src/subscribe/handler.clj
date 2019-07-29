@@ -182,7 +182,7 @@
                 (format (str "%s/confirm-"
                              (if unsubscribe? "un")
                              "subscription/%s") config/base-url token))
-      :log     (format (i18n [:validation-sent-to]) subscriber)})))
+      :log     (format (i18n [:validation-sent-to]) mailing-list subscriber)})))
 
 (defn unsubscribe-address
   "Perform the actual email unsubscription to the mailing list."
@@ -246,7 +246,7 @@
              {:email   subscriber
               :subject (format (i18n [:subscribed-to]) mailing-list)
               :body    (format (i18n [:subscribed-message]) mailing-list)
-              :log     (format (i18n [:confirmation-sent-to]) subscriber)}))))))
+              :log     (format (i18n [:confirmation-sent-to]) mailing-list subscriber)}))))))
 
 (defn unsubscribe-and-send-confirmation
   "Unsubscribe an email address from a mailing list.
@@ -263,7 +263,7 @@
              {:email   subscriber
               :subject (format (i18n [:unsubscribed-from]) mailing-list)
               :body    (format (i18n [:unsubscribed-message]) mailing-list)
-              :log     (format (i18n [:confirmation-sent-to]) subscriber)}))))))
+              :log     (format (i18n [:confirmation-sent-to]) mailing-list subscriber)}))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Define async channels

@@ -13,7 +13,7 @@
     :not-subscribed            "Your are not subscribed to this list, we cannot unsubscribe you."
     :confirm-subscription      "Please confirm your subscription to the list %s"
     :confirm-unsubscription    "Please confirm your unsubscription to the list %s"
-    :confirmation-sent-to      "Confirmation link sent to %s."
+    :confirmation-sent-to      "%s: confirmation link sent to %s"
     :opening                   "Hello,"
     :closing                   "Thanks!"
     :done                      "You're all set!"
@@ -40,14 +40,14 @@
     :bye                       "Bye!"
     :title                     "Mailing list subscription"
     :validation-sent           "Please check your inbox: we sent you a validation link by email. Thanks!"
-    :validation-sent-to        "Validation link sent to %s"}
+    :validation-sent-to        "%s: validation link sent to %s"}
 
    :fr-FR
    {:already-subscribed        "Votre adresse email est déjà inscrite à cette liste."
     :not-subscribed            "Désolé, votre adresse email n'était pas inscrite à cette liste."
     :confirm-subscription      "Merci de confirmer votre inscription à la liste %s"
     :confirm-unsubscription    "Merci de confirmer votre désinscription de la liste %s"
-    :confirmation-sent-to      "Lien de confirmation envoyé à %s."
+    :confirmation-sent-to      "%s: lien de confirmation envoyé à %s."
     :opening                   "Bonjour,"
     :closing                   "Bonne journée !"
     :done                      "Tout est bon !"
@@ -74,7 +74,7 @@
     :bye                       "À bientôt !"
     :title                     "Inscription à une liste de diffusion"
     :validation-sent           "Vérifier vos messages : nous venons de vous envoyer un lien pour valider votre inscription."
-    :validation-sent-to        "Lien de validation envoyé à %s."}})
+    :validation-sent-to        "%s: lien de validation envoyé à %s."}})
 
 (def localization-custom
   (into {}
