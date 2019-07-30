@@ -149,15 +149,16 @@
       :port 587
       :user (config/smtp-login mailing-list)
       :pass (config/smtp-password mailing-list)}
-     {:from    (config/from mailing-list)
-      :to      email
-      :subject subject
-      :body    (str (if name (format (i18n [:opening-name]) name)
-                        (i18n [:opening-no-name]))
-                    "\n\n" body "\n\n"
-                    (i18n [:closing]) "\n\n"
-                    (format "-- \n%s" (or (config/team mailing-list)
-                                          (config/return-url mailing-list))))})
+     {:from       (config/from mailing-list)
+      :message-id (postal.support/message-id "mail.etalab.studio")
+      :to         email
+      :subject    subject
+      :body       (str (if name (format (i18n [:opening-name]) name)
+                           (i18n [:opening-no-name]))
+                       "\n\n" body "\n\n"
+                       (i18n [:closing]) "\n\n"
+                       (format "-- \n%s" (or (config/team mailing-list)
+                                             (config/return-url mailing-list))))})
     (catch Exception e
       (timbre/error (ex-data e))))
   (timbre/info log))
