@@ -336,14 +336,14 @@
           (if (check-already-subscribed params)
             (response/redirect (str "/already-subscribed/" ml))
             (do (async/go (async/>! subscribe-channel params))
-                (response/redirect (str "/email-sent" ml))))))
+                (response/redirect (str "/email-sent/" ml))))))
   (POST "/unsubscribe" req
         (let [params (:form-params req)
               ml     (get params "mailing-list")]
           (if-not (check-already-subscribed params)
             (response/redirect (str "/not-subscribed/" ml))
             (do (async/go (async/>! unsubscribe-channel params))
-                (response/redirect (str "/email-sent" ml))))))
+                (response/redirect (str "/email-sent/" ml))))))
   (GET "/confirm-subscription/:token" [token]
        (do (async/go (async/>! subscribe-confirmation-channel token))
            (response/redirect "/thanks")))
