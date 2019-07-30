@@ -3,7 +3,7 @@
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
 (defproject
-  subscribe "0.4.1"
+  subscribe "0.4.2"
   :url "https://github.com/etalab/subscribe"
   :license {:name "Eclipse Public License v2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
