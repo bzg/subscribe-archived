@@ -8,13 +8,10 @@
 
 ;; Mailgun constants
 (def mailgun-api-url "https://api.mailgun.net/v3")
-(def mailgun-host "smtp.mailgun.org")
 (def mailgun-lists-endpoint "/lists/pages")
 
 ;; Mailgun environment variables
 (def mailgun-api-key (System/getenv "MAILGUN_API_KEY"))
-(def mailgun-login (System/getenv "MAILGUN_LOGIN"))
-(def mailgun-password (System/getenv "MAILGUN_PASSWORD"))
 (def port (read-string (or (System/getenv "SUBSCRIBE_PORT") "3000")))
 (def base-url (or (System/getenv "SUBSCRIBE_BASEURL")
                   (str "http://localhost:" port)))
@@ -27,15 +24,28 @@
 (def log-file (or (not-empty (:log-file config)) "log.txt"))
 (def ui-strings (:ui-strings config))
 (def locale (:locale config))
-(def admin-email (or (:admin-email config) (:from config) mailgun-login))
 (def css (or (:css config)
              "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css"))
 
 ;; Per-list configuration options
+(defn smtp-host [ml]
+  (or (:smtp-host (get (:lists config) ml))
+      "smtp.mailgun.org"))
+
+(defn smtp-login [ml]
+  (or (:smtp-login (get (:lists config) ml))
+      (System/getenv "MAILGUN_LOGIN")))
+
+(def admin-email (or (:admin-email config) (:from config) (smtp-login nil)))
+
+(defn smtp-password [ml]
+  (or (:smtp-password (get (:lists config) ml))
+      (System/getenv "MAILGUN_PASSWORD")))
+
 (defn from [ml]
   (or (:from (get (:lists config) ml))
       (:from config)
-      mailgun-login))
+      (smtp-login ml)))
 
 (defn team [ml]
   (or (:team (get (:lists config) ml))

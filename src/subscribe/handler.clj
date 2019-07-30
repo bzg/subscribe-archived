@@ -34,9 +34,9 @@
   {:println (timbre/println-appender {:stream :auto})
    :spit    (appenders/spit-appender {:fname config/log-file})
    :postal  (postal-appender/postal-appender ;; :min-level :warn
-             ^{:host config/mailgun-host
-               :user config/mailgun-login
-               :pass config/mailgun-password}
+             ^{:host (config/smtp-host nil)
+               :user (config/smtp-login nil)
+               :pass (config/smtp-password nil)}
              {:from config/from
               :to   config/admin-email})}})
 
@@ -145,10 +145,10 @@
   [{:keys [email name subject body log mailing-list]}]
   (try
     (postal/send-message
-     {:host config/mailgun-host
+     {:host (config/smtp-host mailing-list)
       :port 587
-      :user config/mailgun-login
-      :pass config/mailgun-password}
+      :user (config/smtp-login mailing-list)
+      :pass (config/smtp-password mailing-list)}
      {:from    (config/from mailing-list)
       :to      email
       :subject subject
@@ -366,6 +366,7 @@
   (start-subscribe-confirmation-loop)
   (start-unsubscribe-confirmation-loop)
   (http-kit/run-server #'app {:port config/port})
-  (println (str "Subscribe application started on localhost:" {:port config/port})))
+  (println (str "Subscribe application started on localhost:" config/port)))
 
-(-main)
+;; (-main)
+

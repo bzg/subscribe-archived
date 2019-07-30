@@ -1,15 +1,26 @@
-{;; :from                 "postmaster@yourdomain"
- ;; :team                 "The name of my team"
+{;;;; Global configuration options:
+ ;;
  ;; :locale               "gb-EN"
- ;; :admin-email          "your@email.com"
- ;; :tos-url              "http://localhost/tos"
  ;; :db-uri               "datahike:mem:///subscribe"
+ ;; :admin-email          "your@email.com"
  ;; :css                  "/css/your-stylesheet.css"
  ;; :lists-exclude-regexp #""
  ;; :lists-include-regexp #""
- ;; :warn-every-x-subscribers 10
  ;; :ui-strings           {:mailing-lists "Title for this website"}
+ ;;
+ ;;;; Global options, possibly overriden by per-list options in :lists
+ ;;
+ ;; :from                 "postmaster@yourdomain"
+ ;; :team                 "The name of my team"
+ ;; :tos-url              "http://localhost/tos"
+ ;; :smtp-host            ""
+ ;; :smtp-login           ""
+ ;; :smtp-password        ""
+ ;; :warn-every-x-subscribers 10
+ ;;
  ;; :lists {"my-list@fqdn"
- ;;         {:from    "per-list@email.address"
- ;;          :tos-url "https://tos.com"}}
+ ;;         {:from          "Your Name <email@domain.com>"
+ ;;          :smtp-login    "email@domain.com"
+ ;;          :smtp-password "XXX"
+ ;;          :tos-url       "https://tos.com"}}
  }
