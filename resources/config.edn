@@ -9,4 +9,7 @@
  ;; :lists-include-regexp #""
  ;; :warn-every-x-subscribers 10
  ;; :ui-strings           {:mailing-lists "Title for this website"}
+ ;; :lists {"my-list@fqdn"
+ ;;         {:from    "per-list@email.address"
+ ;;          :tos-url "https://tos.com"}}
  }

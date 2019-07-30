@@ -41,7 +41,8 @@
     :bye                       "Bye!"
     :title                     "Mailing list subscription"
     :validation-sent           "Please check your inbox: we sent you a validation link by email. Thanks!"
-    :validation-sent-to        "%s: validation link sent to %s"}
+    :validation-sent-to        "%s: validation link sent to %s"
+    :subscribers-added         "%s subscribers added to %s"}
 
    :fr-FR
    {:already-subscribed        "Votre adresse email est déjà inscrite à cette liste."
@@ -76,7 +77,8 @@
     :bye                       "À bientôt !"
     :title                     "Inscription à une liste de diffusion"
     :validation-sent           "Vérifier vos messages : nous venons de vous envoyer un lien pour valider votre inscription."
-    :validation-sent-to        "%s: lien de validation envoyé à %s."}})
+    :validation-sent-to        "%s: lien de validation envoyé à %s."
+    :subscribers-added         "%s inscrits ajoutés à %s"}})
 
 (def localization-custom
   (into {}

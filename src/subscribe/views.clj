@@ -10,7 +10,7 @@
             [subscribe.i18n :refer [i18n]]
             [subscribe.config :as config]))
 
-(defn default [title content]
+(defn default [title mailing-list content]
   (h/html5
    {:lang config/locale}
    [:head
@@ -28,8 +28,8 @@
       content]]]
    [:footer {:class "footer"}
     [:div {:class "content has-text-centered"}
-     (if config/tos-url
-       [:p [:a {:href config/tos-url :target "new"} (i18n [:tos])]])
+     (if-let [tos (config/tos-url mailing-list)]
+       [:p [:a {:href tos :target "new"} (i18n [:tos])]])
      [:p (i18n [:made-with]) " "
       [:a {:href   "https://github.com/bzg/subscribe"
            :target "new"} "Subscribe"]]]]))
@@ -37,12 +37,15 @@
 (defn error []
   (default
    (i18n [:error])
+   nil
    [:div {:class "container"}
-    [:p [:a {:href config/return-url} (i18n [:return-to-site])]]]))
+    [:p [:a {:href (config/return-url nil)}
+         (i18n [:return-to-site])]]]))
 
 (defn mailing-lists [lists]
   (default
-   (or config/team (i18n [:mailing-lists]))
+   (or (config/team nil) (i18n [:mailing-lists]))
+   nil
    [:div {:class "container"}
     (for [l lists]
       [:div {:style "margin: 1.4em;"}
@@ -57,17 +60,18 @@
              :href  (str "/unsubscribe/" (:address l))}
          (i18n [:unsubscribe-button])]]])]))
 
-(defn subscribe-to-mailing-list [address]
+(defn subscribe-to-mailing-list [mailing-list]
   (let [email-ui (i18n [:email-address])
         name-ui  (i18n [:name])]
     (default
-     address
+     mailing-list
+     mailing-list
      [:div {:class "container"}
       [:form
        {:action "/subscribe" :method "post"}
        (afu/anti-forgery-field)
        [:input {:name  "mailing-list" :type "hidden"
-                :value address}]
+                :value mailing-list}]
        [:div {:class "field"}
         [:label {:class "label"} name-ui]
         [:div {:class "control"}
@@ -86,16 +90,17 @@
                   :value (i18n [:subscribe])
                   :class "button is-success"}]]]]])))
 
-(defn unsubscribe-to-mailing-list [address]
+(defn unsubscribe-to-mailing-list [mailing-list]
   (let [email-ui (i18n [:email-address])]
     (default
-     address
+     mailing-list
+     mailing-list
      [:div {:class "container"}
       [:form
        {:action "/unsubscribe" :method "post"}
        (afu/anti-forgery-field)
        [:input {:name  "mailing-list" :type "hidden"
-                :value address}]
+                :value mailing-list}]
        [:label {:class "label"} email-ui]
        [:input {:name        "subscriber" :type     "email"
                 :size        "30"         :class    "input"
@@ -106,9 +111,11 @@
                 :value (i18n [:unsubscribe])
                 :class "button is-danger"}]]])))
 
-(defn feedback [title message]
+(defn feedback [title mailing-list message]
   (default
    title
+   mailing-list
    [:div {:class "container"}
     [:p {:class "subtitle"} message]
-    [:p [:a {:href config/return-url} (i18n [:return-to-site])]]]))
+    [:p [:a {:href (config/return-url mailing-list)}
+         (i18n [:return-to-site])]]]))

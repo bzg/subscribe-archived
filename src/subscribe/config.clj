@@ -21,17 +21,36 @@
 
 ;; Configuration from your config.edn file
 (def config (read-string (slurp (io/resource "config.edn"))))
-(def from (or (:from config) mailgun-login))
-(def locale (:locale config))
-(def ui-strings (:ui-strings config))
-(def team (:team config))
-(def return-url (or (:return-url config) base-url))
-(def tos-url (:tos-url config))
-(def admin-email (or (:admin-email config) from mailgun-login))
-(def warn-every-x-subscribers (or (:warn-every-x-subscribers config) 100))
+(def db-uri (or (not-empty (:db-uri config)) "datahike:mem:///subscribe"))
 (def lists-exclude-regexp (or (:lists-exclude-regexp config) #""))
 (def lists-include-regexp (or (:lists-include-regexp config) #".*"))
-(def db-uri (or (not-empty (:db-uri config)) "datahike:mem:///subscribe"))
 (def log-file (or (not-empty (:log-file config)) "log.txt"))
+(def ui-strings (:ui-strings config))
+(def locale (:locale config))
+(def admin-email (or (:admin-email config) (:from config) mailgun-login))
 (def css (or (:css config)
              "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css"))
+
+;; Per-list configuration options
+(defn from [ml]
+  (or (:from (get (:lists config) ml))
+      (:from config)
+      mailgun-login))
+
+(defn team [ml]
+  (or (:team (get (:lists config) ml))
+      (:team config)))
+
+(defn return-url [ml]
+  (or (:return-url (get (:lists config) ml))
+      (:return-url config)
+      base-url))
+
+(defn tos-url [ml]
+  (or (:tos-url (get (:lists config) ml))
+      (:tos-url config)))
+
+(defn warn-every-x-subscribers [ml]
+  (or (:warn-every-x-subscribers (get (:lists config) ml))
+      (:warn-every-x-subscribers config)
+      100))
