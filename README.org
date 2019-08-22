@@ -16,7 +16,7 @@ mailing lists.
 
 * Configure
 
-** Setup environment variables
+** Set up environment variables
 
 Add this to your ~./profile~ file:
 
@@ -28,20 +28,36 @@ Add this to your ~./profile~ file:
 
 ** Optionally define more options in ~resources/config.edn~
 
-: {:from                     "your_from_address"
-:  :locale                   "en-GB" ; or "fr-FR" etc.
-:  :admin-email              "your@email.com"
-:  :return-url               "https://yoursite.com"
-:  :team                     "Your team name"
-:  :tos-url                  "https://yoursite.com/tos"
-:  :port                     3000 ; an integer
-:  :db-uri                   ""   ; local database
-:  :css                      ""   ; local stylesheet
-:  :log-file                 ""   ; log file name
-:  :lists-exclude-regexp     nil  ; regexp
-:  :lists-include-regexp     nil  ; regexp
-:  :warn-every-x-subscribers 10   ; an integer}
-   
+See ~resources/config.edn~:
+
+: {;;;; Global configuration options:
+:  ;;
+:  ;; :locale               "gb-EN"                     ; or "fr-FR", etc.
+:  ;; :db-uri               "datahike:mem:///subscribe" ; an URI to the local database
+:  ;; :admin-email          "my@email.com"              ; a valid email address
+:  ;; :css                  "/css/my-stylesheet.css"    ; absolute or relative stylesheet URL
+:  ;; :lists-exclude-regexp nil                         ; a regular expression
+:  ;; :lists-include-regexp nil                         ; a regular expression
+:  ;; :ui-strings           {:mailing-lists "Title"}    ; custom UI strings
+:  ;; :log-file             "log-filename.txt"          ; log file name
+:  ;;
+:  ;;;; Global options, possibly overriden by per-list options in :lists
+:  ;;
+:  ;; :from                 "postmaster@mydomain.org"
+:  ;; :team                 "The name of my team"
+:  ;; :tos-url              "http://localhost/tos"
+:  ;; :smtp-host            ""
+:  ;; :smtp-login           ""
+:  ;; :smtp-password        ""
+:  ;; :warn-every-x-subscribers 10
+:  ;;
+:  ;; :lists {"my-list@fqdn"
+:  ;;         {:from          "Your Name <email@domain.com>"
+:  ;;          :smtp-login    "email@domain.com"
+:  ;;          :smtp-password "XXX"
+:  ;;          :tos-url       "https://tos.com"}}
+:  }
+
 * Test
 
 Run =lein test= to test the configuration before running the
@@ -49,7 +65,7 @@ application.
 
 : ~$ git clone https://github.com/etalab/subscribe
 : ~$ cd subscribe/
-: ... [Setup your configuration]
+: ... [Set up your configuration]
 : ~$ lein test
 
 * Run
@@ -70,7 +86,7 @@ Then go to http://localhost:3000.
 
 : ~$ git clone https://github.com/etalab/subscribe
 : ~$ cd subscribe/
-: ... [Setup your configuration]
+: ... [Set up your configuration]
 : ~$ lein run
 
 Then go to http://localhost:3000 or to your custom base URL.
@@ -79,7 +95,7 @@ Then go to http://localhost:3000 or to your custom base URL.
 
 : ~$ git clone https://github.com/etalab/subscribe
 : ~$ cd subscribe/
-: ... [Setup your configuration]
+: ... [Set up your configuration]
 : ~$ lein uberjar
 : ~$ java -jar target/subscribe-x.x.x-standalone.jar
 
