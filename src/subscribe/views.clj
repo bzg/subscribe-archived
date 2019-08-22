@@ -53,7 +53,7 @@
             :class "title"} (:name l)]
        [:p {:class "subtitle"} (:description l)]
        [:div {:class "level-left"}
-        [:a {:class "level-item button is-success"
+        [:a {:class "level-item button is-info"
              :href  (str "/subscribe/" (:address l))}
          (i18n [:subscribe-button])]
         [:a {:class "level-item button is-danger"
@@ -88,7 +88,7 @@
         [:div {:class "control"}
          [:input {:type  "submit"
                   :value (i18n [:subscribe])
-                  :class "button is-success"}]]]]])))
+                  :class "button is-info"}]]]]])))
 
 (defn unsubscribe-to-mailing-list [mailing-list]
   (let [email-ui (i18n [:email-address])]
