@@ -43,7 +43,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Create db and connect to it
 
-(d/create-database config/db-uri)
+(d/create-database config/db-uri :schema-on-read true)
 (def db-conn (d/connect config/db-uri))
 
 (defn mailgun-subscribe-endpoint
@@ -58,7 +58,7 @@
   [mailing-list & dec?]
   (let [count-id (ffirst (d/q `[:find ?c :where [?c :address ~mailing-list]] @db-conn))
         count    (:members_new (d/pull @db-conn '[:members_new] count-id))]
-    @(d/transact db-conn [{:db/id count-id :members_new (if dec? (dec count) (inc count))}])
+    @(d/transact! db-conn [{:db/id count-id :members_new (if dec? (dec count) (inc count))}])
     (when (and (not dec?) (zero? (mod (inc count) (config/warn-every-x-subscribers mailing-list))))
       (timbre/warn
        (format (i18n [:subscribers-added])
@@ -78,14 +78,14 @@
   [token subscriber full-name mailing-list]
   (let [subscribers (d/q `[:find ?e :where [?e :subscriber ~subscriber]] @db-conn)]
     (when-not (empty? subscribers)
-      @(d/transact db-conn [[:db.fn/retractEntity (ffirst subscribers)]])
+      @(d/transact! db-conn [[:db.fn/retractEntity (ffirst subscribers)]])
       (timbre/info
        (format (i18n [:regenerate-token]) subscriber mailing-list)))
-    @(d/transact db-conn [{:db/id        (d/tempid -1)
-                           :token        token
-                           :name         full-name
-                           :subscriber   subscriber
-                           :mailing-list mailing-list}])))
+    @(d/transact! db-conn [{:db/id        (d/tempid -1)
+                            :token        token
+                            :name         full-name
+                            :subscriber   subscriber
+                            :mailing-list mailing-list}])))
 
 (defn validate-token
   "Validate a token and delete the subscriber/token pair."
@@ -94,7 +94,7 @@
         eid  (ffirst eids)]
     (when eid
       (let [infos (d/pull @db-conn '[:subscriber :name :mailing-list] eid)]
-        @(d/transact db-conn [[:db.fn/retractEntity eid]])
+        @(d/transact! db-conn [[:db.fn/retractEntity eid]])
         ;; Return {:subscriber "..." :mailing-list "..." :name "..."}
         infos))))
 
@@ -115,7 +115,7 @@
   []
   (let [lists (get-lists-from-server)]
     (doall
-     (map (fn [l] @(d/transact
+     (map (fn [l] @(d/transact!
                     db-conn [(merge {:db/id (d/tempid -1) :members_new 0} l)]))
           lists))))
 
