@@ -8,6 +8,7 @@
  ;; :lists-include-regexp nil                         ; a regular expression
  ;; :ui-strings           {:mailing-lists "Title"}    ; custom UI strings
  ;; :log-file             "log-filename.txt"          ; log file name
+ ;; :base-url             "http://base-url"           ; base URL of the web service
  ;;
  ;;;; Global options, possibly overriden by per-list options in :lists
  ;;
@@ -23,5 +24,6 @@
  ;;         {:from          "Your Name <email@domain.com>"
  ;;          :smtp-login    "email@domain.com"
  ;;          :smtp-password "XXX"
+ ;;          :return-url    "http://localhost"
  ;;          :tos-url       "https://tos.com"}}
  }
