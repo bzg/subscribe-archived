@@ -140,9 +140,29 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email sending
 
+(defn build-email-body [{:keys [ml name title html-body plain-body]}]
+  [:alternative
+   {:type    "text/plain"
+    :content (str (if name (format (i18n [:opening-name]) name)
+                      (i18n [:opening-no-name]))
+                  "\n\n" plain-body "\n\n"
+                  (i18n [:closing]) "\n\n-- \n"
+                  (or (config/team ml)
+                      (config/return-url ml)))}
+   {:type    "text/html"
+    :content (views/default
+              title ml
+              [:div
+               [:p (if name (format (i18n [:opening-name]) name)
+                       (i18n [:opening-no-name]))]
+               [:p (or html-body plain-body)]
+               [:p (i18n [:closing])]
+               [:p [:a {:href (config/return-url ml)}
+                    (or (config/team ml) (config/return-url ml))]]])}])
+
 (defn send-email
   "Send a templated email."
-  [{:keys [email name subject body log mailing-list]}]
+  [{:keys [email name subject plain-body html-body log mailing-list]}]
   (try
     (do
       (postal/send-message
@@ -153,14 +173,13 @@
        {:from             (config/from mailing-list)
         :message-id       #(postal.support/message-id "mail.etalab.studio")
         :to               email
-        :List-Unsubscribe (str (config/base-url) "/unsubscribe/" mailing-list)
         :subject          subject
-        :body             (str (if name (format (i18n [:opening-name]) name)
-                                   (i18n [:opening-no-name]))
-                               "\n\n" body "\n\n"
-                               (i18n [:closing]) "\n\n"
-                               (format "-- \n%s" (or (config/team mailing-list)
-                                                     (config/return-url mailing-list))))})
+        :body             (build-email-body {:ml         mailing-list
+                                             :name       name
+                                             :title      mailing-list
+                                             :plain-body plain-body
+                                             :html-body  html-body})
+        :List-Unsubscribe (str "<" config/base-url "/unsubscribe/" mailing-list ">")})
       (timbre/info log))
     (catch Exception e
       (timbre/error (str "Can't send email: " (:cause (Throwable->map e)))))))
@@ -181,7 +200,7 @@
       :subject      (format (i18n (if unsubscribe?
                                     [:confirm-unsubscription]
                                     [:confirm-subscription])) mailing-list)
-      :body         (str
+      :plain-body   (str
                      (format (i18n (if unsubscribe?
                                      [:confirm-unsubscription]
                                      [:confirm-subscription])) mailing-list)
@@ -189,6 +208,16 @@
                      (format (str "%s/confirm-"
                                   (if unsubscribe? "un")
                                   "subscription/%s") config/base-url token))
+      :html-body    (str
+                     (format (i18n (if unsubscribe?
+                                     [:confirm-unsubscription]
+                                     [:confirm-subscription])) mailing-list)
+                     ":\n"
+                     (str "<a href=\""
+                          (format (str "%s/confirm-"
+                                       (if unsubscribe? "un")
+                                       "subscription/%s") config/base-url token)
+                          "\">" (i18n [:click-here]) "</a>"))
       :log          (format (i18n [:validation-sent-to]) mailing-list subscriber)})))
 
 (defn unsubscribe-address
@@ -250,11 +279,11 @@
         (timbre/info (:message result))
         (do (increment-subscribers mailing-list)
             (send-email
-             {:email   subscriber
-              :name    name
-              :subject (format (i18n [:subscribed-to]) mailing-list)
-              :body    (format (i18n [:subscribed-message]) mailing-list)
-              :log     (format (i18n [:confirmation-sent-to]) mailing-list subscriber)}))))))
+             {:email      subscriber
+              :name       name
+              :subject    (format (i18n [:subscribed-to]) mailing-list)
+              :plain-body (format (i18n [:subscribed-message]) mailing-list)
+              :log        (format (i18n [:confirmation-sent-to]) mailing-list subscriber)}))))))
 
 (defn unsubscribe-and-send-confirmation
   "Unsubscribe an email address from a mailing list.
