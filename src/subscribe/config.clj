@@ -23,7 +23,7 @@
 (def lists-include-regexp (or (:lists-include-regexp config) #".*"))
 (def log-file (or (not-empty (:log-file config)) "log.txt"))
 (def ui-strings (:ui-strings config))
-(def locale (:locale config))
+(def locale (or (:locale config) "en-US"))
 (def css (or (:css config)
              "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css"))
 
