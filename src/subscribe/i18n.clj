@@ -8,7 +8,7 @@
             [subscribe.config :as config]))
 
 (def localization
-  {:en-GB
+  {:en-US
    {:already-subscribed        "Your email address is already subscribed to this list."
     :not-subscribed            "Your are not subscribed to this list, we cannot unsubscribe you."
     :confirm-subscription      "Please confirm your subscription to the list %s"
@@ -17,6 +17,7 @@
     :opening-name              "Hello %s,"
     :opening-no-name           "Hello,"
     :closing                   "Thanks!"
+    :click-here                "click here"
     :done                      "You're all set!"
     :email-address             "Email address"
     :name                      "Name"
@@ -53,6 +54,7 @@
     :opening-name              "Bonjour %s,"
     :opening-no-name           "Bonjour,"
     :closing                   "Bonne journée !"
+    :click-here                "cliquez ici"
     :done                      "Tout est bon !"
     :email-address             "Adresse de courriel"
     :name                      "Nom"
@@ -86,7 +88,7 @@
                            (merge (val locale) config/ui-strings)})
              localization)))
 
-(def lang (keyword (or (not-empty (:locale config/config)) "en-GB")))
+(def lang (keyword (or (not-empty (:locale config/config)) "en-US")))
 
 (def opts {:dict localization-custom})
 
