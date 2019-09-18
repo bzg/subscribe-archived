@@ -27,6 +27,11 @@
 (def css (or (:css config)
              "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css"))
 
+;; Configuration for additional HTML
+(def before-head-closing-html (:before-head-closing-html config))
+(def after-body-beginning-html (:after-body-beginning-html config))
+(def footer-html (:footer-html config))
+
 ;; Per-list configuration options
 (defn smtp-host [ml]
   (or (:smtp-host (get (:lists config) ml))

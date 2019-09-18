@@ -10,6 +10,10 @@
  ;; :log-file             "log-filename.txt"          ; log file name
  ;; :base-url             "http://base-url"           ; base URL of the web service
  ;;
+ ;; :before-head-closing-html  "<b>...</b>"           ; add content before </head>
+ ;; :after-body-beginning-html "<b>...</b>"           ; add content after <body>
+ ;; :footer-html               "<b>...</b>"           ; replace <footer ...> with your HTML
+ ;;
  ;;;; Global options, possibly overriden by per-list options in :lists
  ;;
  ;; :from                 "postmaster@mydomain.org"

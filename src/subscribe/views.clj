@@ -17,8 +17,10 @@
     [:title (i18n [:title])]
     [:meta {:charset "utf-8"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1, shrink-to-fit=yes"}]
-    (h/include-css config/css)]
+    (h/include-css config/css)
+    config/before-head-closing-html]
    [:body
+    config/after-body-beginning-html
     [:section {:class "hero is-primary"}
      [:div {:class "hero-body"}
       [:div {:class "container"}
@@ -26,13 +28,14 @@
     [:section {:class "section"}
      [:div {:class "column is-8 is-offset-2"}
       content]]]
-   [:footer {:class "footer"}
-    [:div {:class "content has-text-centered"}
-     (if-let [tos (config/tos-url mailing-list)]
-       [:p [:a {:href tos :target "new"} (i18n [:tos])]])
-     [:p (i18n [:made-with]) " "
-      [:a {:href   "https://github.com/bzg/subscribe"
-           :target "new"} "Subscribe"]]]]))
+   (or config/footer-html
+       [:footer {:class "footer"}
+        [:div {:class "content has-text-centered"}
+         (if-let [tos (config/tos-url mailing-list)]
+           [:p [:a {:href tos :target "new"} (i18n [:tos])]])
+         [:p (i18n [:made-with]) " "
+          [:a {:href   "https://github.com/bzg/subscribe"
+               :target "new"} "Subscribe"]]]])))
 
 (defn error []
   (default
