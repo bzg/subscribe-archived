@@ -27,15 +27,15 @@
        [:h1 {:class "title has-text-centered"} title]]]]
     [:section {:class "section"}
      [:div {:class "column is-8 is-offset-2"}
-      content]]]
-   (or config/footer-html
-       [:footer {:class "footer"}
-        [:div {:class "content has-text-centered"}
-         (if-let [tos (config/tos-url mailing-list)]
-           [:p [:a {:href tos :target "new"} (i18n [:tos])]])
-         [:p (i18n [:made-with]) " "
-          [:a {:href   "https://github.com/bzg/subscribe"
-               :target "new"} "Subscribe"]]]])))
+      content]]
+    (or config/footer-html
+        [:footer {:class "footer"}
+         [:div {:class "content has-text-centered"}
+          (if-let [tos (config/tos-url mailing-list)]
+            [:p [:a {:href tos :target "new"} (i18n [:tos])]])
+          [:p (i18n [:made-with]) " "
+           [:a {:href   "https://github.com/bzg/subscribe"
+                :target "new"} "Subscribe"]]]])]))
 
 (defn error []
   (default
