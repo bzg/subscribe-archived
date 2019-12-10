@@ -8,7 +8,7 @@
   :license {:name "Eclipse Public License v2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [org.clojure/core.async "0.4.500"
+                 [org.clojure/core.async "0.6.532"
                   :exclusions [org.clojure/tools.reader]]
                  [compojure "1.6.1"]
                  [hiccup "1.0.5"]
