@@ -4,7 +4,7 @@
 
 (ns subscribe.handler
   "Subscribe core functions."
-  (:require [org.httpkit.server :as http-kit]
+  (:require [ring.adapter.jetty :as jetty]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.params :as params]
             [ring.util.response :as response]
@@ -397,7 +397,7 @@
   (start-unsubscription-loop)
   (start-subscribe-confirmation-loop)
   (start-unsubscribe-confirmation-loop)
-  (http-kit/run-server #'app {:port config/port})
+  (jetty/run-jetty #'app {:port config/port})
   (println (str "Subscribe application started on localhost:" config/port)))
 
 ;; (-main)
