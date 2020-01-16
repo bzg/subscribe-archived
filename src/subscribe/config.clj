@@ -25,7 +25,7 @@
 (def ui-strings (:ui-strings config))
 (def locale (or (:locale config) "en-US"))
 (def css (or (:css config)
-             "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css"))
+             "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.0/css/bulma.min.css"))
 
 ;; Configuration for additional HTML
 (def before-head-closing-html (:before-head-closing-html config))
