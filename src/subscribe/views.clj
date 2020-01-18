@@ -52,17 +52,19 @@
    nil
    [:div {:class "container"}
     (for [l lists]
-      [:div {:style "margin: 1.4em;"}
-       [:p {:class "title"} (:name l)]
-       [:p {:class "subtitle"} (or (not-empty (:description l))
-                                   (config/description (:address l)))]
-       [:div {:class "level-left"}
-        [:a {:class "level-item button is-info"
-             :href  (str "/subscribe/" (:address l))}
-         (i18n [:subscribe-button])]
-        [:a {:class "level-item button is-danger"
-             :href  (str "/unsubscribe/" (:address l))}
-         (i18n [:unsubscribe-button])]]])]))
+      [:div {:class "columns"}
+       [:div {:class "column"}
+        [:p {:class "title"} (:name l)]
+        [:p {:class "subtitle"} (or (not-empty (:description l))
+                                    (config/description (:address l)))]]
+       [:div {:class "column level"}
+        [:div {:class "level-left"}
+         [:a {:class "level-item button is-info"
+              :href  (str "/subscribe/" (:address l))}
+          (i18n [:subscribe-button])]
+         [:a {:class "level-item button is-danger"
+              :href  (str "/unsubscribe/" (:address l))}
+          (i18n [:unsubscribe-button])]]]])]))
 
 (defn subscribe-to-mailing-list [mailing-list]
   (let [email-ui (i18n [:email-address])
