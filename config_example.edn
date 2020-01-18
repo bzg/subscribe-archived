@@ -1,10 +1,11 @@
-{;;;; Global configuration options:
+{;;;; Global configuration options
  
- ;;;; Mandatory:
+ ;;;; Mandatory
  
- ;; :admin-email "my@email.com" ; a valid email address
+ ;; :admin-email               "my@email.com" ; a valid email address
+ ;; :base-url                  "http://base-url"           ; base URL of the web service
  
- ;;;; Optional:
+ ;;;; Optional
  
  ;; :locale                    "en-US"                     ; or "fr-FR", etc.
  ;; :db-uri                    "datahike:mem:///subscribe" ; an URI to the local database
@@ -13,7 +14,6 @@
  ;; :lists-include-regexp      nil                         ; a regular expression
  ;; :ui-strings                {:mailing-lists "Title"}    ; custom UI strings
  ;; :log-file                  "log-filename.txt"          ; log file name
- ;; :base-url                  "http://base-url"           ; base URL of the web service
  ;; :before-head-closing-html  "<b>...</b>"                ; add content before </head>
  ;; :after-body-beginning-html "<b>...</b>"                ; add content after <body>
  ;; :footer-html               "<b>...</b>"                ; replace <footer ...> with your HTML
@@ -30,7 +30,7 @@
  ;; :smtp-password            "my-smtp-password@provider.org"
  ;; :warn-every-x-subscribers 10
 
- ;;;; Per-list options:
+ ;;;; Per-list options
  
  ;; :lists {"my-list@fqdn"
  ;;         {:from                     "Your Name <email@domain.com>"
