@@ -4,3 +4,4 @@ target/
 log.txt
 .lein-failures
 .eastwood
+todo.org
