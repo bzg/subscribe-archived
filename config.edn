@@ -26,8 +26,11 @@
  ;;
  ;; :lists {"my-list@fqdn"
  ;;         {:from          "Your Name <email@domain.com>"
+ ;;          :to            "Your Name <email@domain.com>"
+ ;;          :description   "Description of the list."
  ;;          :smtp-login    "email@domain.com"
  ;;          :smtp-password "XXX"
+ ;;          :smtp-host     "..."
  ;;          :return-url    "http://localhost"
  ;;          :tos-url       "https://tos.com"}}
  }
