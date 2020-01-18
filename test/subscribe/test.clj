@@ -21,8 +21,11 @@
 (deftest test-environment-variables
   (testing "Checking if all environment variables contain strings."
     (is (and (string? (System/getenv "MAILGUN_API_KEY"))
-             (string? (System/getenv "MAILGUN_LOGIN"))
-             (string? (System/getenv "MAILGUN_PASSWORD"))
+             (string? (System/getenv "MAILGUN_API_SECRET"))
+             (string? (System/getenv "MAILJET_API_KEY"))
+             (string? (System/getenv "MAILJET_API_SECRET"))
+             (string? (System/getenv "SUBSCRIBE_SMTP_LOGIN"))
+             (string? (System/getenv "SUBSCRIBE_SMTP_PASSWORD"))
              (string? (System/getenv "SUBSCRIBE_PORT"))
              (string? (System/getenv "SUBSCRIBE_BASEURL"))))))
 
