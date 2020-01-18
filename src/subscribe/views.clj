@@ -8,7 +8,8 @@
             [hiccup.element :as he]
             [ring.util.anti-forgery :as afu]
             [subscribe.i18n :refer [i18n]]
-            [subscribe.config :as config]))
+            [subscribe.config :as config]
+            [compojure.handler :as handler]))
 
 (defn default [title mailing-list content]
   (h/html5
@@ -52,9 +53,9 @@
    [:div {:class "container"}
     (for [l lists]
       [:div {:style "margin: 1.4em;"}
-       [:p {:title (:address l)
-            :class "title"} (:name l)]
-       [:p {:class "subtitle"} (:description l)]
+       [:p {:class "title"} (:name l)]
+       [:p {:class "subtitle"} (or (not-empty (:description l))
+                                   (config/description (:address l)))]
        [:div {:class "level-left"}
         [:a {:class "level-item button is-info"
              :href  (str "/subscribe/" (:address l))}
@@ -67,8 +68,8 @@
   (let [email-ui (i18n [:email-address])
         name-ui  (i18n [:name])]
     (default
-     mailing-list
-     mailing-list
+     (or (config/description mailing-list) mailing-list)
+     (or (config/description mailing-list) mailing-list)
      [:div {:class "container"}
       [:form
        {:action "/subscribe" :method "post"}
@@ -93,17 +94,18 @@
                   :value (i18n [:subscribe])
                   :class "button is-info"}]]]]])))
 
-(defn unsubscribe-to-mailing-list [mailing-list]
+;; FROM: unsubscribe-from-mailing-list
+(defn unsubscribe-from-mailing-list [mailing-list]
   (let [email-ui (i18n [:email-address])]
     (default
-     mailing-list
-     mailing-list
+     (or (config/description mailing-list) mailing-list)
+     (or (config/description mailing-list) mailing-list)
      [:div {:class "container"}
       [:form
        {:action "/unsubscribe" :method "post"}
        (afu/anti-forgery-field)
        [:input {:name  "mailing-list" :type "hidden"
-                :value mailing-list}]
+                :value mailing-list}]       
        [:label {:class "label"} email-ui]
        [:input {:name        "subscriber" :type     "email"
                 :size        "30"         :class    "input"

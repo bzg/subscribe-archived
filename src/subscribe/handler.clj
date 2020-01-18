@@ -37,7 +37,7 @@
              ^{:host (config/smtp-host nil)
                :user (config/smtp-login nil)
                :pass (config/smtp-password nil)}
-             {:from config/from
+             {:from (config/from nil)
               :to   config/admin-email})}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -45,11 +45,6 @@
 
 (d/create-database config/db-uri :schema-on-read true)
 (def db-conn (d/connect config/db-uri))
-
-(defn mailgun-subscribe-endpoint
-  "Return the mailgun API endpoint for `mailing-list`."
-  [mailing-list]
-  (str "/lists/" mailing-list "/members"))
 
 (defn increment-subscribers
   "Increment the count of new subscribers to a mailing list.
@@ -59,11 +54,24 @@
   (let [count-id (ffirst (d/q `[:find ?c :where [?c :address ~mailing-list]] @db-conn))
         count    (:members_new (d/pull @db-conn '[:members_new] count-id))]
     @(d/transact! db-conn [{:db/id count-id :members_new (if dec? (dec count) (inc count))}])
-    (when (and (not dec?) (zero? (mod (inc count) (config/warn-every-x-subscribers mailing-list))))
-      (timbre/warn
-       (format (i18n [:subscribers-added])
-               (config/warn-every-x-subscribers mailing-list)
-               mailing-list)))))
+    (when (and (not dec?)
+               (zero? (mod (inc count) (config/warn-every-x-subscribers mailing-list))))
+      (timbre/with-config
+        {:level     :debug
+         :output-fn (partial timbre/default-output-fn {:stacktrace-fonts {}})
+         :appenders
+         {:println (timbre/println-appender {:stream :auto})
+          :spit    (appenders/spit-appender {:fname config/log-file})
+          :postal  (postal-appender/postal-appender ;; :min-level :warn
+                    ^{:host (config/smtp-host mailing-list)
+                      :user (config/smtp-login mailing-list)
+                      :pass (config/smtp-password mailing-list)}
+                    {:from (config/from mailing-list)
+                     :to   (config/to mailing-list)})}}
+        (timbre/warn
+         (format (i18n [:subscribers-added])
+                 (config/warn-every-x-subscribers mailing-list)
+                 mailing-list))))))
 
 (defn decrement-subscribers
   "Decrement the count of new subscribers to a mailing list."
@@ -72,6 +80,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handle email token creation and validation
+
+(defn get-ml-backend-config
+  "Get the backend configuration for mailing list ML."
+  [ml-address]
+  (let [l (d/q `[:find ?l :where [?l :address ~ml-address]] @db-conn)]
+    (when (not-empty l)
+      (first (filter #(= (:backend %) (:backend (d/pull @db-conn '[:backend] (ffirst l))))
+                     config/backends-expanded)))))
 
 (defn create-action-token
   "Create a token in the database for a subscriber/mailing-list."
@@ -84,6 +100,7 @@
     @(d/transact! db-conn [{:db/id        (d/tempid -1)
                             :token        token
                             :name         full-name
+                            :backend      (:backend (get-ml-backend-config mailing-list))
                             :subscriber   subscriber
                             :mailing-list mailing-list}])))
 
@@ -93,41 +110,58 @@
   (let [eids (d/q `[:find ?e :where [?e :token ~token]] @db-conn)
         eid  (ffirst eids)]
     (when eid
-      (let [infos (d/pull @db-conn '[:subscriber :name :mailing-list] eid)]
+      (let [infos (d/pull @db-conn '[:subscriber :name :mailing-list :backend] eid)]
         @(d/transact! db-conn [[:db.fn/retractEntity eid]])
-        ;; Return {:subscriber "..." :mailing-list "..." :name "..."}
+        ;; Return {:subscriber "..." :mailing-list "..." :name "..." :backend "..."}
         infos))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Get mailing lists informations
+(defn cleanup-list-data [data b]
+  (->> data
+       (map #(clojure.set/rename-keys % (:replacements b)))
+       (map #(merge {:description "" :backend (:backend b) :list-id ""} %))
+       (map #(select-keys % [:name :address :description :backend :list-id]))))
 
 (defn get-lists-from-server
   "Get information for lists from the server."
   []
-  (let [req  (http/get
-              (str config/mailgun-api-url config/mailgun-lists-endpoint)
-              {:basic-auth ["api" config/mailgun-api-key]})
-        body (json/parse-string (:body req) true)]
-    (:items body)))
+  (let [lists (atom {})]
+    (doseq [b config/backends-expanded]
+      (let [api-url        (:api-url b)
+            lists-endpoint (:lists-endpoint b)
+            basic-auth     (:basic-auth b)
+            result         (json/parse-string
+                            (:body
+                             (try (http/get
+                                   (str api-url lists-endpoint)
+                                   {:basic-auth basic-auth})
+                                  (catch Exception e
+                                    {:message (:message (json/parse-string (:body (ex-data e)) true))
+                                     :result  "ERROR"})))
+                            true)]
+        (swap! lists concat (cleanup-list-data ((:data-keyword b) result) b))))
+    @lists))
 
 (defn initialize-lists-information
   "Store lists information in the db."
   []
-  (let [lists (get-lists-from-server)]
-    (doall
-     (map (fn [l] @(d/transact!
-                    db-conn [(merge {:db/id (d/tempid -1) :members_new 0} l)]))
-          lists))))
+  (doseq [l (get-lists-from-server)]
+    @(d/transact! db-conn [(merge {:db/id (d/tempid -1) :members_new 0} l)])))
 
 (defn get-lists-from-db
   "Get the list of mailing lists stored in the database."
   []
-  (let [lists (d/q '[:find ?e :where [?e :description]] @db-conn)]
+  (let [lists (d/q '[:find ?l :where [?l :address ]] @db-conn)]
     (map #(d/pull @db-conn '[:address :description
                              :name :members_count
-                             :members_new]
+                             :members_new :backend :list-id]
                   (first %))
          lists)))
+
+;; (get-lists-filtered (get-lists-from-db))
+
+;; ({:address "test-antoine-augusti@mail.etalab.studio", :description "", :name "Test Liste Antoine Augusti", :members_new 0, :backend "mailgun", :list-id ""} {:address "tdg9i71hw", :description "", :name "MonPremierTest", :members_new 0, :backend "mailjet", :list-id 5904} {:address "forum-etalab@mail.etalab.studio", :description "Utilisateurs du forum d'Etalab", :name "Utilisateurs du forum d'Etalab", :members_new 0, :backend "mailgun", :list-id ""} {:address "test@mail.etalab.studio", :description "Liste test", :name "Liste test", :members_new 0, :backend "mailgun", :list-id ""} {:address "entrepreneur-interet-general@mail.etalab.studio", :description "Liste d'information sur le programme Entrepreneurs d'intérêt général", :name "Entrepreneurs d'intérêt général", :members_new 0, :backend "mailgun", :list-id ""} {:address "bluehats@mail.etalab.studio", :description "La gazette du logiciel libre dans/pour l'administration", :name "Gazette #bluehats", :members_new 0, :backend "mailgun", :list-id ""})
 
 (defn get-lists-filtered
   "Get the list of mailing list while including and excluding lists
@@ -164,23 +198,23 @@
   "Send a templated email."
   [{:keys [email name subject plain-body html-body log mailing-list]}]
   (try
-    (do
-      (postal/send-message
-       {:host (config/smtp-host mailing-list)
-        :port 587
-        :user (config/smtp-login mailing-list)
-        :pass (config/smtp-password mailing-list)}
-       {:from             (config/from mailing-list)
-        :message-id       #(postal.support/message-id "mail.etalab.studio")
-        :to               email
-        :subject          subject
-        :body             (build-email-body {:ml         mailing-list
-                                             :name       name
-                                             :title      mailing-list
-                                             :plain-body plain-body
-                                             :html-body  html-body})
-        :List-Unsubscribe (str "<" config/base-url "/unsubscribe/" mailing-list ">")})
-      (timbre/info log))
+    (postal/send-message
+     {:host (config/smtp-host mailing-list)
+      :port 587
+      :user (config/smtp-login mailing-list)
+      :pass (config/smtp-password mailing-list)}
+     {:from             (config/from mailing-list)
+      :message-id       #(postal.support/message-id
+                          (config/msg-id mailing-list))
+      :to               email
+      :subject          subject
+      :body             (build-email-body {:ml         mailing-list
+                                           :name       name
+                                           :title      mailing-list
+                                           :plain-body plain-body
+                                           :html-body  html-body})
+      :List-Unsubscribe (str "<" config/base-url "/unsubscribe/" mailing-list ">")})
+    (timbre/info log)
     (catch Exception e
       (timbre/error (str "Can't send email: " (:cause (Throwable->map e)))))))
 
@@ -199,110 +233,113 @@
       :mailing-list mailing-list
       :subject      (format (i18n (if unsubscribe?
                                     [:confirm-unsubscription]
-                                    [:confirm-subscription])) mailing-list)
+                                    [:confirm-subscription]))
+                            mailing-list)
       :plain-body   (str
                      (format (i18n (if unsubscribe?
                                      [:confirm-unsubscription]
-                                     [:confirm-subscription])) mailing-list)
+                                     [:confirm-subscription]))
+                             mailing-list)
                      ":\n"
                      (format (str "%s/confirm-"
                                   (if unsubscribe? "un")
-                                  "subscription/%s") config/base-url token))
+                                  "subscription/%s")
+                             config/base-url token))
       :html-body    (str
                      (format (i18n (if unsubscribe?
                                      [:confirm-unsubscription]
-                                     [:confirm-subscription])) mailing-list)
+                                     [:confirm-subscription]))
+                             mailing-list)
                      ":\n"
                      (str "<a href=\""
                           (format (str "%s/confirm-"
                                        (if unsubscribe? "un")
-                                       "subscription/%s") config/base-url token)
+                                       "subscription/%s")
+                                  config/base-url token)
                           "\">" (i18n [:click-here]) "</a>"))
-      :log          (format (i18n [:validation-sent-to]) mailing-list subscriber)})))
+      :log          (format (i18n [:validation-sent-to])
+                            mailing-list subscriber)})))
 
-(defn unsubscribe-address
-  "Perform the actual email unsubscription to the mailing list."
-  [{:keys [subscriber mailing-list]}]
-  (try
-    (let [req (http/delete
-               (str config/mailgun-api-url
-                    (mailgun-subscribe-endpoint mailing-list)
-                    "/" subscriber)
-               {:basic-auth ["api" config/mailgun-api-key]})]
-      {:message (:message (json/parse-string (:body req) true))
-       :result  "UNSUBSCRIBED"})
-    (catch Exception e
-      (let [message (:message (json/parse-string (:body (ex-data e)) true))]
-        {:message message
-         :result  "ERROR"}))))
-
-(defn subscribe-address
+(defn subscribe-or-unsubscribe-address
   "Perform the actual email subscription to the mailing list."
-  [{:keys [subscriber name mailing-list]}]
-  (try
-    (let [req (http/post
-               (str config/mailgun-api-url
-                    (mailgun-subscribe-endpoint mailing-list))
-               {:basic-auth  ["api" config/mailgun-api-key]
-                :form-params {:address subscriber :name name}})]
-      {:message (:message (json/parse-string (:body req) true))
-       :result  "SUBSCRIBED"})
-    (catch Exception e
-      (let [message (:message (json/parse-string (:body (ex-data e)) true))]
-        {:message message
-         :result  "ERROR"}))))
+  [{:keys [subscriber name mailing-list backend action]}]
+  (let [b              (first (filter #(= (:backend %) backend) config/backends-expanded))
+        http-verb      (if (= action "subscribe")
+                         (:subscribe-http-verb b)
+                         (or (:unsubscribe-http-verb b)
+                             (:subscribe-http-verb b)))
+        endpoint-fn    (if (= action "subscribe")
+                         (:subscribe-endpoint-fn b)
+                         (or (:unsubscribe-endpoint-fn b)
+                             (:subscribe-endpoint-fn b)))
+        form-params-fn (if (= action "subscribe")
+                         (:subscribe-form-params-fn b)
+                         (or (:unsubscribe-form-params-fn b)
+                             (:subscribe-form-params-fn b)))
+        result-msg     (if (= action "subscribe")
+                         {:message " subscribed to " :output "subscribe"}
+                         {:message " unsubscribed to " :output "unsubscribe"})]
+    (try
+      (let [req (apply
+                 (if (= http-verb "DELETE") http/delete http/post)
+                 [(str (:api-url b) (endpoint-fn mailing-list subscriber))
+                  {:basic-auth  (:basic-auth b)
+                   :form-params (form-params-fn subscriber name)}])]
+        {:message (str subscriber (:message result-msg) mailing-list " on " backend)
+         :result  (:output result-msg)})
+      (catch Exception e
+        (let [message (:message (json/parse-string (:body (ex-data e)) true))]
+          {:message message
+           :result  "ERROR"})))))
+
+(defn get-list-from-db
+  "Get a map of information for mailing list ML."
+  [ml]
+  (first (filter #(= (:address %) ml) (get-lists-from-db))))
 
 (defn check-already-subscribed
   "Check if an email is already subscribed to the mailing list."
   [email-and-list]
-  (let [subscriber   (get email-and-list "subscriber")
-        mailing-list (get email-and-list "mailing-list")
-        endpoint     (mailgun-subscribe-endpoint mailing-list)]
+  (let [subscriber      (get email-and-list "subscriber")
+        mailing-list    (get email-and-list "mailing-list")
+        backend-conf    (get-ml-backend-config mailing-list)
+        mailing-list-id (:list-id (get-list-from-db mailing-list))]
     (try
       (let [req  (http/get
-                  (str config/mailgun-api-url endpoint "/" subscriber)
-                  {:basic-auth ["api" config/mailgun-api-key]})
+                  (str (:api-url backend-conf)
+                       ((:check-subscription-endpoint-fn backend-conf)
+                        subscriber mailing-list))
+                  {:basic-auth (:basic-auth backend-conf)})
             body (json/parse-string (:body req) true)]
-        (:subscribed (:member body)))
+        ((:check-subscription-validate-fn backend-conf) body mailing-list-id))
       (catch Exception e false))))
 
 (defn subscribe-and-send-confirmation
   "Subscribe an email address to a mailing list.
   Send a confirmation email."
-  [token]
-  (when-let [infos (validate-token token)]
-    (let [result       (subscribe-address infos)
-          name         (:name infos)
-          subscriber   (:subscriber infos)
-          mailing-list (:mailing-list infos)]
-      (if-not (= (:result result) "SUBSCRIBED")
+  [token unsubscribe]
+  (if-let [infos (validate-token token)]
+    (let [action             (if unsubscribe "unsubscribe" "subscribe")
+          inc-or-dec         (if unsubscribe decrement-subscribers increment-subscribers)
+          result             (subscribe-or-unsubscribe-address (merge infos {:action action}))
+          subscribed-to      (if unsubscribe (i18n [:unsubscribed-to])
+                                 (i18n [:subscribed-to]))
+          subscribed-message (if unsubscribe (i18n [:unsubscribed-message])
+                                 (i18n [:subscribed-message]))
+          backend            (:backend infos)
+          name               (:name infos)
+          subscriber         (:subscriber infos)
+          mailing-list       (:mailing-list infos)]
+      (if-not (= (:result result) action)
         (timbre/info (:message result))
-        (do (increment-subscribers mailing-list)
+        (do (inc-or-dec mailing-list)
             (send-email
              {:email      subscriber
               :name       name
-              :subject    (format (i18n [:subscribed-to]) mailing-list)
-              :plain-body (format (i18n [:subscribed-message]) mailing-list)
-              :log        (format (i18n [:confirmation-sent-to]) mailing-list subscriber)}))))))
-
-(defn unsubscribe-and-send-confirmation
-  "Unsubscribe an email address from a mailing list.
-  Send a confirmation email."
-  [token]
-  (when-let [infos (validate-token token)]
-    (let [result       (unsubscribe-address infos)
-          name         (:name infos)
-          subscriber   (:subscriber infos)
-          mailing-list (:mailing-list infos)]
-      (if-not (= (:result result) "UNSUBSCRIBED")
-        (timbre/info (:message result))
-        (do (decrement-subscribers mailing-list)
-            (send-email
-             {:email   subscriber
-              :name    name
-              :subject (format (i18n [:unsubscribed-from]) mailing-list)
-              :body    (format (i18n [:unsubscribed-message]) mailing-list)
-              :log     (format (i18n [:confirmation-sent-to]) mailing-list subscriber)}))))))
+              :subject    (format subscribed-to mailing-list)
+              :plain-body (format subscribed-message mailing-list)
+              :log        (format (i18n [:confirmation-sent-to])
+                                  mailing-list subscriber)}))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Define async channels
@@ -333,7 +370,7 @@
   []
   (async/go
     (loop [token (async/<! subscribe-confirmation-channel)]
-      (subscribe-and-send-confirmation token)
+      (subscribe-and-send-confirmation token nil)
       (recur (async/<! subscribe-confirmation-channel)))))
 
 (defn start-unsubscribe-confirmation-loop
@@ -341,7 +378,7 @@
   []
   (async/go
     (loop [token (async/<! unsubscribe-confirmation-channel)]
-      (unsubscribe-and-send-confirmation token)
+      (subscribe-and-send-confirmation token true)
       (recur (async/<! unsubscribe-confirmation-channel)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -361,7 +398,7 @@
   (GET "/bye" []
        (views/feedback (i18n [:done]) nil (i18n [:successful-unsubscription])))
   (GET "/subscribe/:ml" [ml] (views/subscribe-to-mailing-list ml))
-  (GET "/unsubscribe/:ml" [ml] (views/unsubscribe-to-mailing-list ml))
+  (GET "/unsubscribe/:ml" [ml] (views/unsubscribe-from-mailing-list ml))
   (POST "/subscribe" req
         (let [params (:form-params req)
               ml     (get params "mailing-list")]
