@@ -26,6 +26,8 @@
              (string? (System/getenv "MAILJET_API_SECRET"))
              (string? (System/getenv "SUBSCRIBE_SMTP_LOGIN"))
              (string? (System/getenv "SUBSCRIBE_SMTP_PASSWORD"))
+             (string? (System/getenv "SUBSCRIBE_SMTP_HOST"))
+             (string? (System/getenv "SUBSCRIBE_SMTP_PORT"))
              (string? (System/getenv "SUBSCRIBE_PORT"))
              (string? (System/getenv "SUBSCRIBE_BASEURL"))))))
 

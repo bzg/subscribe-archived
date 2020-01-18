@@ -200,7 +200,7 @@
   (try
     (postal/send-message
      {:host (config/smtp-host mailing-list)
-      :port 587
+      :port (config/smtp-port mailing-list)
       :user (config/smtp-login mailing-list)
       :pass (config/smtp-password mailing-list)}
      {:from             (config/from mailing-list)

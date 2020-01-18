@@ -25,6 +25,8 @@ Add this to your ~./profile~ file:
 :
 : export SUBSCRIBE_SMTP_LOGIN="postmaster@xxx"
 : export SUBSCRIBE_SMTP_PASSWORD="your-password"
+: export SUBSCRIBE_SMTP_PORT=587
+
 : export SUBSCRIBE_PORT=3000
 : export SUBSCRIBE_BASEURL="http://yourdomain.com"
 :

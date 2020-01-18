@@ -3,7 +3,8 @@
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
 (ns subscribe.config
-  "Subscribe configuration variables.")
+  "Subscribe configuration variables."
+  (:require [clojure.edn :as edn]))
 
 ;; Backends configuration
 (def backends
@@ -72,6 +73,12 @@
   (or (:smtp-host (get (:lists config) ml))
       (:smtp-host config)
       (System/getenv "SUBSCRIBE_SMTP_HOST")))
+
+(defn smtp-port [ml]
+  (let [port (or (:smtp-port (get (:lists config) ml))
+                 (:smtp-port config)
+                 (System/getenv "SUBSCRIBE_SMTP_PORT"))]
+    (if (string? port) (edn/read-string port) port)))
 
 (defn smtp-login [ml]
   (or (:smtp-login (get (:lists config) ml))

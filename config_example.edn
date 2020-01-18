@@ -26,6 +26,7 @@
  ;; :tos-url                  "http://domain.com/tos"
  ;; :return-url               "http://domain.com"
  ;; :smtp-host                "smtp.provider.org"
+ ;; :smtp-port                587
  ;; :smtp-login               "my-smtp-login@provider.org"
  ;; :smtp-password            "my-smtp-password@provider.org"
  ;; :warn-every-x-subscribers 10
@@ -40,6 +41,7 @@
  ;;          :smtp-login               "email@domain.com"
  ;;          :smtp-password            "XXX"
  ;;          :smtp-host                "..."
+ ;;          :smtp-port                587
  ;;          :return-url               "http://domain.com"
  ;;          :tos-url                  "https://tos.com"
  ;;          :warn-every-x-subscribers 3}}
