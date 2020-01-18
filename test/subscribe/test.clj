@@ -48,10 +48,12 @@
 (s/def ::warn-every-x-subscribers int?)
 
 (s/def ::config
-  (s/keys :opt-un [::from  ::return-url ::admin-email ::tos-url
-                   ::locale ::team ::log-file ::port ::db-uri
-                   ::lists-exclude-regexp ::lists-include-regexp
-                   ::warn-every-x-subscribers]))
+  (s/keys
+   :req-un [::admin-email]
+   :opt-un [::from ::return-url ::tos-url
+            ::locale ::team ::log-file ::port ::db-uri
+            ::lists-exclude-regexp ::lists-include-regexp
+            ::warn-every-x-subscribers]))
 
 (deftest test-config-specs
   (testing "Checking entries in the configuration map."
