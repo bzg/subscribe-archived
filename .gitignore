@@ -5,3 +5,4 @@ log.txt
 .lein-failures
 .eastwood
 todo.org
+src/subscribe/scratch.clj
