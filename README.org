@@ -2,16 +2,17 @@
 
 * What it does?
 
-If you manage mailing lists through [[https://www.mailgun.com/][mailgun.com]], =Subscribe= lets you
-create webpages from where users can (un)subscribe (from)to your
+If you manage mailing lists through [[https://www.mailgun.com/][mailgun.com]] or [[https://www.mailjet.com][mailjet.com]],
+=Subscribe= creates webpages for users to (un)subscribe (from)to your
 mailing lists.
 
 [[file:subscribe.png]]
 
 * Features
 
-- Filter displayed mailing list
+- Filter displayed mailing lists
 - Receive an email very x subscription
+- Custom HTML body header and footer
 - Use your own stylesheet based on [[https://bulma.io][bulma.io]]
 
 * Configure
@@ -20,19 +21,28 @@ mailing lists.
 
 Add this to your ~./profile~ file:
 
-: export MAILGUN_API_KEY="your-key"
-: export MAILGUN_LOGIN="postmaster@xxx"
-: export MAILGUN_PASSWORD="your-password"
+: # General application variables:
+:
+: export SUBSCRIBE_SMTP_LOGIN="postmaster@xxx"
+: export SUBSCRIBE_SMTP_PASSWORD="your-password"
 : export SUBSCRIBE_PORT=3000
 : export SUBSCRIBE_BASEURL="http://yourdomain.com"
+:
+: # Backend-specific variables:
+:
+: export MAILGUN_API_KEY="your-key"
+: export MAILGUN_API_SECRET="your-password"
+:
+: export MAILJET_API_KEY="your-key"
+: export MAILJET_API_SECRET="your-password"
 
-** Optionally define more options in ~resources/config.edn~
+** Optionally define more options in ~config.edn~
 
-See ~resources/config.edn~:
+Copy ~config_example.edn~ to  ~config.edn~ and edit it:
 
 : {;;;; Global configuration options:
 :  ;;
-:  ;; :locale               "gb-EN"                     ; or "fr-FR", etc.
+:  ;; :locale               "en-US"                     ; or "fr-FR", etc.
 :  ;; :db-uri               "datahike:mem:///subscribe" ; an URI to the local database
 :  ;; :admin-email          "my@email.com"              ; a valid email address
 :  ;; :css                  "/css/my-stylesheet.css"    ; absolute or relative stylesheet URL
@@ -40,22 +50,35 @@ See ~resources/config.edn~:
 :  ;; :lists-include-regexp nil                         ; a regular expression
 :  ;; :ui-strings           {:mailing-lists "Title"}    ; custom UI strings
 :  ;; :log-file             "log-filename.txt"          ; log file name
+:  ;; :base-url             "http://base-url"           ; base URL of the web service
+:  ;;
+:  ;; :before-head-closing-html  "<b>...</b>"           ; add content before </head>
+:  ;; :after-body-beginning-html "<b>...</b>"           ; add content after <body>
+:  ;; :footer-html               "<b>...</b>"           ; replace <footer ...> with your HTML
 :  ;;
 :  ;;;; Global options, possibly overriden by per-list options in :lists
 :  ;;
-:  ;; :from                 "postmaster@mydomain.org"
+:  ;; :from                 "postmaster@domain.com"
 :  ;; :team                 "The name of my team"
-:  ;; :tos-url              "http://localhost/tos"
-:  ;; :smtp-host            ""
-:  ;; :smtp-login           ""
-:  ;; :smtp-password        ""
+:  ;; :msg-id               "domain.com"
+:  ;; :tos-url              "http://domain.com/tos"
+:  ;; :return-url           "http://domain.com"
+:  ;; :smtp-host            "smtp.provider.org"
+:  ;; :smtp-login           "my-smtp-login@provider.org"
+:  ;; :smtp-password        "my-smtp-password@provider.org"
 :  ;; :warn-every-x-subscribers 10
 :  ;;
 :  ;; :lists {"my-list@fqdn"
 :  ;;         {:from          "Your Name <email@domain.com>"
+:  ;;          :to            "Your Name <email@domain.com>"
+:  ;;          :description   "Description of the list."
+:  ;;          :msg-id        "domain.com"
 :  ;;          :smtp-login    "email@domain.com"
 :  ;;          :smtp-password "XXX"
-:  ;;          :tos-url       "https://tos.com"}}
+:  ;;          :smtp-host     "..."
+:  ;;          :return-url    "http://domain.com"
+:  ;;          :tos-url       "https://tos.com"
+:  ;;          :warn-every-x-subscribers 3}}
 :  }
 
 * Test
@@ -63,9 +86,9 @@ See ~resources/config.edn~:
 Run =lein test= to test the configuration before running the
 application.
 
-: ~$ git clone https://github.com/etalab/subscribe
+: ~$ git clone https://github.com/bzg/subscribe
 : ~$ cd subscribe/
-: ... [Set up your configuration]
+: ... [Set up your environment variables and config.edn]
 : ~$ lein test
 
 * Run
@@ -75,7 +98,7 @@ application.
 Assuming your environments variables are stored in ~~/.subscribe_envs~
 and you want to expose the 3000 port:
 
-: ~$ git clone https://github.com/etalab/subscribe
+: ~$ git clone https://github.com/bzg/subscribe
 : ~$ cd subscribe/
 : ~$ docker build -t subscribe .
 : ~$ docker run -it -p 3000:3000 --env-file=~/.subscribe_envs subscribe
@@ -84,7 +107,7 @@ Then go to http://localhost:3000.
 
 ** With ~lein run~
 
-: ~$ git clone https://github.com/etalab/subscribe
+: ~$ git clone https://github.com/bzg/subscribe
 : ~$ cd subscribe/
 : ... [Set up your configuration]
 : ~$ lein run
@@ -93,7 +116,7 @@ Then go to http://localhost:3000 or to your custom base URL.
 
 ** With =java -jar=
 
-: ~$ git clone https://github.com/etalab/subscribe
+: ~$ git clone https://github.com/bzg/subscribe
 : ~$ cd subscribe/
 : ... [Set up your configuration]
 : ~$ lein uberjar
@@ -102,7 +125,6 @@ Then go to http://localhost:3000 or to your custom base URL.
 * TODOs
 
 - [ ] Catch errors before redirecting to the confirmation pages
-- [ ] Connect to other services than mailgun
 
 * Support the Clojure ecosystem
 
