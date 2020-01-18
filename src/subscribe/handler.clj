@@ -334,12 +334,13 @@
         (timbre/info (:message result))
         (do (inc-or-dec mailing-list)
             (send-email
-             {:email      subscriber
-              :name       name
-              :subject    (format subscribed-to mailing-list)
-              :plain-body (format subscribed-message mailing-list)
-              :log        (format (i18n [:confirmation-sent-to])
-                                  mailing-list subscriber)}))))))
+             {:email        subscriber
+              :name         name
+              :mailing-list mailing-list
+              :subject      (format subscribed-to mailing-list)
+              :plain-body   (format subscribed-message mailing-list)
+              :log          (format (i18n [:confirmation-sent-to])
+                                    mailing-list subscriber)}))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Define async channels
