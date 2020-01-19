@@ -143,7 +143,8 @@
   "Store lists information in the db."
   []
   (doseq [l (get-lists-from-server)]
-    @(d/transact! db-conn [(merge {:db/id (d/tempid -1) :members_new 0} l)])))
+    @(d/transact! db-conn [(merge {:db/id (d/tempid -1) :members_new 0} l)]))
+  (timbre/info "Information from mailing lists retrieved"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Handle tokens
