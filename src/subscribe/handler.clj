@@ -125,8 +125,8 @@
   depending on `config/lists-include/exclude-regexp`."
   [lists]
   (->> lists
-       (filter #(not (re-matches config/lists-exclude-regexp (:address %))))
-       (filter #(re-matches config/lists-include-regexp (:address %)))))
+       (filter #(not (re-find config/lists-exclude-regexp (:address %))))
+       (filter #(re-find config/lists-include-regexp (:address %)))))
 
 (defn get-list-from-db
   "Get a map of information for mailing list ML."
