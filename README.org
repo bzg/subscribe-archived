@@ -19,22 +19,18 @@ mailing lists.
 
 ** Set up environment variables
 
-Add this to your ~./profile~ file:
-
-: # General application variables:
+Application variables:
 
 : export SUBSCRIBE_SMTP_LOGIN="postmaster@xxx"
 : export SUBSCRIBE_SMTP_PASSWORD="your-password"
 : export SUBSCRIBE_SMTP_PORT=587
-
 : export SUBSCRIBE_PORT=3000
 : export SUBSCRIBE_BASEURL="http://yourdomain.com"
 
-: # Backend-specific variables:
+Backend-specific variables:
 
 : export MAILGUN_API_KEY="your-key"
 : export MAILGUN_API_SECRET="your-password"
-
 : export MAILJET_API_KEY="your-key"
 : export MAILJET_API_SECRET="your-password"
 
