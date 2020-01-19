@@ -26,8 +26,7 @@
      [:div.hero-body
       [:div.container
        [:h1.title.has-text-centered title]]]]
-    [:section.section
-     [:div.column.is-8.is-offset-2 content]]
+    [:section.section [:div.is-8.is-offset-2 content]]
     (or config/footer-html
         [:footer.footer
          [:div.content.has-text-centered
@@ -52,18 +51,20 @@
    [:div.container
     (for [l lists]
       [:div.columns
-       [:div.column
+       [:div.column.is-8
         [:p.title (:name l)]
         [:p.subtitle (or (not-empty (:description l))
                          (config/description (:address l)))]]
-       [:div.column.level
+       [:div.column
         [:div.level-left
-         [:a.level-item.button.is-info
-          {:href (str "/subscribe/" (:address l))}
-          (i18n [:subscribe-button])]
-         [:a.level-item.button.is-danger
-          {:href (str "/unsubscribe/" (:address l))}
-          (i18n [:unsubscribe-button])]]]])]))
+         [:div.level-item
+          [:a.button.is-info
+           {:href (str "/subscribe/" (:address l))}
+           (i18n [:subscribe-button])]]
+         [:div.level-item
+          [:a.button.is-danger
+           {:href (str "/unsubscribe/" (:address l))}
+           (i18n [:unsubscribe-button])]]]]])]))
 
 (defn subscribe-to-mailing-list [mailing-list]
   (let [email-ui (i18n [:email-address])
