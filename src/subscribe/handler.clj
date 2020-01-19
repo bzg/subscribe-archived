@@ -232,7 +232,7 @@
   (let [subscriber   (get email-and-list "subscriber")
         name         (or (get email-and-list "name") "")
         mailing-list (get email-and-list "mailing-list")
-        ml           (get-list-from-db ml)
+        ml           (get-list-from-db mailing-list)
         token        (str (java.util.UUID/randomUUID))]
     ;; FIXME: check email address format before sending?
     (create-action-token token subscriber name mailing-list)
