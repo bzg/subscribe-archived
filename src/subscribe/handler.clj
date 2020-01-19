@@ -435,7 +435,7 @@
   (start-unsubscription-loop)
   (start-subscribe-confirmation-loop)
   (start-unsubscribe-confirmation-loop)
-  (jetty/run-jetty #'app {:port config/port})
+  (jetty/run-jetty #'app {:port config/port :join? false})
   (println (str "Subscribe application started on localhost:" config/port)))
 
 ;; (-main)
