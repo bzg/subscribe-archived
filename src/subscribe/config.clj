@@ -60,7 +60,6 @@
 (def lists-include-regexp (or (:lists-include-regexp config) #".*"))
 (def log-file (or (not-empty (:log-file config)) "log.txt"))
 (def ui-strings (:ui-strings config))
-(def locale (or (:locale config) "en-US"))
 (def css (or (:css config)
              "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.0/css/bulma.min.css"))
 
@@ -68,6 +67,11 @@
 (def before-head-closing-html (:before-head-closing-html config))
 (def after-body-beginning-html (:after-body-beginning-html config))
 (def footer-html (:footer-html config))
+
+(defn locale [ml]
+  (or (:locale (get (:lists config) ml))
+      (:locale config)
+      "en"))
 
 ;; Per-list configuration options
 (defn smtp-host [ml]

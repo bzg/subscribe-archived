@@ -7,14 +7,14 @@
   (:require [hiccup.page :as h]
             [hiccup.element :as he]
             [ring.util.anti-forgery :as afu]
-            [subscribe.i18n :refer [i18n]]
+            [subscribe.i18n :refer [i]]
             [subscribe.config :as config]))
 
-(defn default [title subtitle ml-address content]
+(defn default [title subtitle ml-address lang content]
   (h/html5
-   {:lang config/locale}
+   {:lang lang}
    [:head
-    [:title (i18n [:title])]
+    [:title (i lang [:title])]
     [:meta {:charset "utf-8"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1, shrink-to-fit=yes"}]
     (h/include-css config/css)
@@ -31,54 +31,60 @@
         [:footer.footer
          [:div.content.has-text-centered
           (if-let [tos (config/tos-url ml-address)]
-            [:p [:a {:href tos :target "new"} (i18n [:tos])]])
-          [:p (i18n [:made-with]) " "
+            [:p [:a {:href tos :target "new"} (i lang [:tos])]])
+          [:p (i lang [:made-with]) " "
            [:a {:href   "https://github.com/bzg/subscribe"
                 :target "new"} "Subscribe"]]]])]))
 
 (defn error []
-  (default
-   (i18n [:error])
-   nil
-   nil
-   [:div.container
-    [:p [:a {:href (config/return-url nil)}
-         (i18n [:return-to-site])]]]))
+  (let [lang (config/locale nil)]
+    (default
+     (i lang [:error])
+     nil
+     nil
+     lang
+     [:div.container
+      [:p [:a {:href (config/return-url nil)}
+           (i lang [:return-to-site])]]])))
 
 (defn mailing-lists [lists]
-  (default
-   (or (config/team nil) (i18n [:mailing-lists]))
-   (if (config/team nil) (i18n [:mailing-lists]))
-   nil
-   [:div.container
-    (for [l lists]
-      [:div.columns
-       [:div.column.is-8
-        [:p.title (:name l)]
-        [:p.subtitle (or (not-empty (:description l))
-                         (config/description (:address l))
-                         (:address l))]]
-       [:div.column
-        [:div.level-left
-         [:div.level-item
-          [:a.button.is-info
-           {:href (str "/subscribe/" (:address l))}
-           (i18n [:subscribe-button])]]
-         [:div.level-item
-          [:a.button.is-danger
-           {:href (str "/unsubscribe/" (:address l))}
-           (i18n [:unsubscribe-button])]]]]])]))
+  (let [lang (config/locale nil)]
+    (default
+     (or (config/team nil) (i lang [:mailing-lists]))
+     (if (config/team nil) (i lang [:mailing-lists]))
+     nil
+     lang
+     [:div.container
+      (for [l lists]
+        [:div.columns
+         [:div.column.is-8
+          [:p.title (:name l)]
+          [:p.subtitle (or (not-empty (:description l))
+                           (config/description (:address l))
+                           (:address l))]]
+         [:div.column
+          [:div.level-left
+           [:div.level-item
+            [:a.button.is-info
+             {:href (str "/subscribe/" (:address l))}
+             (i lang [:subscribe-button])]]
+           [:div.level-item
+            [:a.button.is-danger
+             {:href (str "/unsubscribe/" (:address l))}
+             (i lang [:unsubscribe-button])]]]]])])))
 
 (defn subscribe-to-mailing-list [ml]
-  (let [email-ui   (i18n [:email-address])
-        name-ui    (i18n [:name])
-        ml-address (:address ml)
+  (let [ml-address (:address ml)
+        lang       (config/locale ml-address)
+        email-ui   (i lang [:email-address])
+        name-ui    (i lang [:name])
         ml-name    (:name ml)
         ml-desc    (or (:description ml) (config/description ml) ml-address)]
     (default
      ml-name
      ml-desc
      ml-address
+     lang
      [:div.container
       [:form
        {:action "/subscribe" :method "post"}
@@ -99,17 +105,19 @@
         [:div.control
          [:input.button.is-info
           {:type  "submit"
-           :value (i18n [:subscribe])}]]]]])))
+           :value (i lang [:subscribe])}]]]]])))
 
 (defn unsubscribe-from-mailing-list [ml]
-  (let [email-ui   (i18n [:email-address])
-        ml-address (:address ml)
+  (let [ml-address (:address ml)
+        lang       (config/locale ml-address)
+        email-ui   (i lang [:email-address])
         ml-name    (:name ml)
         ml-desc    (or (:description ml) (config/description ml) ml-address)]
     (default
      ml-name
      ml-desc
      ml-address
+     lang
      [:div.container
       [:form
        {:action "/unsubscribe" :method "post"}
@@ -125,14 +133,17 @@
        [:br]
        [:input.button.is-danger
         {:type  "submit"
-         :value (i18n [:unsubscribe])}]]])))
+         :value (i lang [:unsubscribe])}]]])))
 
 (defn feedback [title ml message]
-  (default
-   title
-   (:name ml)
-   (:address ml)
-   [:div.container
-    [:p.subtitle message]
-    [:p [:a {:href (config/return-url (:address ml))}
-         (i18n [:return-to-site])]]]))
+  (let [address (:address ml)
+        lang    (config/locale address)]
+    (default
+     title
+     (:name ml)
+     address
+     lang
+     [:div.container
+      [:p.subtitle message]
+      [:p [:a {:href (config/return-url address)}
+           (i lang [:return-to-site])]]])))

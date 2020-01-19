@@ -7,8 +7,12 @@
   (:require [taoensso.tempura :refer [tr]]
             [subscribe.config :as config]))
 
+(def supported-languages
+  "A set of supported languages."
+  #{"en" "fr"})
+
 (def localization
-  {:en-US
+  {:en
    {:already-subscribed        "Your email address is already subscribed to this list."
     :not-subscribed            "Your are not subscribed to this list, we cannot unsubscribe you."
     :confirm-subscription      "Please confirm your subscription to the list %s"
@@ -45,7 +49,7 @@
     :validation-sent-to        "%s: validation link sent to %s"
     :subscribers-added         "%s subscribers added to %s"}
 
-   :fr-FR
+   :fr
    {:already-subscribed        "Votre adresse email est déjà inscrite à cette liste."
     :not-subscribed            "Désolé, votre adresse email n'était pas inscrite à cette liste."
     :confirm-subscription      "Merci de confirmer votre inscription à la liste %s"
@@ -88,8 +92,6 @@
                            (merge (val locale) config/ui-strings)})
              localization)))
 
-(def lang (keyword (or (not-empty (:locale config/config)) "en-US")))
-
 (def opts {:dict localization-custom})
 
-(def i18n (partial tr opts [lang]))
+(defn i [lang input] (tr opts [lang] input))

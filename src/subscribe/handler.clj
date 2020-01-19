@@ -13,7 +13,7 @@
             [compojure.route :as route]
             [clj-http.client :as http]
             [subscribe.views :as views]
-            [subscribe.i18n :refer [i18n]]
+            [subscribe.i18n :refer [i]]
             [subscribe.config :as config]
             [postal.core :as postal]
             [clojure.core.async :as async]
@@ -69,7 +69,7 @@
                     {:from (config/from mailing-list)
                      :to   (config/to mailing-list)})}}
         (timbre/warn
-         (format (i18n [:subscribers-added])
+         (format (i (config/locale nil) [:subscribers-added])
                  (config/warn-every-x-subscribers mailing-list)
                  mailing-list))))))
 
@@ -79,10 +79,8 @@
   (increment-subscribers mailing-list true))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Handle email token creation and validation
+;; Handle mailing lists informations
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Get mailing lists informations
 (defn cleanup-list-data [data b]
   (->> data
        (map #(clojure.set/rename-keys % (:replacements b)))
@@ -125,8 +123,8 @@
   depending on `config/lists-include/exclude-regexp`."
   [lists]
   (->> lists
-       (filter #(not (re-find config/lists-exclude-regexp (:address %))))
-       (filter #(re-find config/lists-include-regexp (:address %)))))
+       (filter #(not (re-matches config/lists-exclude-regexp (:address %))))
+       (filter #(re-matches config/lists-include-regexp (:address %)))))
 
 (defn get-list-from-db
   "Get a map of information for mailing list ML."
@@ -156,7 +154,7 @@
     (when-not (empty? subscribers)
       @(d/transact! db-conn [[:db.fn/retractEntity (ffirst subscribers)]])
       (timbre/info
-       (format (i18n [:regenerate-token]) subscriber mailing-list)))
+       (format (i (config/locale nil) [:regenerate-token]) subscriber mailing-list)))
     @(d/transact! db-conn [{:db/id        (d/tempid -1)
                             :token        token
                             :name         full-name
@@ -176,30 +174,31 @@
         infos))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Handle email sending
+;;; Handle emails
 
 (defn build-email-body
   "Build the plain text and HTML parts of the email."
   [{:keys [mailing-list name html-body plain-body]}]
   (let [ml      (get-list-from-db mailing-list)
+        lang    (config/locale (:address ml))
         ml-desc (or (:description ml) (config/description ml))
         ml-name (:name ml)]
     [:alternative
      {:type    "text/plain; charset=utf-8"
-      :content (str (if name (format (i18n [:opening-name]) name)
-                        (i18n [:opening-no-name]))
+      :content (str (if name (format (i lang [:opening-name]) name)
+                        (i lang [:opening-no-name]))
                     "\n\n" plain-body "\n\n"
-                    (i18n [:closing]) "\n\n-- \n"
+                    (i lang [:closing]) "\n\n-- \n"
                     (or (config/team mailing-list)
                         (config/return-url mailing-list)))}
      {:type    "text/html; charset=utf-8"
       :content (views/default
-                ml-name ml-desc mailing-list
+                ml-name ml-desc mailing-list lang
                 [:div
-                 [:p (if name (format (i18n [:opening-name]) name)
-                         (i18n [:opening-no-name]))]
+                 [:p (if name (format (i lang [:opening-name]) name)
+                         (i lang [:opening-no-name]))]
                  [:p (or html-body plain-body)]
-                 [:p (i18n [:closing])]
+                 [:p (i lang [:closing])]
                  [:p [:a {:href (config/return-url mailing-list)}
                       (or (config/team ml)
                           (config/return-url mailing-list))]]])}]))
@@ -234,6 +233,7 @@
         name         (or (get email-and-list "name") "")
         mailing-list (get email-and-list "mailing-list")
         ml           (get-list-from-db mailing-list)
+        lang         (config/locale ml)
         token        (str (java.util.UUID/randomUUID))]
     ;; FIXME: check email address format before sending?
     (create-action-token token subscriber name mailing-list)
@@ -241,14 +241,14 @@
      {:email        subscriber
       :name         name
       :mailing-list mailing-list
-      :subject      (format (i18n (if unsubscribe?
-                                    [:confirm-unsubscription]
-                                    [:confirm-subscription]))
+      :subject      (format (i lang (if unsubscribe?
+                                      [:confirm-unsubscription]
+                                      [:confirm-subscription]))
                             mailing-list)
       :plain-body   (str
-                     (format (i18n (if unsubscribe?
-                                     [:confirm-unsubscription]
-                                     [:confirm-subscription]))
+                     (format (i lang (if unsubscribe?
+                                       [:confirm-unsubscription]
+                                       [:confirm-subscription]))
                              mailing-list)
                      ":\n"
                      (format (str "%s/confirm-"
@@ -256,9 +256,9 @@
                                   "subscription/%s")
                              config/base-url token))
       :html-body    (str
-                     (format (i18n (if unsubscribe?
-                                     [:confirm-unsubscription]
-                                     [:confirm-subscription]))
+                     (format (i lang (if unsubscribe?
+                                       [:confirm-unsubscription]
+                                       [:confirm-subscription]))
                              mailing-list)
                      ":\n"
                      (str "<a href=\""
@@ -266,8 +266,8 @@
                                        (if unsubscribe? "un")
                                        "subscription/%s")
                                   config/base-url token)
-                          "\">" (i18n [:click-here]) "</a>"))
-      :log          (format (i18n [:validation-sent-to])
+                          "\">" (i lang [:click-here]) "</a>"))
+      :log          (format (i lang [:validation-sent-to])
                             (str mailing-list " (" (:backend ml) ")")
                             subscriber)})))
 
@@ -312,28 +312,31 @@
   Send a confirmation email."
   [token unsubscribe]
   (if-let [infos (validate-token token)]
-    (let [action             (if unsubscribe "unsubscribe" "subscribe")
-          inc-or-dec         (if unsubscribe decrement-subscribers increment-subscribers)
-          result             (subscribe-or-unsubscribe-address (merge infos {:action action}))
-          subscribed-to      (if unsubscribe (i18n [:unsubscribed-to])
-                                 (i18n [:subscribed-to]))
-          subscribed-message (if unsubscribe (i18n [:unsubscribed-message])
-                                 (i18n [:subscribed-message]))
-          backend            (:backend infos)
-          name               (:name infos)
-          subscriber         (:subscriber infos)
-          mailing-list       (:mailing-list infos)]
+    (let [action       (if unsubscribe "unsubscribe" "subscribe")
+          inc-or-dec   (if unsubscribe decrement-subscribers increment-subscribers)
+          result       (subscribe-or-unsubscribe-address (merge infos {:action action}))
+          backend      (:backend infos)
+          name         (:name infos)
+          subscriber   (:subscriber infos)
+          mailing-list (:mailing-list infos)]
       (if-not (= (:result result) action)
         (timbre/info (:message result))
         (do (inc-or-dec mailing-list)
-            (send-email
-             {:email        subscriber
-              :name         name
-              :mailing-list mailing-list
-              :subject      (format subscribed-to mailing-list)
-              :plain-body   (format subscribed-message mailing-list)
-              :log          (format (i18n [:confirmation-sent-to])
-                                    mailing-list subscriber)}))))))
+            (let [lang (config/locale (:address (get-list-from-db mailing-list)))
+                  subscribed-to
+                  (if unsubscribe (i lang [:unsubscribed-to])
+                      (i lang [:subscribed-to]))
+                  subscribed-message
+                  (if unsubscribe (i lang [:unsubscribed-message])
+                      (i lang [:subscribed-message]))]
+              (send-email
+               {:email        subscriber
+                :name         name
+                :mailing-list mailing-list
+                :subject      (format subscribed-to mailing-list)
+                :plain-body   (format subscribed-message mailing-list)
+                :log          (format (i lang [:confirmation-sent-to])
+                                      mailing-list subscriber)})))))))
 
 (defn check-already-subscribed
   "Check if an email is already subscribed to the mailing list."
@@ -398,21 +401,34 @@
 (defroutes app-routes
   (GET "/" [] (views/mailing-lists (get-lists-filtered (get-lists-from-db))))
   (GET "/already-subscribed/:ml" [ml]
-       (views/feedback (i18n [:error])
-                       (get-list-from-db ml)
-                       (i18n [:already-subscribed])))
+       (let [ml-opts (get-list-from-db ml)
+             lang    (config/locale (:address ml-opts))]
+         (views/feedback
+          (i lang [:error])
+          ml-opts
+          (i lang [:already-subscribed]))))
   (GET "/not-subscribed/:ml" [ml]
-       (views/feedback (i18n [:error])
-                       (get-list-from-db ml)
-                       (i18n [:not-subscribed])))
+       (let [ml-opts (get-list-from-db ml)
+             lang    (config/locale (:address ml-opts))]
+         (views/feedback
+          (i lang [:error])
+          ml-opts
+          (i lang [:not-subscribed]))))
   (GET "/email-sent/:ml" [ml]
-       (views/feedback (i18n [:thanks])
-                       (get-list-from-db ml)
-                       (i18n [:validation-sent])))
+       (let [ml-opts (get-list-from-db ml)
+             lang    (config/locale (:address ml-opts))]
+         (views/feedback
+          (i lang [:thanks])
+          ml-opts
+          (i lang [:validation-sent]))))
   (GET "/thanks" []
-       (views/feedback (i18n [:done]) nil (i18n [:successful-subscription])))
+       (views/feedback (i (config/locale nil) [:done])
+                       nil (i (config/locale nil)
+                              [:successful-subscription])))
   (GET "/bye" []
-       (views/feedback (i18n [:done]) nil (i18n [:successful-unsubscription])))
+       (views/feedback (i (config/locale nil) [:done])
+                       nil (i (config/locale nil)
+                              [:successful-unsubscription])))
   (GET "/subscribe/:ml" [ml] (views/subscribe-to-mailing-list
                               (get-list-from-db ml)))
   (GET "/unsubscribe/:ml" [ml] (views/unsubscribe-from-mailing-list

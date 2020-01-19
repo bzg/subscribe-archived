@@ -8,7 +8,8 @@
             [clojure.spec.gen.alpha :as gen]
             [clojure.java.io :as io]
             [subscribe.handler :refer :all]
-            [subscribe.config :as config])
+            [subscribe.config :as config]
+            [subscribe.i18n :as i18n])
   (:import org.apache.commons.validator.routines.UrlValidator))
 
 (defn valid-url? [url-str]
@@ -55,7 +56,7 @@
 (s/def ::smtp-host string?)
 (s/def ::smtp-login string?)
 (s/def ::smtp-password string?)
-(s/def ::locale string?)
+(s/def ::locale i18n/supported-languages)
 (s/def ::team string?)
 (s/def ::db-uri string?)
 (s/def ::log-file string?)
@@ -72,6 +73,7 @@
             ::smtp-login ::smtp-password ::smtp-host
             ::warn-every-x-subscribers]))
 
+;; FIXME: Also test per-list configuration
 (deftest configuration-map
   (testing "Checking entries in the configuration map."
     (is (s/valid? ::config config/config))))
