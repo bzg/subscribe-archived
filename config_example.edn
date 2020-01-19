@@ -2,9 +2,10 @@
  
  ;;;; Mandatory
  
- ;; :admin-email               "my@email.com" ; a valid email address
+ ;; :admin-email               "my@email.com"              ; a valid email address
  ;; :base-url                  "http://base-url"           ; base URL of the web service
- 
+ ;; :backends                   #{"mailgun" "mailjet"}     ; set of enabled backends
+
  ;;;; Optional
  
  ;; :locale                    "en-US"                     ; or "fr-FR", etc.

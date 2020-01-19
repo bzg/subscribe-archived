@@ -38,9 +38,12 @@ Add this to your ~./profile~ file:
 : export MAILJET_API_KEY="your-key"
 : export MAILJET_API_SECRET="your-password"
 
-** Optionally define more options in ~config.edn~
+** Define (mandatory) options in ~config.edn~
 
-Copy ~config_example.edn~ to  ~config.edn~ and edit it.
+Copy ~config_example.edn~ to ~config.edn~ and edit it.
+
+The mandatory configuration options are ~:admin-email~ ~:base-url~ and
+~:backends~.
 
 * Test
 

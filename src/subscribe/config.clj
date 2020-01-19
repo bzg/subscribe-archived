@@ -6,6 +6,9 @@
   "Subscribe configuration variables."
   (:require [clojure.edn :as edn]))
 
+;; Configuration from your config.edn file
+(def config (read-string (slurp "config.edn")))
+
 ;; Backends configuration
 (def backends
   [{:backend                        "mailgun"
@@ -46,14 +49,12 @@
                 (fn [b] (replace {:api-key    (:api-key %)
                                   :api-secret (:api-secret %)}
                                  b)))
-       backends))
+       (filter #((:backends config) (:backend %)) backends)))
 
 (def port (read-string (or (System/getenv "SUBSCRIBE_PORT") "3000")))
 (def base-url (or (System/getenv "SUBSCRIBE_BASEURL")
                   (str "http://localhost:" port)))
 
-;; Configuration from your config.edn file
-(def config (read-string (slurp "config.edn")))
 (def db-uri (or (not-empty (:db-uri config)) "datahike:mem:///subscribe"))
 (def lists-exclude-regexp (or (:lists-exclude-regexp config) #""))
 (def lists-include-regexp (or (:lists-include-regexp config) #".*"))

@@ -18,33 +18,39 @@
 (defn regexp? [re-str]
   (= (re-pattern re-str) re-str))
 
-(deftest test-environment-variables
-  (testing "Checking if all environment variables contain strings."
-    (is (and (string? (System/getenv "MAILGUN_API_KEY"))
-             (string? (System/getenv "MAILGUN_API_SECRET"))
-             (string? (System/getenv "MAILJET_API_KEY"))
-             (string? (System/getenv "MAILJET_API_SECRET"))
-             (string? (System/getenv "SUBSCRIBE_SMTP_LOGIN"))
+(deftest application-environment-variables
+  (testing "Checking if all environment variables are set."
+    (is (and (string? (System/getenv "SUBSCRIBE_SMTP_LOGIN"))
              (string? (System/getenv "SUBSCRIBE_SMTP_PASSWORD"))
              (string? (System/getenv "SUBSCRIBE_SMTP_HOST"))
              (string? (System/getenv "SUBSCRIBE_SMTP_PORT"))
              (string? (System/getenv "SUBSCRIBE_PORT"))
              (string? (System/getenv "SUBSCRIBE_BASEURL"))))))
 
-(deftest test-lists-exists
+(deftest backends-environment-variables
+  (testing "Checking if backends environment variables are set."
+    (when ((:backends config/config) "mailgun")
+      (is (and (string? (System/getenv "MAILGUN_API_KEY"))
+               (string? (System/getenv "MAILGUN_API_SECRET")))))
+    (when ((:backends config/config) "mailjet")
+      (is (and (string? (System/getenv "MAILJET_API_KEY"))
+               (string? (System/getenv "MAILJET_API_SECRET")))))))
+
+(deftest lists-exists
   (testing "Checking mailgun connection and existing list(s)."
     (is (boolean (not-empty (get-lists-from-server))))))
 
-;; Configuration keys
+;; Mandatory configuration keys
+(s/def ::admin-email string?)
+(s/def ::base-url valid-url?)
+(s/def ::backends (s/coll-of (into #{} (map :backend config/backends))))
+
+;; Optional configuration keys
 (s/def ::from string?)
 (s/def ::to string?)
 (s/def ::msg-id string?)
-
 (s/def ::return-url valid-url?)
-(s/def ::base-url valid-url?)
 (s/def ::tos-url valid-url?)
-
-(s/def ::admin-email string?)
 (s/def ::port int?)
 (s/def ::smtp-host string?)
 (s/def ::smtp-login string?)
@@ -59,13 +65,13 @@
 
 (s/def ::config
   (s/keys
-   :req-un [::admin-email ::base-url]
+   :req-un [::admin-email ::base-url ::backends]
    :opt-un [::from ::return-url ::tos-url ::msg-id
             ::locale ::team ::log-file ::port ::db-uri
             ::lists-exclude-regexp ::lists-include-regexp
             ::smtp-login ::smtp-password ::smtp-host
             ::warn-every-x-subscribers]))
 
-(deftest test-config-specs
+(deftest configuration-map
   (testing "Checking entries in the configuration map."
     (is (s/valid? ::config config/config))))
