@@ -267,7 +267,7 @@
                                   config/base-url token)
                           "\">" (i18n [:click-here]) "</a>"))
       :log          (format (i18n [:validation-sent-to])
-                            (str mailing-list "(" (:backend ml) ")")
+                            (str mailing-list " (" (:backend ml) ")")
                             subscriber)})))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
