@@ -22,16 +22,15 @@
     config/before-head-closing-html]
    [:body
     config/after-body-beginning-html
-    [:section {:class "hero is-primary"}
-     [:div {:class "hero-body"}
-      [:div {:class "container"}
-       [:h1 {:class "title has-text-centered"} title]]]]
-    [:section {:class "section"}
-     [:div {:class "column is-8 is-offset-2"}
-      content]]
+    [:section.hero.is-primary
+     [:div.hero-body
+      [:div.container
+       [:h1.title.has-text-centered title]]]]
+    [:section.section
+     [:div.column.is-8.is-offset-2 content]]
     (or config/footer-html
-        [:footer {:class "footer"}
-         [:div {:class "content has-text-centered"}
+        [:footer.footer
+         [:div.content.has-text-centered
           (if-let [tos (config/tos-url mailing-list)]
             [:p [:a {:href tos :target "new"} (i18n [:tos])]])
           [:p (i18n [:made-with]) " "
@@ -42,7 +41,7 @@
   (default
    (i18n [:error])
    nil
-   [:div {:class "container"}
+   [:div.container
     [:p [:a {:href (config/return-url nil)}
          (i18n [:return-to-site])]]]))
 
@@ -50,20 +49,20 @@
   (default
    (or (config/team nil) (i18n [:mailing-lists]))
    nil
-   [:div {:class "container"}
+   [:div.container
     (for [l lists]
-      [:div {:class "columns"}
-       [:div {:class "column"}
-        [:p {:class "title"} (:name l)]
-        [:p {:class "subtitle"} (or (not-empty (:description l))
-                                    (config/description (:address l)))]]
-       [:div {:class "column level"}
-        [:div {:class "level-left"}
-         [:a {:class "level-item button is-info"
-              :href  (str "/subscribe/" (:address l))}
+      [:div.columns
+       [:div.column
+        [:p.title (:name l)]
+        [:p.subtitle (or (not-empty (:description l))
+                         (config/description (:address l)))]]
+       [:div.column.level
+        [:div.level-left
+         [:a.level-item.button.is-info
+          {:href (str "/subscribe/" (:address l))}
           (i18n [:subscribe-button])]
-         [:a {:class "level-item button is-danger"
-              :href  (str "/unsubscribe/" (:address l))}
+         [:a.level-item.button.is-danger
+          {:href (str "/unsubscribe/" (:address l))}
           (i18n [:unsubscribe-button])]]]])]))
 
 (defn subscribe-to-mailing-list [mailing-list]
@@ -72,29 +71,30 @@
     (default
      (or (config/description mailing-list) mailing-list)
      (or (config/description mailing-list) mailing-list)
-     [:div {:class "container"}
+     [:div.container
       [:form
        {:action "/subscribe" :method "post"}
        (afu/anti-forgery-field)
        [:input {:name  "mailing-list" :type "hidden"
                 :value mailing-list}]
-       [:div {:class "field"}
-        [:label {:class "label"} name-ui]
-        [:div {:class "control"}
-         [:input {:name        "name" :type  "text"
-                  :size        "30"   :class "input"
-                  :placeholder name-ui}]]]
-       [:div {:class "field"}
-        [:label {:class "label"} email-ui]
-        [:div {:class "control"}
-         [:input {:name        "subscriber" :type     "email"
-                  :size        "30"         :class    "input"
-                  :placeholder email-ui     :required true}]]]
-       [:div {:class "field"}
-        [:div {:class "control"}
-         [:input {:type  "submit"
-                  :value (i18n [:subscribe])
-                  :class "button is-info"}]]]]])))
+       [:div.field
+        [:label.label name-ui]
+        [:div.control
+         [:input.input
+          {:name "name" :type        "text"
+           :size "30"   :placeholder name-ui}]]]
+       [:div.field
+        [:label.label email-ui]
+        [:div.control
+         [:input.input
+          {:name     "subscriber" :type        "email"
+           :size     "30"         :placeholder email-ui
+           :required true}]]]
+       [:div.field
+        [:div.control
+         [:input.button.is-info
+          {:type  "submit"
+           :value (i18n [:subscribe])}]]]]])))
 
 ;; FROM: unsubscribe-from-mailing-list
 (defn unsubscribe-from-mailing-list [mailing-list]
@@ -102,27 +102,28 @@
     (default
      (or (config/description mailing-list) mailing-list)
      (or (config/description mailing-list) mailing-list)
-     [:div {:class "container"}
+     [:div.container
       [:form
        {:action "/unsubscribe" :method "post"}
        (afu/anti-forgery-field)
        [:input {:name  "mailing-list" :type "hidden"
                 :value mailing-list}]       
-       [:label {:class "label"} email-ui]
-       [:input {:name        "subscriber" :type     "email"
-                :size        "30"         :class    "input"
-                :placeholder email-ui     :required true}]
+       [:label.label email-ui]
+       [:input.input
+        {:name     "subscriber" :type        "email"
+         :size     "30"         :placeholder email-ui
+         :required true}]
        [:br]
        [:br]
-       [:input {:type  "submit"
-                :value (i18n [:unsubscribe])
-                :class "button is-danger"}]]])))
+       [:input.button.is-danger
+        {:type  "submit"
+         :value (i18n [:unsubscribe])}]]])))
 
 (defn feedback [title mailing-list message]
   (default
    title
    mailing-list
-   [:div {:class "container"}
-    [:p {:class "subtitle"} message]
+   [:div.container
+    [:p.subtitle message]
     [:p [:a {:href (config/return-url mailing-list)}
          (i18n [:return-to-site])]]]))
