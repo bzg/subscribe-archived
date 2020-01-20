@@ -56,8 +56,8 @@
                   (str "http://localhost:" port)))
 
 (def db-uri (or (not-empty (:db-uri config)) "datahike:mem:///subscribe"))
-(def lists-exclude-regexp (or (:lists-exclude-regexp config) #""))
-(def lists-include-regexp (or (:lists-include-regexp config) #".*"))
+(def lists-exclude-regexp (:lists-exclude-regexp config))
+(def lists-include-regexp (:lists-include-regexp config))
 (def log-file (or (not-empty (:log-file config)) "log.txt"))
 (def ui-strings (:ui-strings config))
 (def css (or (:css config)
