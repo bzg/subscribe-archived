@@ -81,11 +81,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Handle mailing lists informations
 
-(defn cleanup-list-data [data b]
-  (->> data
-       (map #(clojure.set/rename-keys % (:replacements b)))
-       (map #(merge {:description "" :backend (:backend b) :list-id ""} %))
-       (map #(select-keys % [:name :address :description :backend :list-id]))))
+(defn cleanup-list-data [b]
+  (comp
+   (map #(clojure.set/rename-keys % (:replacements b)))
+   (map #(merge {:description "" :backend (:backend b) :list-id ""} %))
+   (map #(select-keys % [:name :address :description :backend :list-id]))))
 
 (defn get-lists-from-server
   "Get information for lists from the server."
@@ -105,7 +105,9 @@
                                                          (:body (ex-data e)) true))
                                      :result  "ERROR"})))
                             true)]
-        (swap! lists concat (cleanup-list-data ((:data-keyword b) result) b))))
+        (swap! lists concat
+               (sequence (cleanup-list-data b)
+                         ((:data-keyword b) result)))))
     @lists))
 
 (defn get-lists-from-db
