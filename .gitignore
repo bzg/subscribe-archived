@@ -7,3 +7,4 @@ log.txt
 todo.org
 config.edn
 src/subscribe/scratch.clj
+.cpcache/
