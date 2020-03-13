@@ -17,12 +17,12 @@
     :lists-endpoint                 "/lists/pages"
     :subscribe-http-verb            "POST"
     :unsubscribe-http-verb          "DELETE"
-    :subscribe-endpoint-fn          (fn [a b] (str "/lists/" a "/members"))
+    :subscribe-endpoint-fn          (fn [a _] (str "/lists/" a "/members"))
     :unsubscribe-endpoint-fn        (fn [a b] (str "/lists/" a "/members/" b))
     :subscribe-form-params-fn       (fn [a b] {:address a :name b})
     :unsubscribe-form-params-fn     nil
     :check-subscription-endpoint-fn (fn [e ml] (str "/lists/" ml "/members/" e))
-    :check-subscription-validate-fn (fn [body id] (:subscribed (:member body)))
+    :check-subscription-validate-fn (fn [body _] (:subscribed (:member body)))
     :api-key                        (System/getenv "MAILGUN_API_KEY")
     :api-secret                     (System/getenv "MAILGUN_API_SECRET")
     :basic-auth                     ["api" :api-key]
@@ -33,11 +33,11 @@
     :api-url                        "https://api.mailjet.com/v3/REST"
     :lists-endpoint                 "/contactslist"
     :subscribe-http-verb            "POST"
-    :subscribe-endpoint-fn          (fn [a b] (str "/contactslist/" a "/managecontact"))
+    :subscribe-endpoint-fn          (fn [a _] (str "/contactslist/" a "/managecontact"))
     :subscribe-form-params-fn       (fn [a b] {:Email a :Name b :Action "addforce"})
     :unsubscribe-form-params-fn     (fn [a b] {:Email a :Name b :Action "remove"})
-    :check-subscription-endpoint-fn (fn [e ml] (str "/contact/" e "/getcontactslists"))
-    :check-subscription-validate-fn (fn [body id] (not (empty? (first (filter #(= (:ListID %) id) (:Data body))))))
+    :check-subscription-endpoint-fn (fn [e _] (str "/contact/" e "/getcontactslists"))
+    :check-subscription-validate-fn (fn [body id] (seq (first (filter #(= (:ListID %) id) (:Data body)))))
     :api-key                        (System/getenv "MAILJET_API_KEY")
     :api-secret                     (System/getenv "MAILJET_API_SECRET")
     :basic-auth                     [:api-key :api-secret]

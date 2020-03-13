@@ -50,7 +50,7 @@
   (let [lang (config/locale nil)]
     (default
      (or (config/team nil) (i lang [:mailing-lists]))
-     (if (config/team nil) (i lang [:mailing-lists]))
+     (when (config/team nil) (i lang [:mailing-lists]))
      nil
      lang
      [:div.container

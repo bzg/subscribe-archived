@@ -261,7 +261,7 @@
                              mailing-list)
                      ":\n"
                      (format (str "%s/confirm-"
-                                  (if unsubscribe? "un")
+                                  (when unsubscribe? "un")
                                   "subscription/%s")
                              config/base-url token))
       :html-body    (str
@@ -272,7 +272,7 @@
                      ":\n"
                      (str "<a href=\""
                           (format (str "%s/confirm-"
-                                       (if unsubscribe? "un")
+                                       (when unsubscribe? "un")
                                        "subscription/%s")
                                   config/base-url token)
                           "\">" (i lang [:click-here]) "</a>"))
@@ -304,8 +304,8 @@
                          {:message " subscribed to " :output "subscribe"}
                          {:message " unsubscribed to " :output "unsubscribe"})]
     (try
-      (let [req (apply
-                 (if (= http-verb "DELETE") http/delete http/post)
+      (let [req (apply ;; FIXME: what does req here?
+                 (when (= http-verb "DELETE") http/delete http/post)
                  [(str (:api-url b) (endpoint-fn mailing-list subscriber))
                   {:basic-auth  (:basic-auth b)
                    :form-params (form-params-fn subscriber name)}])]
@@ -361,7 +361,7 @@
                   {:basic-auth (:basic-auth backend-conf)})
             body (json/parse-string (:body req) true)]
         ((:check-subscription-validate-fn backend-conf) body mailing-list-id))
-      (catch Exception e false))))
+      (catch Exception _ nil))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Define async channels
@@ -470,7 +470,7 @@
 
 (defn -main
   "Initialize the db, the loops and the web serveur."
-  [& args]
+  []
   (initialize-lists-information)
   (start-subscription-loop)
   (start-unsubscription-loop)
