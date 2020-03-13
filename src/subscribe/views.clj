@@ -5,7 +5,6 @@
 (ns subscribe.views
   "Subscribe application views."
   (:require [hiccup.page :as h]
-            [hiccup.element :as he]
             [ring.util.anti-forgery :as afu]
             [subscribe.i18n :refer [i]]
             [subscribe.config :as config]))
