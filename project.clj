@@ -16,7 +16,7 @@
                  [ring/ring-jetty-adapter "1.8.0"]
                  [ring/ring-devel "1.8.0"]
                  [ring/ring-defaults "0.3.2"]
-                 [cheshire "5.9.0"]
+                 [cheshire "5.10.0"]
                  [clj-http "3.10.0"]
                  [com.taoensso/tempura "1.2.1"]
                  [io.replikativ/datahike "0.2.1"]
