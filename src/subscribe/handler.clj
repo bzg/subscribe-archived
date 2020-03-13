@@ -16,6 +16,7 @@
             [subscribe.i18n :refer [i]]
             [subscribe.config :as config]
             [postal.core :as postal]
+            [postal.support]
             [clojure.core.async :as async]
             [datahike.api :as d]
             [cheshire.core :as json]
