@@ -324,7 +324,6 @@
     (let [action       (if unsubscribe "unsubscribe" "subscribe")
           inc-or-dec   (if unsubscribe decrement-subscribers increment-subscribers)
           result       (subscribe-or-unsubscribe-address (merge infos {:action action}))
-          backend      (:backend infos)
           name         (:name infos)
           subscriber   (:subscriber infos)
           mailing-list (:mailing-list infos)]
