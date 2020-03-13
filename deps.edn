@@ -1,0 +1,43 @@
+{:version     "0.6.1"
+ :description "Web application to subscribe to mailing lists."
+ :url         "https://github.com/bzg/subscribe"
+ :license     {:name "Eclipse Public License v2.0"
+               :url  "https://www.eclipse.org/legal/epl-2.0/"}
+
+ :deps
+ {
+  cheshire                {:mvn/version "5.10.0"}
+  clj-http                {:mvn/version "3.10.0"}
+  com.draines/postal      {:mvn/version "2.0.3"}
+  com.taoensso/tempura    {:mvn/version "1.2.1"}
+  com.taoensso/timbre     {:mvn/version "4.10.0"}
+  commons-validator       {:mvn/version "1.6"}
+  compojure               {:mvn/version "1.6.1"}
+  hiccup                  {:mvn/version "1.0.5"}
+  io.replikativ/datahike  {:mvn/version "0.2.1"}
+  org.clojure/clojure     {:mvn/version "1.10.1"}
+  org.clojure/core.async  {:mvn/version "0.7.559"}
+  ring/ring-core          {:mvn/version "1.8.0"}
+  ring/ring-defaults      {:mvn/version "0.3.2"}
+  ring/ring-devel         {:mvn/version "1.8.0"}
+  ring/ring-jetty-adapter {:mvn/version "1.8.0"}
+  }
+
+ :paths ["src" "src/clj" "resources"]
+
+ :aliases
+ {:run
+  {:jvm-opts  ["-Xmx500m"]
+   :main-opts ["-m" "subscribe.handler"]}
+
+  :jar {:extra-deps {seancorfield/depstar {:mvn/version "RELEASE"}}
+        :main-opts  ["-m" "hf.depstar.uberjar" "subscribe.jar"
+                     "-C" "-m" "subscribe.server"]}
+
+  :test
+  {:extra-paths ["test"]
+   :extra-deps  {com.cognitect/test-runner
+                 {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                  :sha     "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
+   :main-opts   ["-m" "cognitect.test-runner"
+                 "-d" "test" "-n" "subscribe.test"]}}}
