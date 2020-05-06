@@ -27,11 +27,11 @@
  :aliases
  {:run
   {:jvm-opts  ["-Xmx500m"]
-   :main-opts ["-m" "subscribe.handler"]}
+   :main-opts ["-m" "subscribe.core"]}
 
   :jar {:extra-deps {seancorfield/depstar {:mvn/version "RELEASE"}}
         :main-opts  ["-m" "hf.depstar.uberjar" "subscribe.jar"
-                     "-C" "-m" "handler"]}
+                     "-C" "-m" "core"]}
 
   :test
   {:extra-paths ["test"]

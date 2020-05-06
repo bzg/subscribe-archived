@@ -2,7 +2,7 @@
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
-(ns handler
+(ns core
   "Subscribe core functions."
   (:require [ring.adapter.jetty :as jetty]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
