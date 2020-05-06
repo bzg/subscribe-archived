@@ -11,5 +11,5 @@ ENV SUBSCRIBE_SMTP_LOGIN ${SUBSCRIBE_SMTP_LOGIN}
 ENV SUBSCRIBE_SMTP_PASSWORD ${SUBSCRIBE_SMTP_PASSWORD}
 ENV SUBSCRIBE_PORT ${SUBSCRIBE_PORT}
 ENV SUBSCRIBE_BASEURL ${SUBSCRIBE_BASEURL}
-ADD target/subscribe-standalone.jar /subscribe/subscribe-standalone.jar
-CMD ["java", "-jar", "/subscribe/subscribe-standalone.jar"]
+ADD target/subscribe.jar /subscribe/subscribe.jar
+CMD ["java", "-cp", "/subscribe/subscribe.jar clojure.main -m subscribe.handler"]
