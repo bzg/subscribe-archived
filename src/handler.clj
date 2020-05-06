@@ -2,7 +2,7 @@
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
-(ns subscribe.handler
+(ns handler
   "Subscribe core functions."
   (:require [ring.adapter.jetty :as jetty]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
@@ -12,9 +12,9 @@
             [compojure.route :as route]
             [clj-http.lite.client :as http]
             [clojure.set :as set]
-            [subscribe.views :as views]
-            [subscribe.i18n :refer [i]]
-            [subscribe.config :as config]
+            [views :as views]
+            [i18n :refer [i]]
+            [config :as config]
             [postal.core :as postal]
             [postal.support]
             [clojure.core.async :as async]

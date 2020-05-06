@@ -22,7 +22,7 @@
   ring/ring-jetty-adapter         {:mvn/version "1.8.0"}
   }
 
- :paths ["src" "resources" "src/clj"]
+ :paths ["src" "resources"]
 
  :aliases
  {:run
@@ -31,7 +31,7 @@
 
   :jar {:extra-deps {seancorfield/depstar {:mvn/version "RELEASE"}}
         :main-opts  ["-m" "hf.depstar.uberjar" "subscribe.jar"
-                     "-C" "-m" "subscribe.server"]}
+                     "-C" "-m" "handler"]}
 
   :test
   {:extra-paths ["test"]

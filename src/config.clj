@@ -2,7 +2,7 @@
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
-(ns subscribe.config
+(ns config
   "Subscribe configuration variables."
   (:require [clojure.edn :as edn]))
 
@@ -67,31 +67,32 @@
 (def before-head-closing-html (:before-head-closing-html config))
 (def after-body-beginning-html (:after-body-beginning-html config))
 (def footer-html (:footer-html config))
+(def lists (:lists config))
 
 (defn locale [ml]
-  (or (:locale (get (:lists config) ml))
+  (or (:locale (get lists ml))
       (:locale config)
       "en"))
 
 ;; Per-list configuration options
 (defn smtp-host [ml]
-  (or (:smtp-host (get (:lists config) ml))
+  (or (:smtp-host (get lists ml))
       (:smtp-host config)
       (System/getenv "SUBSCRIBE_SMTP_HOST")))
 
 (defn smtp-port [ml]
-  (let [port (or (:smtp-port (get (:lists config) ml))
+  (let [port (or (:smtp-port (get lists ml))
                  (:smtp-port config)
                  (System/getenv "SUBSCRIBE_SMTP_PORT"))]
     (if (string? port) (edn/read-string port) port)))
 
 (defn smtp-login [ml]
-  (or (:smtp-login (get (:lists config) ml))
+  (or (:smtp-login (get lists ml))
       (:smtp-login config)
       (System/getenv "SUBSCRIBE_SMTP_LOGIN")))
 
 (defn smtp-password [ml]
-  (or (:smtp-password (get (:lists config) ml))
+  (or (:smtp-password (get lists ml))
       (:smtp-password config)
       (System/getenv "SUBSCRIBE_SMTP_PASSWORD")))
 
@@ -100,21 +101,21 @@
 (defn from
   "From field for transational messages for mailing list ML."
   [ml]
-  (or (:from (get (:lists config) ml))
+  (or (:from (get lists ml))
       (:from config)
       (smtp-login ml)))
 
 (defn to
   "Address to send messages to about mailing list ML."
   [ml]
-  (or (:to (get (:lists config) ml))
+  (or (:to (get lists ml))
       (:admin-email config)
       (smtp-login ml)))
 
 (defn msg-id
   "Message-Id part of transactional messages for mailing list ML."
   [ml]
-  (or (:msg-id (get (:lists config) ml))
+  (or (:msg-id (get lists ml))
       (:msg-id config)))
 
 (defn description
@@ -122,37 +123,37 @@
   It will be used as a fallback value when the backend does not allow
   to provide a description."
   [ml]
-  (not-empty (:description (get (:lists config) ml))))
+  (not-empty (:description (get lists ml))))
 
 (defn list-name
   "The name of the mailing list.
   It will be used as a fallback value when the backend does not allow
   to provide a name."
   [ml]
-  (not-empty (:list-name (get (:lists config) ml))))
+  (not-empty (:list-name (get lists ml))))
 
 (defn team
   "The name of the team of mailing list ML."
   [ml]
-  (or (:team (get (:lists config) ml))
+  (or (:team (get lists ml))
       (:team config)))
 
 (defn return-url
   "The return url for mailing list ML."
   [ml]
-  (or (:return-url (get (:lists config) ml))
+  (or (:return-url (get lists ml))
       (:return-url config)
       base-url))
 
 (defn tos-url
   "The terms of service url for mailing list ML."
   [ml]
-  (or (:tos-url (get (:lists config) ml))
+  (or (:tos-url (get lists ml))
       (:tos-url config)))
 
 (defn warn-every-x-subscribers
   "Warn every x subscribers for mailing list ML."
   [ml]
-  (or (:warn-every-x-subscribers (get (:lists config) ml))
+  (or (:warn-every-x-subscribers (get lists ml))
       (:warn-every-x-subscribers config)
       100))

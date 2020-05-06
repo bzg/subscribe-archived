@@ -2,10 +2,10 @@
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
-(ns subscribe.i18n
+(ns i18n
   "Subscribe localization."
   (:require [taoensso.tempura :refer [tr]]
-            [subscribe.config :as config]))
+            [config :as config]))
 
 (def supported-languages
   "A set of supported languages."

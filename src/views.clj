@@ -2,12 +2,12 @@
 ;; SPDX-License-Identifier: EPL-2.0
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
-(ns subscribe.views
+(ns views
   "Subscribe application views."
   (:require [hiccup.page :as h]
             [ring.util.anti-forgery :as afu]
-            [subscribe.i18n :refer [i]]
-            [subscribe.config :as config]))
+            [i18n :refer [i]]
+            [config :as config]))
 
 (defn default [title subtitle ml-address lang content]
   (h/html5
