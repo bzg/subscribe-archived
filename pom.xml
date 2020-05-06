@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>bzg</groupId>
   <artifactId>subscribe</artifactId>
-  <version>0.6.1</version>
+  <version>0.7.0</version>
   <name>bzg/subscribe</name>
   <description>FIXME: my new application.</description>
   <url>https://github.com/bzg/subscribe</url>
