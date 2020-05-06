@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: EPL-2.0
 # License-Filename: LICENSES/EPL-2.0.txt
 
-FROM java:8-alpine
+FROM openjdk:8-alpine
+
 ENV MAILGUN_API_KEY ${MAILGUN_API_KEY}
 ENV MAILGUN_API_SECRET ${MAILGUN_API_SECRET}
 ENV MAILJET_API_KEY ${MAILJET_API_KEY}
@@ -11,5 +12,9 @@ ENV SUBSCRIBE_SMTP_LOGIN ${SUBSCRIBE_SMTP_LOGIN}
 ENV SUBSCRIBE_SMTP_PASSWORD ${SUBSCRIBE_SMTP_PASSWORD}
 ENV SUBSCRIBE_PORT ${SUBSCRIBE_PORT}
 ENV SUBSCRIBE_BASEURL ${SUBSCRIBE_BASEURL}
-ADD target/subscribe.jar /subscribe/subscribe.jar
-CMD ["java", "-cp", "/subscribe/subscribe.jar clojure.main -m subscribe.handler"]
+
+WORKDIR /
+
+ADD subscribe.jar subscribe.jar
+COPY config.edn config.edn
+CMD ["java", "-jar", "subscribe.jar"]
