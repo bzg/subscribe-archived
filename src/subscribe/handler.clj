@@ -10,7 +10,7 @@
             [ring.util.response :as response]
             [compojure.core :as compojure :refer (GET POST defroutes)]
             [compojure.route :as route]
-            [clj-http.client :as http]
+            [clj-http.lite.client :as http]
             [clojure.set]
             [subscribe.views :as views]
             [subscribe.i18n :refer [i]]
