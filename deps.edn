@@ -1,4 +1,4 @@
-{:version     "0.6.1"
+{:version     "0.7.0"
  :description "Web application to subscribe to mailing lists."
  :url         "https://github.com/bzg/subscribe"
  :license     {:name "Eclipse Public License v2.0"
@@ -14,7 +14,6 @@
   commons-validator               {:mvn/version "1.6"}
   compojure                       {:mvn/version "1.6.1"}
   hiccup                          {:mvn/version "1.0.5"}
-  io.replikativ/datahike          {:mvn/version "0.2.1"}
   org.clojure/clojure             {:mvn/version "1.10.1"}
   org.clojure/core.async          {:mvn/version "0.7.559"}
   ring/ring-core                  {:mvn/version "1.8.0"}
@@ -23,7 +22,7 @@
   ring/ring-jetty-adapter         {:mvn/version "1.8.0"}
   }
 
- :paths ["src" "src/clj" "resources"]
+ :paths ["src" "resources" "src/clj"]
 
  :aliases
  {:run

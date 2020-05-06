@@ -29,7 +29,7 @@
     (or config/footer-html
         [:footer.footer
          [:div.content.has-text-centered
-          (if-let [tos (config/tos-url ml-address)]
+          (when-let [tos (config/tos-url ml-address)]
             [:p [:a {:href tos :target "new"} (i lang [:tos])]])
           [:p (i lang [:made-with]) " "
            [:a {:href   "https://github.com/bzg/subscribe"
@@ -54,46 +54,44 @@
      nil
      lang
      [:div.container
-      (for [l lists]
+      (for [[l val] lists]
         [:div.columns
          [:div.column.is-8
-          [:p.title (:name l)]
-          [:p.subtitle (or (not-empty (:description l))
-                           (config/description (:address l))
-                           (:address l))]]
+          [:p.is-size-3 (:list-name val)]
+          [:p.is-size-5
+           (or (not-empty (:description val))
+               (config/description l)
+               l)]]
          [:div.column
           [:div.level-left
            [:div.level-item
             [:a.button.is-info
-             {:href (str "/subscribe/" (:address l))}
+             {:href (str "/subscribe/" l)}
              (i lang [:subscribe-button])]]
            [:div.level-item
             [:a.button.is-danger
-             {:href (str "/unsubscribe/" (:address l))}
+             {:href (str "/unsubscribe/" l)}
              (i lang [:unsubscribe-button])]]]]])])))
 
-(defn subscribe-to-mailing-list [ml]
-  (let [ml-address (:address ml)
-        lang       (config/locale ml-address)
-        email-ui   (i lang [:email-address])
-        name-ui    (i lang [:name])
-        ml-name    (:name ml)
-        ml-desc    (or (:description ml) (config/description ml) ml-address)]
+(defn subscribe-to-mailing-list [{:keys [address list-name description]}]
+  (let [lang     (config/locale address)
+        email-ui (i lang [:email-address])
+        name-ui  (i lang [:name])]
     (default
-     ml-name
-     ml-desc
-     ml-address
+     list-name
+     description
+     address
      lang
      [:div.container
       [:form
        {:action "/subscribe" :method "post"}
        (afu/anti-forgery-field)
-       [:input {:name "mailing-list" :type "hidden" :value ml-address}]
+       [:input {:name "mailing-list" :type "hidden" :value address}]
        [:div.field
         [:label.label name-ui]
         [:div.control
          [:input.input
-          {:name "name" :type "text" :size "30" :placeholder name-ui}]]]
+          {:name "username" :type "text" :size "30" :placeholder name-ui}]]]
        [:div.field
         [:label.label email-ui]
         [:div.control
@@ -106,23 +104,20 @@
           {:type  "submit"
            :value (i lang [:subscribe])}]]]]])))
 
-(defn unsubscribe-from-mailing-list [ml]
-  (let [ml-address (:address ml)
-        lang       (config/locale ml-address)
-        email-ui   (i lang [:email-address])
-        ml-name    (:name ml)
-        ml-desc    (or (:description ml) (config/description ml) ml-address)]
+(defn unsubscribe-from-mailing-list [{:keys [address username description]}]
+  (let [lang     (config/locale address)
+        email-ui (i lang [:email-address])]
     (default
-     ml-name
-     ml-desc
-     ml-address
+     username
+     description
+     address
      lang
      [:div.container
       [:form
        {:action "/unsubscribe" :method "post"}
        (afu/anti-forgery-field)
        [:input {:name  "mailing-list" :type "hidden"
-                :value ml-address}]
+                :value address}]
        [:label.label email-ui]
        [:input.input
         {:name     "subscriber" :type        "email"
@@ -139,7 +134,7 @@
         lang    (config/locale address)]
     (default
      title
-     (:name ml)
+     (:list-name ml)
      address
      lang
      [:div.container

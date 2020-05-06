@@ -38,6 +38,7 @@
  ;;         {:from                     "Your Name <email@domain.com>"
  ;;          :to                       "Your Name <email@domain.com>"
  ;;          :description              "Description of the list."
+ ;;          :list-name                "Name of the list" (recommended for mailjet)
  ;;          :msg-id                   "domain.com"
  ;;          :smtp-login               "email@domain.com"
  ;;          :smtp-password            "XXX"

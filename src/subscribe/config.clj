@@ -41,7 +41,7 @@
     :api-key                        (System/getenv "MAILJET_API_KEY")
     :api-secret                     (System/getenv "MAILJET_API_SECRET")
     :basic-auth                     [:api-key :api-secret]
-    :replacements                   {:Address :address :Name :name :ID :list-id}
+    :replacements                   {:Address :address :Name :list-name :ID :list-id}
     :data-keyword                   :Data}])
 
 (def backends-expanded
@@ -123,6 +123,13 @@
   to provide a description."
   [ml]
   (not-empty (:description (get (:lists config) ml))))
+
+(defn list-name
+  "The name of the mailing list.
+  It will be used as a fallback value when the backend does not allow
+  to provide a name."
+  [ml]
+  (not-empty (:list-name (get (:lists config) ml))))
 
 (defn team
   "The name of the team of mailing list ML."
