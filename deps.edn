@@ -26,8 +26,7 @@
 
  :aliases
  {:run
-  {:jvm-opts  ["-Xmx500m"]
-   :main-opts ["-m" "subscribe.core"]}
+  {:jvm-opts ["-Xmx500m"] :main-opts ["-m" "core"]}
 
   :jar {:extra-deps {seancorfield/depstar {:mvn/version "RELEASE"}}
         :main-opts  ["-m" "hf.depstar.uberjar" "subscribe.jar"
