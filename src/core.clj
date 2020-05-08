@@ -184,7 +184,8 @@
                  [:p (i lang [:closing])]
                  [:p [:a {:href (config/return-url mailing-list)}
                       (or (config/team ml)
-                          (config/return-url mailing-list))]]])}]))
+                          (config/return-url mailing-list))]]]
+                true)}]))
 
 (defn send-email
   "Send a templated email."

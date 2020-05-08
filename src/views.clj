@@ -9,31 +9,32 @@
             [i18n :refer [i]]
             [config :as config]))
 
-(defn default [title subtitle ml-address lang content]
+(defn default [title subtitle ml-address lang content & [email?]]
   (h/html5
    {:lang lang}
    [:head
     [:title (i lang [:title])]
     [:meta {:charset "utf-8"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1, shrink-to-fit=yes"}]
-    (h/include-css config/css)
-    config/before-head-closing-html]
+    (if-not email? (h/include-css config/css))
+    (if-not email? config/before-head-closing-html)]
    [:body
-    config/after-body-beginning-html
+    (if-not email? config/after-body-beginning-html)
     [:section.hero.is-primary
      [:div.hero-body
       [:div.container
        [:h1.title.has-text-centered title]
        [:h2.subtitle.has-text-centered subtitle]]]]
     [:section.section [:div.is-8.is-offset-2 content]]
-    (or config/footer-html
-        [:footer.footer
-         [:div.content.has-text-centered
-          (when-let [tos (config/tos-url ml-address)]
-            [:p [:a {:href tos :target "new"} (i lang [:tos])]])
-          [:p (i lang [:made-with]) " "
-           [:a {:href   "https://github.com/bzg/subscribe"
-                :target "new"} "Subscribe"]]]])]))
+    (if-not email?
+      (or config/footer-html
+          [:footer.footer
+           [:div.content.has-text-centered
+            (when-let [tos (config/tos-url ml-address)]
+              [:p [:a {:href tos :target "new"} (i lang [:tos])]])
+            [:p (i lang [:made-with]) " "
+             [:a {:href   "https://github.com/bzg/subscribe"
+                  :target "new"} "Subscribe"]]]]))]))
 
 (defn error []
   (let [lang (config/locale nil)]
