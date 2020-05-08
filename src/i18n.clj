@@ -31,6 +31,8 @@
     :unsubscribed-from         "Unsubscribed from the %s mailing list"
     :mailing-lists             "Mailing lists"
     :subscribe-button          "Subscribe"
+    :subscribing               "Subscription"
+    :unsubscribing             "Unsubscription"
     :made-with                 "Made with"
     :tos                       "Terms of service"
     :unsubscribe-button        "Unsubscribe"
@@ -44,7 +46,6 @@
     :successful-unsubscription "You are now unsubscribed."
     :thanks                    "Thanks!"
     :bye                       "Bye!"
-    :title                     "Mailing list subscription"
     :validation-sent           "Please check your inbox: we sent you a validation link by email. Thanks!"
     :validation-sent-to        "%s: validation link sent to %s"
     :subscribers-added         "%s subscribers added to %s"}
@@ -65,6 +66,8 @@
     :error                     "Ooops !"
     :missing                   "Traduction manquante"
     :mailing-lists             "Listes de diffusion"
+    :subscribing               "Inscription"
+    :unsubscribing             "Désincription"
     :subscribed-to             "Inscription à la liste %s"
     :unsubscribed-from         "Désinscription de la liste %s"
     :subscribe-button          "Inscription"
@@ -81,7 +84,6 @@
     :successful-unsubscription "Désinscription réussie !"
     :thanks                    "Merci !"
     :bye                       "À bientôt !"
-    :title                     "Inscription à une liste de diffusion"
     :validation-sent           "Vérifiez vos messages : nous venons de vous envoyer un lien pour valider votre inscription."
     :validation-sent-to        "%s: envoi du lien de validation vers %s."
     :subscribers-added         "%s inscrits ajoutés à %s"}})

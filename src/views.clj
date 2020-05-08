@@ -13,7 +13,7 @@
   (h/html5
    {:lang lang}
    [:head
-    [:title (i lang [:title])]
+    [:title title]
     [:meta {:charset "utf-8"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1, shrink-to-fit=yes"}]
     (if-not email? (h/include-css config/css))
@@ -79,7 +79,7 @@
         email-ui (i lang [:email-address])
         name-ui  (i lang [:name])]
     (default
-     list-name
+     (str (i lang [:subscribing]) " - " list-name)
      description
      address
      lang
@@ -109,7 +109,7 @@
   (let [lang     (config/locale address)
         email-ui (i lang [:email-address])]
     (default
-     username
+     (str (i lang [:unsubscribing]) " - " address)
      description
      address
      lang
