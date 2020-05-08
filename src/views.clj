@@ -16,17 +16,17 @@
     [:title title]
     [:meta {:charset "utf-8"}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1, shrink-to-fit=yes"}]
-    (if-not email? (h/include-css config/css))
-    (if-not email? config/before-head-closing-html)]
+    (when-not email? (h/include-css config/css))
+    (when-not email? config/before-head-closing-html)]
    [:body
-    (if-not email? config/after-body-beginning-html)
+    (when-not email? config/after-body-beginning-html)
     [:section.hero.is-primary
      [:div.hero-body
       [:div.container
        [:h1.title.has-text-centered title]
        [:h2.subtitle.has-text-centered subtitle]]]]
     [:section.section [:div.is-8.is-offset-2 content]]
-    (if-not email?
+    (when-not email?
       (or config/footer-html
           [:footer.footer
            [:div.content.has-text-centered
