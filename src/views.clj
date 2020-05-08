@@ -105,11 +105,11 @@
           {:type  "submit"
            :value (i lang [:subscribe])}]]]]])))
 
-(defn unsubscribe-from-mailing-list [{:keys [address username description]}]
+(defn unsubscribe-from-mailing-list [{:keys [address list-name description]}]
   (let [lang     (config/locale address)
         email-ui (i lang [:email-address])]
     (default
-     (str (i lang [:unsubscribing]) " - " address)
+     (str (i lang [:unsubscribing]) " - " list-name)
      description
      address
      lang
