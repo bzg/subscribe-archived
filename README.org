@@ -30,7 +30,6 @@ Application variables:
 Backend-specific variables:
 
 : export MAILGUN_API_KEY="your-key"
-: export MAILGUN_API_SECRET="your-password"
 : export MAILJET_API_KEY="your-key"
 : export MAILJET_API_SECRET="your-password"
 
@@ -53,6 +52,23 @@ application.
 
 * Run
 
+** With ~clj -A:run~
+
+: ~$ git clone https://github.com/bzg/subscribe
+: ~$ cd subscribe/
+: ... [Set up your configuration]
+: ~$ clj -A:run
+
+Then go to http://localhost:3000 or to your custom base URL.
+
+** With =java -jar=
+
+: ~$ git clone https://github.com/bzg/subscribe
+: ~$ cd subscribe/
+: ... [Set up your configuration]
+: ~$ clj -A:jar
+: ~$ java -jar target/subscribe.jar
+
 ** With docker
 
 Assuming your environments variables are stored in ~~/.subscribe_envs~
@@ -64,23 +80,6 @@ and you want to expose the 3000 port:
 : ~$ docker run -it -p 3000:3000 --env-file=~/.subscribe_envs subscribe
 
 Then go to http://localhost:3000.
-
-** With ~lein run~
-
-: ~$ git clone https://github.com/bzg/subscribe
-: ~$ cd subscribe/
-: ... [Set up your configuration]
-: ~$ lein run
-
-Then go to http://localhost:3000 or to your custom base URL.
-
-** With =java -jar=
-
-: ~$ git clone https://github.com/bzg/subscribe
-: ~$ cd subscribe/
-: ... [Set up your configuration]
-: ~$ lein uberjar
-: ~$ java -jar target/subscribe-x.x.x-standalone.jar
 
 * TODOs
 
