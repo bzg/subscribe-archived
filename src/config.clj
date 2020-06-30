@@ -24,7 +24,7 @@
     :check-subscription-endpoint-fn (fn [e ml] (str "/lists/" ml "/members/" e))
     :check-subscription-validate-fn (fn [body _] (:subscribed (:member body)))
     :api-key                        (System/getenv "MAILGUN_API_KEY")
-    :api-secret                     (System/getenv "MAILGUN_API_SECRET")
+    :api-secret                     "" ;; No API secret for mailgun
     :basic-auth                     ["api" :api-key]
     :replacements                   nil
     :data-keyword                   :items}
