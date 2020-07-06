@@ -71,7 +71,7 @@ Then go to http://localhost:3000 or to your custom base URL.
 
 ** With docker
 
-Assuming your environments variables are stored in ~~/.subscribe_envs~
+Assuming your environments variables are stored in =~/.subscribe_envs=
 and you want to expose the 3000 port:
 
 : ~$ git clone https://github.com/bzg/subscribe
