@@ -7,9 +7,9 @@
             [clojure.spec.alpha :as s]
             [clojure.spec.gen.alpha :as gen]
             [clojure.java.io :as io]
-            [subscribe.handler :refer :all]
-            [subscribe.config :as config]
-            [subscribe.i18n :as i18n])
+            [core :refer :all]
+            [config :as config]
+            [i18n :as i18n])
   (:import org.apache.commons.validator.routines.UrlValidator))
 
 (defn valid-url? [url-str]
@@ -38,8 +38,8 @@
                (string? (System/getenv "MAILJET_API_SECRET")))))))
 
 (deftest lists-exists
-  (testing "Checking mailgun connection and existing list(s)."
-    (is (boolean (not-empty (get-lists-from-server))))))
+  (testing "Checking connection and existing list(s)."
+    (is (not-empty (get-lists-from-server)))))
 
 ;; Mandatory configuration keys
 (s/def ::admin-email string?)
