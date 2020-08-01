@@ -42,13 +42,10 @@ The mandatory configuration options are ~:admin-email~ ~:base-url~ and
 
 * Test
 
-Run =lein test= to test the configuration before running the
-application.
-
 : ~$ git clone https://github.com/bzg/subscribe
 : ~$ cd subscribe/
 : ... [Set up your environment variables and config.edn]
-: ~$ lein test
+: ~$ clj -A:test
 
 * Run
 
