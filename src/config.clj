@@ -15,41 +15,46 @@
     :host                           "smtp.mailgun.org"
     :api-url                        "https://api.mailgun.net/v3"
     :lists-endpoint                 "/lists/pages"
-    :subscribe-http-verb            "POST"
+    ;; :subscribe-http-verb         "POST"
     :unsubscribe-http-verb          "DELETE"
     :subscribe-endpoint-fn          (fn [a _] (str "/lists/" a "/members"))
     :unsubscribe-endpoint-fn        (fn [a b] (str "/lists/" a "/members/" b))
-    :subscribe-form-params-fn       (fn [a b] {:address a :name b})
+    :subscribe-form-params-fn       (fn [_ b c] {:address b :name c})
     :unsubscribe-form-params-fn     nil
     :check-subscription-endpoint-fn (fn [e ml] (str "/lists/" ml "/members/" e))
     :check-subscription-validate-fn (fn [body _] (:subscribed (:member body)))
-    :api-key                        (System/getenv "MAILGUN_API_KEY")
-    :api-secret                     "" ;; No API secret for mailgun
-    :basic-auth                     ["api" :api-key]
+    :auth                           {:basic-auth ["api" (System/getenv "MAILGUN_API_KEY")]}
     :replacements                   nil
     :data-keyword                   :items}
+   {:backend                        "sendinblue"
+    :host                           "smtp-relay.sendinblue.com"
+    :api-url                        "https://api.sendinblue.com/v3"
+    :lists-endpoint                 "/contacts/lists"
+    :subscribe-endpoint-fn          (fn [_ _] "/contacts")
+    :unsubscribe-endpoint-fn        (fn [a _] (str "/contacts/lists/" a "/contacts/remove"))
+    :subscribe-form-params-fn       (fn [a b _] {:updateEnabled true :listIds [a] :email b})
+    :unsubscribe-form-params-fn     (fn [_ b _] {:emails [b]})
+    :check-subscription-endpoint-fn (fn [e _] (str "/contacts/" e))
+    :check-subscription-validate-fn (fn [body id] (contains? #{id} (vals (:listIds body))))
+    :auth                           {:headers {"api-key" (System/getenv "SENDINBLUE_API_KEY")}}
+    :replacements                   {:name :description :id :address :folderId :list-id}
+    :data-keyword                   :lists}
    {:backend                        "mailjet"
     :host                           "in-v3.mailjet.com"
     :api-url                        "https://api.mailjet.com/v3/REST"
     :lists-endpoint                 "/contactslist"
-    :subscribe-http-verb            "POST"
     :subscribe-endpoint-fn          (fn [a _] (str "/contactslist/" a "/managecontact"))
-    :subscribe-form-params-fn       (fn [a b] {:Email a :Name b :Action "addforce"})
-    :unsubscribe-form-params-fn     (fn [a b] {:Email a :Name b :Action "remove"})
+    :subscribe-form-params-fn       (fn [_ a b] {:Email a :Name b :Action "addforce"})
+    :unsubscribe-form-params-fn     (fn [_ a b] {:Email a :Name b :Action "remove"})
     :check-subscription-endpoint-fn (fn [e _] (str "/contact/" e "/getcontactslists"))
     :check-subscription-validate-fn (fn [body id] (seq (first (filter #(= (:ListID %) id) (:Data body)))))
-    :api-key                        (System/getenv "MAILJET_API_KEY")
-    :api-secret                     (System/getenv "MAILJET_API_SECRET")
-    :basic-auth                     [:api-key :api-secret]
+    :auth                           {:basic-auth [(System/getenv "MAILJET_API_KEY")
+                                                  (System/getenv "MAILJET_API_SECRET")]}
     :replacements                   {:Address :address :Name :list-name :ID :list-id}
     :data-keyword                   :Data}])
 
 (def backends-expanded
-  (map #(update % :basic-auth
-                (fn [b] (replace {:api-key    (:api-key %)
-                                  :api-secret (:api-secret %)}
-                                 b)))
-       (filter #((:backends config) (:backend %)) backends)))
+  (filter #((:backends config) (:backend %)) backends))
 
 (def port (read-string (or (System/getenv "SUBSCRIBE_PORT") "3000")))
 (def base-url (or (System/getenv "SUBSCRIBE_BASEURL")
