@@ -45,17 +45,17 @@
 
 (def lists (atom nil))
 
-(defn cleanup-list-data [b]
+(defn cleanup-list-data [backend]
   (comp
-   (map #(set/rename-keys % (:replacements b)))
-   (map #(merge % {:backend     (:backend b)
+   (map #(set/rename-keys % (:replacements backend)))
+   (map #(merge % {:backend     (:backend backend)
                    :members_new 0
-                   :list-name   (or (config/list-name (:address %))
-                                    (not-empty (:list-name %))
-                                    (:address %))
-                   :description (or (not-empty (:description %))
-                                    (config/description (:address %))
-                                    (:address %))}))
+                   :list-name   (str (or (config/list-name (:address %))
+                                         (not-empty (:list-name %))
+                                         (:address %)))
+                   :description (str (or (not-empty (:description %))
+                                         (config/description (:address %))
+                                         (:address %)))}))
    (map #(select-keys % [:list-name :address :description
                          :backend :list-id :members_new]))))
 
@@ -293,11 +293,11 @@
 (defn subscribe-and-send-confirmation
   "Subscribe an email address to a mailing list.
   Send a confirmation email."
-  [token unsubscribe]
+  [token unsubscribe?]
   (when-let [{:keys [subscriber username mailing-list] :as infos}
              (validate-token token)]
-    (let [action     (if unsubscribe "unsubscribe" "subscribe")
-          inc-or-dec (if unsubscribe decrement-subscribers increment-subscribers)
+    (let [action     (if unsubscribe? "unsubscribe" "subscribe")
+          inc-or-dec (if unsubscribe? decrement-subscribers increment-subscribers)
           result     (subscribe-or-unsubscribe-address (merge infos {:action action}))]
       (if-not (= (:result result) action)
         (timbre/info (:message result))
@@ -305,10 +305,10 @@
             (let [{:keys [address backend]} (get @lists mailing-list)
                   lang                      (config/locale address)
                   subscribed-to
-                  (if unsubscribe (i lang [:unsubscribed-to])
+                  (if unsubscribe? (i lang [:unsubscribed-to])
                       (i lang [:subscribed-to]))
                   subscribed-message
-                  (if unsubscribe (i lang [:unsubscribed-message])
+                  (if unsubscribe? (i lang [:unsubscribed-message])
                       (i lang [:subscribed-message]))]
               (send-email
                {:email        subscriber
@@ -358,7 +358,7 @@
   []
   (async/go
     (loop [req (async/<! unsubscribe-channel)]
-      (send-validation-link req true)
+      (send-validation-link (merge req {:unsubscribe? true}))
       (recur (async/<! unsubscribe-channel)))))
 
 (defn start-subscribe-confirmation-loop
