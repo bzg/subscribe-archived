@@ -55,7 +55,6 @@
 (def base-url (or (System/getenv "SUBSCRIBE_BASEURL")
                   (str "http://localhost:" port)))
 
-(def db-uri (or (not-empty (:db-uri config)) "datahike:mem:///subscribe"))
 (def lists-exclude-regexp (:lists-exclude-regexp config))
 (def lists-include-regexp (:lists-include-regexp config))
 (def log-file (or (not-empty (:log-file config)) "log.txt"))
