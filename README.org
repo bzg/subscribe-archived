@@ -1,19 +1,25 @@
 #+title: Subscribe
 
-* What it does?
+* A web interface for subscribing to mailing lists
 
-If you manage mailing lists through [[https://www.mailgun.com/][mailgun.com]] or [[https://www.mailjet.com][mailjet.com]],
-=Subscribe= creates webpages for users to (un)subscribe (from)to your
-mailing lists.
+If you use [[https://www.mailgun.com/][mailgun.com]], [[https://www.mailjet.com][mailjet.com]] or [[https://www.sendinblue.com/][sendinblue.com]] to manage
+contacts/mailing lists but do not want your users to share data 
+with an third-party sign-up form, =Subscribe= can help.
+
+If you have several mailing lists (possibly handled by several
+different providers from mailgun/mailjet/sendinblue) and want to 
+list subscription option on a single page,  =Subscribe= can help.
 
 [[file:subscribe.png]]
 
 * Features
 
-- Filter displayed mailing lists
-- Receive an email very x subscription
-- Custom HTML body header and footer
-- Use your own stylesheet based on [[https://bulma.io][bulma.io]]
+- Choose what mailing list you want to expose to your users
+- UI and transactional emails in english and french
+- Let the admin of a list receive an email every =x= subscription
+- Customize the HTML header and footer
+- Use your own stylesheet (as long as it's based on [[https://bulma.io][bulma.io]])
+- ...
 
 * Configure
 
