@@ -18,6 +18,7 @@
             [postal.core :as postal]
             [postal.support]
             [clojure.core.async :as async]
+            [clojure.walk :as walk]
             [cheshire.core :as json]
             [taoensso.timbre :as timbre]
             [taoensso.timbre.appenders.core :as appenders]
@@ -70,24 +71,21 @@
   "Get information for lists from the server."
   []
   (let [l (atom nil)]
-    (doseq [{:keys [api-url lists-endpoint basic-auth] :as b}
+    (doseq [{:keys [api-url lists-endpoint auth data-keyword] :as b}
             config/backends-expanded]
-      (let [result
-            (json/parse-string
-             (:body
-              (try (http/get
-                    (str api-url lists-endpoint)
-                    {:basic-auth basic-auth})
-                   (catch Exception e
-                     {:message (:message (json/parse-string
-                                          (:body (ex-data e)) true))
-                      :result  "ERROR"})))
-             true)]
+      (when-let [result
+                 (json/parse-string
+                  (:body
+                   (try (http/get (str api-url lists-endpoint) auth)
+                        (catch Exception e
+                          {:message (:message (json/parse-string
+                                               (:body (ex-data e)) true))
+                           :result  "ERROR"})))
+                  true)]
         (swap! l concat
-               (sequence (cleanup-list-data b)
-                         ((:data-keyword b) result)))))
+               (sequence (cleanup-list-data b) (data-keyword result)))))
     (when (reset! lists
-                  (into {} (map (fn [m] {(:address m) m})
+                  (into {} (map (fn [m] {(str (:address m)) m})
                                 (get-lists-filtered @l))))
       (timbre/info "Information from mailing lists retrieved"))))
 
@@ -212,13 +210,11 @@
 
 (defn send-validation-link
   "Create a validation link and send it by email."
-  [email-and-list & unsubscribe?]
-  (let [subscriber   (get email-and-list "subscriber")
-        username     (or (get email-and-list "username") "")
-        mailing-list (get email-and-list "mailing-list")
-        ml           (get @lists mailing-list)
-        lang         (config/locale ml)
-        token        (str (java.util.UUID/randomUUID))]
+  [{:keys [subscriber username mailing-list unsubscribe?]}]
+  (let [;; username     (or username "")
+        ml    (get @lists mailing-list)
+        lang  (config/locale ml)
+        token (str (java.util.UUID/randomUUID))]
     ;; FIXME: check email address format before sending?
     (create-action-token token subscriber username mailing-list)
     (send-email
@@ -264,9 +260,10 @@
   (let [b              (some  #(when (= (:backend %) backend) %)
                               config/backends-expanded)
         http-verb      (if (= action "subscribe")
-                         (:subscribe-http-verb b)
+                         (or (:subscribe-http-verb b) "POST")
                          (or (:unsubscribe-http-verb b)
-                             (:subscribe-http-verb b)))
+                             (:subscribe-http-verb b)
+                             "POST"))
         endpoint-fn    (if (= action "subscribe")
                          (:subscribe-endpoint-fn b)
                          (or (:unsubscribe-endpoint-fn b)
@@ -275,14 +272,18 @@
                          (:subscribe-form-params-fn b)
                          (or (:unsubscribe-form-params-fn b)
                              (:subscribe-form-params-fn b)))
+        params         (form-params-fn mailing-list subscriber username)
         result-msg     (if (= action "subscribe")
                          {:message " subscribed to " :output "subscribe"}
                          {:message " unsubscribed to " :output "unsubscribe"})]
     (try
       (apply (if (= http-verb "DELETE") http/delete http/post)
              [(str (:api-url b) (endpoint-fn mailing-list subscriber))
-              {:basic-auth  (:basic-auth b)
-               :form-params (form-params-fn subscriber username)}])
+              (merge (:auth b)
+                     (if (= backend "sendinblue")
+                       {:body         (json/generate-string params)
+                        :content-type :json}
+                       {:form-params params}))])
       {:message (str subscriber (:message result-msg) mailing-list " on " backend)
        :result  (:output result-msg)}
       (catch Exception e
@@ -322,17 +323,15 @@
 
 (defn check-already-subscribed
   "Check if an email is already subscribed to the mailing list."
-  [email-and-list]
-  (let [subscriber      (get email-and-list "subscriber")
-        mailing-list    (get email-and-list "mailing-list")
-        backend-conf    (get-list-backend-config mailing-list)
+  [{:keys [subscriber mailing-list]}]
+  (let [backend-conf    (get-list-backend-config mailing-list)
         mailing-list-id (:list-id (get @lists mailing-list))]
     (try
       (let [req  (http/get
                   (str (:api-url backend-conf)
                        ((:check-subscription-endpoint-fn backend-conf)
                         subscriber mailing-list))
-                  {:basic-auth (:basic-auth backend-conf)})
+                  (:auth backend-conf))
             body (json/parse-string (:body req) true)]
         ((:check-subscription-validate-fn backend-conf) body mailing-list-id))
       (catch Exception _ nil))))
@@ -366,7 +365,7 @@
   []
   (async/go
     (loop [token (async/<! subscribe-confirmation-channel)]
-      (subscribe-and-send-confirmation token nil)
+      (subscribe-and-send-confirmation token false)
       (recur (async/<! subscribe-confirmation-channel)))))
 
 (defn start-unsubscribe-confirmation-loop
@@ -416,19 +415,19 @@
   (GET "/unsubscribe/:ml" [ml] (views/unsubscribe-from-mailing-list
                                 (get @lists ml)))
   (POST "/subscribe" req
-        (let [params (:form-params req)
-              ml     (get params "mailing-list")]
+        (let [{:keys [mailing-list] :as params}
+              (walk/keywordize-keys (:form-params req))]
           (if (check-already-subscribed params)
-            (response/redirect (str "/already-subscribed/" ml))
+            (response/redirect (str "/already-subscribed/" mailing-list))
             (do (async/go (async/>! subscribe-channel params))
-                (response/redirect (str "/email-sent/" ml))))))
+                (response/redirect (str "/email-sent/" mailing-list))))))
   (POST "/unsubscribe" req
-        (let [params (:form-params req)
-              ml     (get params "mailing-list")]
+        (let [{:keys [mailing-list] :as params}
+              (walk/keywordize-keys (:form-params req))]
           (if-not (check-already-subscribed params)
-            (response/redirect (str "/not-subscribed/" ml))
+            (response/redirect (str "/not-subscribed/" mailing-list))
             (do (async/go (async/>! unsubscribe-channel params))
-                (response/redirect (str "/email-sent/" ml))))))
+                (response/redirect (str "/email-sent/" mailing-list))))))
   (GET "/confirm-subscription/:token" [token]
        (do (async/go (async/>! subscribe-confirmation-channel token))
            (response/redirect "/thanks")))
