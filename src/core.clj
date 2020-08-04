@@ -6,6 +6,7 @@
   "Subscribe core functions."
   (:require [ring.adapter.jetty :as jetty]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
+            ;; [ring.middleware.reload :refer [wrap-reload]]
             [ring.middleware.params :as params]
             [ring.util.response :as response]
             [compojure.core :as compojure :refer (GET POST defroutes)]
@@ -51,8 +52,11 @@
    (map #(set/rename-keys % (:replacements backend)))
    (map #(merge % {:backend     (:backend backend)
                    :members_new 0
+                   :address     (or (not-empty (:address %))
+                                    (str (:list-id %)))
                    :list-name   (str (or (config/list-name (:address %))
                                          (not-empty (:list-name %))
+                                         (config/list-name (str (:list-id %)))
                                          (:address %)))
                    :description (str (or (not-empty (:description %))
                                          (config/description (:address %))
@@ -257,30 +261,30 @@
 (defn subscribe-or-unsubscribe-address
   "Perform the actual email subscription to the mailing list."
   [{:keys [subscriber username mailing-list backend action]}]
-  (let [b              (some  #(when (= (:backend %) backend) %)
-                              config/backends-expanded)
-        http-verb      (if (= action "subscribe")
-                         (or (:subscribe-http-verb b) "POST")
-                         (or (:unsubscribe-http-verb b)
-                             (:subscribe-http-verb b)
-                             "POST"))
-        endpoint-fn    (if (= action "subscribe")
-                         (:subscribe-endpoint-fn b)
-                         (or (:unsubscribe-endpoint-fn b)
-                             (:subscribe-endpoint-fn b)))
-        form-params-fn (if (= action "subscribe")
-                         (:subscribe-form-params-fn b)
-                         (or (:unsubscribe-form-params-fn b)
-                             (:subscribe-form-params-fn b)))
-        params         (form-params-fn mailing-list subscriber username)
-        result-msg     (if (= action "subscribe")
-                         {:message " subscribed to " :output "subscribe"}
-                         {:message " unsubscribed to " :output "unsubscribe"})]
+  (let [b           (some  #(when (= (:backend %) backend) %)
+                           config/backends-expanded)
+        http-verb   (if (= action "subscribe")
+                      (or (:subscribe-http-verb b) "POST")
+                      (or (:unsubscribe-http-verb b)
+                          (:subscribe-http-verb b)
+                          "POST"))
+        endpoint-fn (if (= action "subscribe")
+                      (:subscribe-endpoint-fn b)
+                      (or (:unsubscribe-endpoint-fn b)
+                          (:subscribe-endpoint-fn b)))
+        params-fn   (if (= action "subscribe")
+                      (:subscribe-params-fn b)
+                      (or (:unsubscribe-params-fn b)
+                          (:subscribe-params-fn b)))
+        params      (params-fn mailing-list subscriber username)
+        result-msg  (if (= action "subscribe")
+                      {:message " subscribed to " :output "subscribe"}
+                      {:message " unsubscribed to " :output "unsubscribe"})]
     (try
       (apply (if (= http-verb "DELETE") http/delete http/post)
              [(str (:api-url b) (endpoint-fn mailing-list subscriber))
               (merge (:auth b)
-                     (if (= backend "sendinblue")
+                     (if (= backend "sendinblue") ;; FIXME: why being specific here?
                        {:body         (json/generate-string params)
                         :content-type :json}
                        {:form-params params}))])
@@ -439,7 +443,9 @@
 
 (def app (-> app-routes
              (wrap-defaults site-defaults)
-             params/wrap-params))
+             params/wrap-params
+             ;; wrap-reload
+             ))
 
 (defn -main
   "Initialize the db, the loops and the web serveur."

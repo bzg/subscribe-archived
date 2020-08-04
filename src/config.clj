@@ -19,39 +19,39 @@
     :unsubscribe-http-verb          "DELETE"
     :subscribe-endpoint-fn          (fn [a _] (str "/lists/" a "/members"))
     :unsubscribe-endpoint-fn        (fn [a b] (str "/lists/" a "/members/" b))
-    :subscribe-form-params-fn       (fn [_ b c] {:address b :name c})
-    :unsubscribe-form-params-fn     nil
+    :subscribe-params-fn            (fn [_ b c] {:address b :name c})
+    :unsubscribe-params-fn          nil
     :check-subscription-endpoint-fn (fn [e ml] (str "/lists/" ml "/members/" e))
     :check-subscription-validate-fn (fn [body _] (:subscribed (:member body)))
     :auth                           {:basic-auth ["api" (System/getenv "MAILGUN_API_KEY")]}
     :replacements                   nil
     :data-keyword                   :items}
+   {:backend                        "mailjet"
+    :host                           "in-v3.mailjet.com"
+    :api-url                        "https://api.mailjet.com/v3/REST"
+    :lists-endpoint                 "/contactslist"
+    :subscribe-endpoint-fn          (fn [a _] (str "/contactslist/" a "/managecontact"))
+    :subscribe-params-fn            (fn [_ a b] {:Email a :Name b :Action "addforce"})
+    :unsubscribe-params-fn          (fn [_ a b] {:Email a :Name b :Action "remove"})
+    :check-subscription-endpoint-fn (fn [e _] (str "/contact/" e "/getcontactslists"))
+    :check-subscription-validate-fn (fn [body id] (seq (first (filter #(= (:ListID %) id) (:Data body)))))
+    :auth                           {:basic-auth [(System/getenv "MAILJET_API_KEY")
+                                                  (System/getenv "MAILJET_API_SECRET")]}
+    :replacements                   {:Address :address :Name :list-name :ID :list-id}
+    :data-keyword                   :Data}
    {:backend                        "sendinblue"
     :host                           "smtp-relay.sendinblue.com"
     :api-url                        "https://api.sendinblue.com/v3"
     :lists-endpoint                 "/contacts/lists"
     :subscribe-endpoint-fn          (fn [_ _] "/contacts")
     :unsubscribe-endpoint-fn        (fn [a _] (str "/contacts/lists/" a "/contacts/remove"))
-    :subscribe-form-params-fn       (fn [a b _] {:updateEnabled true :listIds [a] :email b})
-    :unsubscribe-form-params-fn     (fn [_ b _] {:emails [b]})
+    :subscribe-params-fn            (fn [a b _] {:updateEnabled true :listIds [(edn/read-string a)] :email b})
+    :unsubscribe-params-fn          (fn [_ b _] {:emails [b]})
     :check-subscription-endpoint-fn (fn [e _] (str "/contacts/" e))
-    :check-subscription-validate-fn (fn [body id] (contains? #{id} (vals (:listIds body))))
+    :check-subscription-validate-fn (fn [body id] (contains? (into #{} (:listIds body)) id))
     :auth                           {:headers {"api-key" (System/getenv "SENDINBLUE_API_KEY")}}
-    :replacements                   {:name :description :id :address :folderId :list-id}
-    :data-keyword                   :lists}
-   {:backend                        "mailjet"
-    :host                           "in-v3.mailjet.com"
-    :api-url                        "https://api.mailjet.com/v3/REST"
-    :lists-endpoint                 "/contactslist"
-    :subscribe-endpoint-fn          (fn [a _] (str "/contactslist/" a "/managecontact"))
-    :subscribe-form-params-fn       (fn [_ a b] {:Email a :Name b :Action "addforce"})
-    :unsubscribe-form-params-fn     (fn [_ a b] {:Email a :Name b :Action "remove"})
-    :check-subscription-endpoint-fn (fn [e _] (str "/contact/" e "/getcontactslists"))
-    :check-subscription-validate-fn (fn [body id] (seq (first (filter #(= (:ListID %) id) (:Data body)))))
-    :auth                           {:basic-auth [(System/getenv "MAILJET_API_KEY")
-                                                  (System/getenv "MAILJET_API_SECRET")]}
-    :replacements                   {:Address :address :Name :list-name :ID :list-id}
-    :data-keyword                   :Data}])
+    :replacements                   {:id :list-id :name :description}
+    :data-keyword                   :lists}])
 
 (def backends-expanded
   (filter #((:backends config) (:backend %)) backends))
