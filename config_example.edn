@@ -4,12 +4,12 @@
  
  ;; :admin-email               "my@email.com"              ; a valid email address
  ;; :base-url                  "http://base-url"           ; base URL of the web service
- ;; :backends                   #{"mailgun" "mailjet"}     ; set of enabled backends
+ ;; :backends                   #{"mailgun" "mailjet"
+ ;;                              "sendinblue"}             ; set of enabled backends
 
  ;;;; Optional
  
  ;; :locale                    "en"                        ; or "fr", etc.
- ;; :db-uri                    "datahike:mem:///subscribe" ; an URI to the local database
  ;; :css                       "/css/my-stylesheet.css"    ; absolute or relative stylesheet URL
  ;; :lists-exclude-regexp      nil                         ; a regular expression
  ;; :lists-include-regexp      nil                         ; a regular expression
