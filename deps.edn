@@ -6,20 +6,20 @@
 
  :deps
  {
-  cheshire                        {:mvn/version "5.10.0"}
-  org.martinklepsch/clj-http-lite {:mvn/version "0.4.3"}
-  com.draines/postal              {:mvn/version "2.0.3"}
-  com.taoensso/tempura            {:mvn/version "1.2.1"}
-  com.taoensso/timbre             {:mvn/version "4.10.0"}
-  commons-validator               {:mvn/version "1.6"}
-  compojure                       {:mvn/version "1.6.1"}
-  hiccup                          {:mvn/version "1.0.5"}
-  org.clojure/clojure             {:mvn/version "1.10.1"}
-  org.clojure/core.async          {:mvn/version "1.1.587"}
-  ring/ring-core                  {:mvn/version "1.8.0"}
-  ring/ring-defaults              {:mvn/version "0.3.2"}
-  ring/ring-devel                 {:mvn/version "1.8.0"}
-  ring/ring-jetty-adapter         {:mvn/version "1.8.0"}
+  cheshire/cheshire                   {:mvn/version "5.10.0"}
+  org.martinklepsch/clj-http-lite     {:mvn/version "0.4.3"}
+  com.draines/postal                  {:mvn/version "2.0.3"}
+  com.taoensso/tempura                {:mvn/version "1.2.1"}
+  com.taoensso/timbre                 {:mvn/version "4.10.0"}
+  commons-validator/commons-validator {:mvn/version "1.6"}
+  compojure/compojure                 {:mvn/version "1.6.1"}
+  hiccup/hiccup                       {:mvn/version "1.0.5"}
+  org.clojure/clojure                 {:mvn/version "1.10.1"}
+  org.clojure/core.async              {:mvn/version "1.1.587"}
+  ring/ring-core                      {:mvn/version "1.8.0"}
+  ring/ring-defaults                  {:mvn/version "0.3.2"}
+  ring/ring-devel                     {:mvn/version "1.8.0"}
+  ring/ring-jetty-adapter             {:mvn/version "1.8.0"}
   }
 
  :paths ["src" "resources"]
