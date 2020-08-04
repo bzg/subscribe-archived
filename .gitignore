@@ -9,3 +9,4 @@ config.edn
 src/subscribe/scratch.clj
 .cpcache/
 *jar
+.envrc
