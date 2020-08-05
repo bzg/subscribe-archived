@@ -1,22 +1,23 @@
 #+title: Subscribe: a web interface for subscribing to mailing lists
 
 If you use [[https://www.mailgun.com/][mailgun.com]], [[https://www.mailjet.com][mailjet.com]] or [[https://www.sendinblue.com/][sendinblue.com]] to manage
-contacts/mailing lists but do not want your users to share data 
-with an third-party sign-up form, =Subscribe= can help.
+contacts/mailing lists but do not want your users to share data with
+an third-party sign-up form, =Subscribe= can help.
 
 If you have several mailing lists (possibly handled by several
-different providers from mailgun/mailjet/sendinblue) and want to 
-list subscription option on a single page,  =Subscribe= can help.
+different providers among mailgun/mailjet/sendinblue) and want to list
+various list subscription options on a single page, =Subscribe= can
+help.
 
 [[file:subscribe.png]]
 
 * Features
 
-- Choose what mailing list you want to expose to your users
-- UI and transactional emails in english and french
-- Let the admin of a list receive an email every =x= subscription
-- Customize the HTML header and footer
+- Choose what mailing list to expose to your users
+- Let the admin of a list receive an email every =x= subscriptions
+- Customize the HTML header and footer of the web interface
 - Use your own stylesheet (as long as it's based on [[https://bulma.io][bulma.io]])
+- UI and transactional emails in english and french
 - ...
 
 * Configure
@@ -39,6 +40,9 @@ Backend-specific variables:
 :
 : export MAILJET_API_KEY="your-key"
 : export MAILJET_API_SECRET="your-password"
+
+Note that only mailjet.com requires both an API key /and password/,
+mailgun.com and sendinblue.com only requires an API key.
 
 ** Define (mandatory) options in ~config.edn~
 
