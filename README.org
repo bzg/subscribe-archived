@@ -18,7 +18,6 @@ help.
 - Customize the HTML header and footer of the web interface
 - Use your own stylesheet (as long as it's based on [[https://bulma.io][bulma.io]])
 - UI and transactional emails in english and french
-- ...
 
 * Configure
 
