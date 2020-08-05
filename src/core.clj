@@ -276,13 +276,13 @@
                       (:subscribe-params-fn b)
                       (or (:unsubscribe-params-fn b)
                           (:subscribe-params-fn b)))
-        params      (params-fn mailing-list subscriber username)
+        params      (params-fn {:mailing-list mailing-list :subscriber subscriber :username username})
         result-msg  (if (= action "subscribe")
                       {:message " subscribed to " :output "subscribe"}
                       {:message " unsubscribed to " :output "unsubscribe"})]
     (try
       (apply (if (= http-verb "DELETE") http/delete http/post)
-             [(str (:api-url b) (endpoint-fn mailing-list subscriber))
+             [(str (:api-url b) (endpoint-fn {:mailing-list mailing-list :subscriber subscriber}))
               (merge (:auth b)
                      (if (= backend "sendinblue") ;; FIXME: why being specific here?
                        {:body         (json/generate-string params)
@@ -334,10 +334,11 @@
       (let [req  (http/get
                   (str (:api-url backend-conf)
                        ((:check-subscription-endpoint-fn backend-conf)
-                        subscriber mailing-list))
+                        {:subscriber subscriber :mailing-list mailing-list}))
                   (:auth backend-conf))
             body (json/parse-string (:body req) true)]
-        ((:check-subscription-validate-fn backend-conf) body mailing-list-id))
+        ((:check-subscription-validate-fn backend-conf)
+         {:body body :id mailing-list-id}))
       (catch Exception _ nil))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

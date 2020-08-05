@@ -17,12 +17,12 @@
     :lists-endpoint                 "/lists/pages"
     ;; :subscribe-http-verb         "POST"
     :unsubscribe-http-verb          "DELETE"
-    :subscribe-endpoint-fn          (fn [a _] (str "/lists/" a "/members"))
-    :unsubscribe-endpoint-fn        (fn [a b] (str "/lists/" a "/members/" b))
-    :subscribe-params-fn            (fn [_ b c] {:address b :name c})
-    :unsubscribe-params-fn          nil
-    :check-subscription-endpoint-fn (fn [e ml] (str "/lists/" ml "/members/" e))
-    :check-subscription-validate-fn (fn [body _] (:subscribed (:member body)))
+    :subscribe-endpoint-fn          #(str "/lists/" (:mailing-list %) "/members")
+    :unsubscribe-endpoint-fn        #(str "/lists/" (:mailing-list %) "/members/" (:subscriber %))
+    :subscribe-params-fn            #(conj {:address (:subscriber %)} {:name (:username %)})
+    ;; :unsubscribe-params-fn          nil
+    :check-subscription-endpoint-fn #(str "/lists/" (:mailing-list %) "/members/" (:subscriber %))
+    :check-subscription-validate-fn #(:subscribed (:member (:body %)))
     :auth                           {:basic-auth ["api" (System/getenv "MAILGUN_API_KEY")]}
     :replacements                   nil
     :data-keyword                   :items}
@@ -30,11 +30,14 @@
     :host                           "in-v3.mailjet.com"
     :api-url                        "https://api.mailjet.com/v3/REST"
     :lists-endpoint                 "/contactslist"
-    :subscribe-endpoint-fn          (fn [a _] (str "/contactslist/" a "/managecontact"))
-    :subscribe-params-fn            (fn [_ a b] {:Email a :Name b :Action "addforce"})
-    :unsubscribe-params-fn          (fn [_ a b] {:Email a :Name b :Action "remove"})
-    :check-subscription-endpoint-fn (fn [e _] (str "/contact/" e "/getcontactslists"))
-    :check-subscription-validate-fn (fn [body id] (seq (first (filter #(= (:ListID %) id) (:Data body)))))
+    :subscribe-endpoint-fn          #(str "/contactslist/" (:mailing-list %) "/managecontact")
+    ;; :unsubscribe-endpoint-fn     nil
+    :subscribe-params-fn            #(merge {:Email (:subscriber %)}
+                                            {:Name (:username %) :Action "addforce"})
+    :unsubscribe-params-fn          #(merge {:Email (:subscriber %)}
+                                            {:Name (:username %) :Action "remove"})
+    :check-subscription-endpoint-fn #(str "/contact/" (:subscriber %) "/getcontactslists")
+    :check-subscription-validate-fn (fn [{:keys [body id]}] (seq (first (filter #(= (:ListID %) id) (:Data body)))))
     :auth                           {:basic-auth [(System/getenv "MAILJET_API_KEY")
                                                   (System/getenv "MAILJET_API_SECRET")]}
     :replacements                   {:Address :address :Name :list-name :ID :list-id}
@@ -43,12 +46,13 @@
     :host                           "smtp-relay.sendinblue.com"
     :api-url                        "https://api.sendinblue.com/v3"
     :lists-endpoint                 "/contacts/lists"
-    :subscribe-endpoint-fn          (fn [_ _] "/contacts")
-    :unsubscribe-endpoint-fn        (fn [a _] (str "/contacts/lists/" a "/contacts/remove"))
-    :subscribe-params-fn            (fn [a b _] {:updateEnabled true :listIds [(edn/read-string a)] :email b})
-    :unsubscribe-params-fn          (fn [_ b _] {:emails [b]})
-    :check-subscription-endpoint-fn (fn [e _] (str "/contacts/" e))
-    :check-subscription-validate-fn (fn [body id] (contains? (into #{} (:listIds body)) id))
+    :subscribe-endpoint-fn          (fn [_] "/contacts")
+    :unsubscribe-endpoint-fn        #(str "/contacts/lists/" (:mailing-list %) "/contacts/remove")
+    :subscribe-params-fn            #(conj {:updateEnabled true :listIds [(edn/read-string (:mailing-list %))]}
+                                           {:email (:subscriber %)})
+    :unsubscribe-params-fn          #(conj {:emails [(:subscriber %)]})
+    :check-subscription-endpoint-fn #(str "/contacts/" (:subscriber %))
+    :check-subscription-validate-fn #(contains? (into #{} (:listIds (:body %))) (:id %))
     :auth                           {:headers {"api-key" (System/getenv "SENDINBLUE_API_KEY")}}
     :replacements                   {:id :list-id :name :description}
     :data-keyword                   :lists}])
