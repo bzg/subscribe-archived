@@ -1,6 +1,4 @@
-#+title: Subscribe
-
-* A web interface for subscribing to mailing lists
+#+title: Subscribe: a web interface for subscribing to mailing lists
 
 If you use [[https://www.mailgun.com/][mailgun.com]], [[https://www.mailjet.com][mailjet.com]] or [[https://www.sendinblue.com/][sendinblue.com]] to manage
 contacts/mailing lists but do not want your users to share data 
