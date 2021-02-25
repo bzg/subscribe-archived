@@ -73,18 +73,20 @@ The mandatory configuration options are ~:admin-email~ and ~:backends~.
 
 ** With ~clj -A:run~
 
+: ... [Set up environment variables]
 : ~$ git clone https://github.com/bzg/subscribe
 : ~$ cd subscribe/
-: ... [Set up your configuration]
+: ... [Edit config.edn to configure mailing lists]
 : ~$ clj -A:run
 
 Then go to http://localhost:3000 or to your custom base URL.
 
 ** With =java -jar=
 
+: ... [Set up environment variables]
 : ~$ git clone https://github.com/bzg/subscribe
 : ~$ cd subscribe/
-: ... [Set up your configuration]
+: ... [Edit config.edn to configure mailing lists]
 : ~$ clj -A:jar
 : ~$ java -jar target/subscribe.jar
 
@@ -95,6 +97,7 @@ and you want to expose the 3000 port:
 
 : ~$ git clone https://github.com/bzg/subscribe
 : ~$ cd subscribe/
+: ... [Edit config.edn to configure mailing lists]
 : ~$ docker build -t subscribe .
 : ~$ docker run -it -p 3000:3000 --env-file=~/.subscribe_envs subscribe
 
@@ -102,7 +105,7 @@ Then go to http://localhost:3000.
 
 * TODOs
 
-- [ ] Catch errors before redirecting to the confirmation pages
+- [ ] Catch errors before redirecting to confirmation pages
 
 * Support the Clojure ecosystem
 
