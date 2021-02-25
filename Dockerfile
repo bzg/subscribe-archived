@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2020 Bastien Guerry <bzg@bzg.fr>
+# Copyright (c) 2019-2021 Bastien Guerry <bzg@bzg.fr>
 # SPDX-License-Identifier: EPL-2.0
 # License-Filename: LICENSES/EPL-2.0.txt
 
