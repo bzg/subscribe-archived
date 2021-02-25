@@ -13,7 +13,8 @@ help.
 
 * Features
 
-- Choose what mailing list to expose to your users
+- Support [[https://www.mailgun.com/][mailgun.com]], [[https://www.mailjet.com][mailjet.com]] or [[https://www.sendinblue.com/][sendinblue.com]] mailing lists
+- Include/exclude mailing lists one by one or with regular expressions
 - Let the admin of a list receive an email every =x= subscriptions
 - Customize the HTML header and footer of the web interface
 - Use your own stylesheet (as long as it's based on [[https://bulma.io][bulma.io]])
@@ -21,34 +22,45 @@ help.
 
 * Configure
 
-** Set up environment variables
+Configuring =subscribe= is done in two steps: you first need to set
+environment variables for global options (including the default
+credentials for transactional emails), then to edit the =config.edn=
+file for mailing lists.
+
+** 1. Set up environment variables
 
 Application variables:
 
-: export SUBSCRIBE_SMTP_LOGIN="postmaster@xxx"
-: export SUBSCRIBE_SMTP_PASSWORD="your-password"
-: export SUBSCRIBE_SMTP_PORT=587
 : export SUBSCRIBE_PORT=3000
 : export SUBSCRIBE_BASEURL="http://yourdomain.com"
 
+Email credentials:
+
+: export SUBSCRIBE_SMTP_LOGIN="postmaster@xxx"
+: export SUBSCRIBE_SMTP_PASSWORD="your-password"
+: export SUBSCRIBE_SMTP_HOST="smtp.mailgun.org"
+: export SUBSCRIBE_SMTP_PORT=587
+
 Backend-specific variables:
 
+: # To handle mailgun.com mailing lists:
 : export MAILGUN_API_KEY="your-key"
 : 
+: # To handle sendinblue.com mailing lists:
 : export SENDINBLUE_API_KEY="your-key"
 : 
+: # To handle mailjet.com mailing lists:
 : export MAILJET_API_KEY="your-key"
 : export MAILJET_API_SECRET="your-password"
 
 Note that only mailjet.com requires both an API key /and password/,
 mailgun.com and sendinblue.com only requires an API key.
 
-** Define (mandatory) options in ~config.edn~
+** 2. Define options in ~config.edn~
 
 Copy ~config_example.edn~ to ~config.edn~ and edit it.
 
-The mandatory configuration options are ~:admin-email~ ~:base-url~ and
-~:backends~.
+The mandatory configuration options are ~:admin-email~ and ~:backends~.
 
 * Test
 
