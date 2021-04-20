@@ -310,11 +310,13 @@
             (let [{:keys [address backend]} (get @lists mailing-list)
                   lang                      (config/locale address)
                   subscribed-to
-                  (if unsubscribe? (i lang [:unsubscribed-to])
-                      (i lang [:subscribed-to]))
+                  (if unsubscribe?
+                    (i lang [:unsubscribed-from])
+                    (i lang [:subscribed-to]))
                   subscribed-message
-                  (if unsubscribe? (i lang [:unsubscribed-message])
-                      (i lang [:subscribed-message]))]
+                  (if unsubscribe?
+                    (i lang [:unsubscribed-message])
+                    (i lang [:subscribed-message]))]
               (send-email
                {:email        subscriber
                 :username     username
