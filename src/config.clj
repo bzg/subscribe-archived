@@ -40,7 +40,7 @@
     :check-subscription-validate-fn (fn [{:keys [body id]}] (seq (first (filter #(= (:ListID %) id) (:Data body)))))
     :auth                           {:basic-auth [(System/getenv "MAILJET_API_KEY")
                                                   (System/getenv "MAILJET_API_SECRET")]}
-    :replacements                   {:Address :address :Name :list-name :ID :list-id}
+    :replacements                   {:Address :address :Name :name :ID :list-id}
     :data-keyword                   :Data}
    {:backend                        "sendinblue"
     :host                           "smtp-relay.sendinblue.com"
@@ -133,12 +133,12 @@
   [ml]
   (not-empty (:description (get lists ml))))
 
-(defn list-name
+(defn short-name
   "The name of the mailing list.
   It will be used as a fallback value when the backend does not allow
   to provide a name."
   [ml]
-  (not-empty (:list-name (get lists ml))))
+  (not-empty (:name (get lists ml))))
 
 (defn team
   "The name of the team of mailing list ML."

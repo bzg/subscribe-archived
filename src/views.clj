@@ -58,11 +58,8 @@
       (for [[l val] lists]
         [:div.columns
          [:div.column.is-8
-          [:p.is-size-3 (:list-name val)]
-          [:p.is-size-5
-           (or (not-empty (:description val))
-               (config/description l)
-               l)]]
+          [:p.is-size-3 (:name val)]
+          (when-let [d (:description val)] [:p.is-size-5 d])]
          [:div.column
           [:div.level-left
            [:div.level-item
@@ -74,12 +71,12 @@
              {:href (str "/unsubscribe/" l)}
              (i lang [:unsubscribe-button])]]]]])])))
 
-(defn subscribe-to-mailing-list [{:keys [address list-name description]}]
+(defn subscribe-to-mailing-list [{:keys [address name description]}]
   (let [lang     (config/locale address)
         email-ui (i lang [:email-address])
         name-ui  (i lang [:name])]
     (default
-     (str (i lang [:subscribing]) " - " list-name)
+     (str (i lang [:subscribing]) " - " name)
      description
      address
      lang
@@ -105,11 +102,11 @@
           {:type  "submit"
            :value (i lang [:subscribe])}]]]]])))
 
-(defn unsubscribe-from-mailing-list [{:keys [address list-name description]}]
+(defn unsubscribe-from-mailing-list [{:keys [address name description]}]
   (let [lang     (config/locale address)
         email-ui (i lang [:email-address])]
     (default
-     (str (i lang [:unsubscribing]) " - " list-name)
+     (str (i lang [:unsubscribing]) " - " name)
      description
      address
      lang
@@ -135,7 +132,7 @@
         lang    (config/locale address)]
     (default
      title
-     (:list-name ml)
+     (:name ml)
      address
      lang
      [:div.container

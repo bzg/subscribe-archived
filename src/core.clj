@@ -52,16 +52,12 @@
    (map #(set/rename-keys % (:replacements backend)))
    (map #(merge % {:backend     (:backend backend)
                    :members_new 0
-                   :address     (or (not-empty (:address %))
-                                    (str (:list-id %)))
-                   :list-name   (str (or (config/list-name (:address %))
-                                         (not-empty (:list-name %))
-                                         (config/list-name (str (:list-id %)))
-                                         (:address %)))
-                   :description (str (or (not-empty (:description %))
-                                         (config/description (:address %))
-                                         (:address %)))}))
-   (map #(select-keys % [:list-name :address :description
+                   :address     (or (:address %) (str (:list-id %)))
+                   :name        (or (:name (get (:lists config/config) (:address %)))
+                                    (:name %))
+                   :description (or (:description (get (:lists config/config) (:address %)))
+                                    (:description %))}))
+   (map #(select-keys % [:name :address :description
                          :backend :list-id :members_new]))))
 
 (defn get-lists-filtered [lists]
@@ -164,10 +160,10 @@
 (defn build-email-body
   "Build the plain text and HTML parts of the email."
   [{:keys [mailing-list username html-body plain-body]}]
-  (let [ml        (get @lists mailing-list)
-        lang      (config/locale (:address ml))
-        ml-desc   (or (:description ml) (config/description ml))
-        list-name (:list-name ml)]
+  (let [ml         (get @lists mailing-list)
+        lang       (config/locale (:address ml))
+        ml-desc    (or (:description ml) (config/description ml))
+        short-name (:name ml)]
     [:alternative
      {:type    "text/plain; charset=utf-8"
       :content (str (if username (format (i lang [:opening-name]) username)
@@ -178,7 +174,7 @@
                         (config/return-url mailing-list)))}
      {:type    "text/html; charset=utf-8"
       :content (views/default
-                list-name ml-desc mailing-list lang
+                short-name ml-desc mailing-list lang
                 [:div
                  [:p (if username (format (i lang [:opening-name]) username)
                          (i lang [:opening-no-name]))]
@@ -228,12 +224,12 @@
       :subject      (format (i lang (if unsubscribe?
                                       [:confirm-unsubscription]
                                       [:confirm-subscription]))
-                            (:list-name ml))
+                            (:name ml))
       :plain-body   (str
                      (format (i lang (if unsubscribe?
                                        [:confirm-unsubscription]
                                        [:confirm-subscription]))
-                             (:list-name ml))
+                             (:name ml))
                      ":\n"
                      (format (str "%s/confirm-"
                                   (when unsubscribe? "un")
@@ -243,7 +239,7 @@
                      (format (i lang (if unsubscribe?
                                        [:confirm-unsubscription]
                                        [:confirm-subscription]))
-                             (:list-name ml))
+                             (:name ml))
                      ":\n"
                      (str "<a href=\""
                           (format (str "%s/confirm-"
@@ -307,8 +303,8 @@
       (if-not (= (:result result) action)
         (timbre/info (:message result))
         (do (inc-or-dec mailing-list)
-            (let [{:keys [address backend]} (get @lists mailing-list)
-                  lang                      (config/locale address)
+            (let [{:keys [address backend name]} (get @lists mailing-list)
+                  lang                           (config/locale address)
                   subscribed-to
                   (if unsubscribe?
                     (i lang [:unsubscribed-from])
@@ -321,9 +317,11 @@
                {:email        subscriber
                 :username     username
                 :mailing-list mailing-list
-                :subject      (format subscribed-to mailing-list)
-                :plain-body   (format subscribed-message mailing-list)
-                :log          (format (i lang [:confirmation-sent-to])
+                :subject      (format subscribed-to name)
+                :plain-body   (format subscribed-message name)
+                :log          (format (if unsubscribe?
+                                        (i lang [:unsubscribe-confirmation-sent-to])
+                                        (i lang [:subscribe-confirmation-sent-to]))
                                       (str mailing-list " (" backend ")")
                                       subscriber)})))))))
 
