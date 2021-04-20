@@ -3,7 +3,7 @@
 ;; License-Filename: LICENSES/EPL-2.0.txt
 
 (defproject
-  subscribe "0.7.4"
+  subscribe "0.7.3"
   :url "https://github.com/bzg/subscribe"
   :description "Web application to subscribe to mailing lists."
   :license {:name "Eclipse Public License v2.0"
