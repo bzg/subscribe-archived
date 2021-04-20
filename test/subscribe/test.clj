@@ -44,10 +44,10 @@
 
 ;; Mandatory configuration keys
 (s/def ::admin-email string?)
-(s/def ::base-url valid-url?)
 (s/def ::backends (s/coll-of (into #{} (map :backend config/backends))))
 
 ;; Optional configuration keys
+(s/def ::base-url valid-url?)
 (s/def ::from string?)
 (s/def ::to string?)
 (s/def ::msg-id string?)
