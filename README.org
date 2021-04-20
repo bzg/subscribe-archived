@@ -67,17 +67,17 @@ The mandatory configuration options are ~:admin-email~ and ~:backends~.
 : ~$ git clone https://github.com/bzg/subscribe
 : ~$ cd subscribe/
 : ... [Set up your environment variables and config.edn]
-: ~$ clj -A:test
+: ~$ clj -M:test
 
 * Run
 
-** With ~clj -A:run~
+** With ~clj -M:run~
 
 : ... [Set up environment variables]
 : ~$ git clone https://github.com/bzg/subscribe
 : ~$ cd subscribe/
 : ... [Edit config.edn to configure mailing lists]
-: ~$ clj -A:run
+: ~$ clj -M:run
 
 Then go to http://localhost:3000 or to your custom base URL.
 
@@ -87,7 +87,7 @@ Then go to http://localhost:3000 or to your custom base URL.
 : ~$ git clone https://github.com/bzg/subscribe
 : ~$ cd subscribe/
 : ... [Edit config.edn to configure mailing lists]
-: ~$ clj -A:jar
+: ~$ clj -M:jar
 : ~$ java -jar target/subscribe.jar
 
 ** With docker
