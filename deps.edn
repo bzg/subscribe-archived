@@ -1,4 +1,4 @@
-{:version     "0.7.3"
+{:version     "0.7.4"
  :description "Web application to subscribe to mailing lists."
  :url         "https://github.com/bzg/subscribe"
  :license     {:name "Eclipse Public License v2.0"
