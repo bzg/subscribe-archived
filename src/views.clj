@@ -15,6 +15,18 @@
    [:head
     [:title title]
     [:meta {:charset "utf-8"}]
+    [:meta {:name "description" :content (str title " " subtitle)}]
+    [:link {:rel "canonical" :href (config/return-url ml-address)}]
+    [:meta {:property "og:locale", :content "fr_FR"}]
+    [:meta {:property "og:type", :content "website"}]
+    [:meta {:property "og:title", :content title}]
+    [:meta {:property "og:url", :content (config/return-url ml-address)}]
+    [:meta {:property "og:site_name", :content (str title " - " subtitle)}]
+    ;; [:meta {:property "og:image", :content ""}]
+    [:meta {:name "twitter:card", :content (str title " " subtitle)}]
+    [:meta {:name "twitter:title", :content title}]
+    [:meta {:name "twitter:site", :content (config/return-url ml-address)}]
+    ;; [:meta {:name "twitter:creator", :content title}]
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1, shrink-to-fit=yes"}]
     (when-not email? (h/include-css config/css))
     (when-not email? config/before-head-closing-html)]
