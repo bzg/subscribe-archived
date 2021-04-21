@@ -69,7 +69,7 @@
 (def log-file (or (not-empty (:log-file config)) "log.txt"))
 (def ui-strings (:ui-strings config))
 (def css (or (:css config)
-             "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.0/css/bulma.min.css"))
+             "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.2/css/bulma.min.css"))
 
 ;; Configuration for additional HTML
 (def before-head-closing-html (:before-head-closing-html config))
