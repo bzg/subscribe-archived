@@ -27,5 +27,8 @@
                  [commons-validator "1.7"]]
   :main core
   :jvm-opts ["-Xmx500m"]
-  :profiles {:uberjar {:aot :all}}
-  :uberjar-name "subscribe-standalone.jar")
+  :profiles {:uberjar {:omit-source    true
+                       :aot            :all
+                       :uberjar-name   "subscribe.jar"
+                       :source-paths   ["src/" ]
+                       :resource-paths ["resources"]}})
