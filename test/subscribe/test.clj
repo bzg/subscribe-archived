@@ -40,7 +40,8 @@
 
 (deftest lists-exists
   (testing "Checking connection and existing list(s)."
-    (is (not-empty (get-lists-from-server)))))
+    (get-lists-from-server!)
+    (is (not-empty @core/lists))))
 
 ;; Mandatory configuration keys
 (s/def ::admin-email string?)

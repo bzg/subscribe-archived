@@ -67,8 +67,8 @@
                   (or (nil? in-re) (re-find in-re (:address %))))
             lists)))
 
-(defn get-lists-from-server
-  "Get information for lists from the server."
+(defn get-lists-from-server!
+  "Set the lists atom with lists information from the backends."
   []
   (let [l (atom nil)]
     (doseq [{:keys [api-url lists-endpoint auth data-keyword] :as b}
@@ -84,6 +84,7 @@
                   true)]
         (swap! l concat
                (sequence (cleanup-list-data b) (data-keyword result)))))
+    ;; Sets the lists atom and return an info when done.
     (when (reset! lists
                   (into {} (map (fn [m] {(str (:address m)) m})
                                 (get-lists-filtered @l))))
@@ -451,7 +452,7 @@
 (defn -main
   "Initialize the db, the loops and the web serveur."
   []
-  (get-lists-from-server)
+  (get-lists-from-server!)
   (start-subscription-loop)
   (start-unsubscription-loop)
   (start-subscribe-confirmation-loop)
