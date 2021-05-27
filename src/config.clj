@@ -15,7 +15,7 @@
     :host                           "smtp.mailgun.org"
     :api-url                        "https://api.mailgun.net/v3"
     :lists-endpoint                 "/lists/pages"
-    :lists-query-params             {"limit" "1000"}
+    :lists-query-params             {:query-params {"limit" "1000"}}
     ;; :subscribe-http-verb         "POST"
     :unsubscribe-http-verb          "DELETE"
     :subscribe-endpoint-fn          #(str "/lists/" (:mailing-list %) "/members")
@@ -31,7 +31,7 @@
     :host                           "in-v3.mailjet.com"
     :api-url                        "https://api.mailjet.com/v3/REST"
     :lists-endpoint                 "/contactslist"
-    :lists-query-params             {"Limit" "1000"}
+    :lists-query-params             {:query-params {"Limit" "1000"}}
     :subscribe-endpoint-fn          #(str "/contactslist/" (:mailing-list %) "/managecontact")
     ;; :unsubscribe-endpoint-fn     nil
     :subscribe-params-fn            #(merge {:Email (:subscriber %)}
