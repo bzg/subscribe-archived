@@ -15,6 +15,7 @@
     :host                           "smtp.mailgun.org"
     :api-url                        "https://api.mailgun.net/v3"
     :lists-endpoint                 "/lists/pages"
+    :lists-query-params             {"limit" "1000"}
     ;; :subscribe-http-verb         "POST"
     :unsubscribe-http-verb          "DELETE"
     :subscribe-endpoint-fn          #(str "/lists/" (:mailing-list %) "/members")
@@ -30,6 +31,7 @@
     :host                           "in-v3.mailjet.com"
     :api-url                        "https://api.mailjet.com/v3/REST"
     :lists-endpoint                 "/contactslist"
+    :lists-query-params             {"Limit" "1000"}
     :subscribe-endpoint-fn          #(str "/contactslist/" (:mailing-list %) "/managecontact")
     ;; :unsubscribe-endpoint-fn     nil
     :subscribe-params-fn            #(merge {:Email (:subscriber %)}
@@ -46,6 +48,9 @@
     :host                           "smtp-relay.sendinblue.com"
     :api-url                        "https://api.sendinblue.com/v3"
     :lists-endpoint                 "/contacts/lists"
+    ;; FIXME: sendinblue only allows to get 50 lists:
+    ;; https://apidocs.sendinblue.com/list/#1
+    :lists-query-params             nil
     :subscribe-endpoint-fn          (fn [_] "/contacts")
     :unsubscribe-endpoint-fn        #(str "/contacts/lists/" (:mailing-list %) "/contacts/remove")
     :subscribe-params-fn            #(conj {:updateEnabled true :listIds [(edn/read-string (:mailing-list %))]}

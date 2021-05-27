@@ -71,12 +71,13 @@
   "Set the lists atom with lists information from the backends."
   []
   (let [l (atom nil)]
-    (doseq [{:keys [api-url lists-endpoint auth data-keyword] :as b}
+    (doseq [{:keys [api-url lists-endpoint auth lists-query-params data-keyword] :as b}
             config/backends-expanded]
       (when-let [result
                  (json/parse-string
                   (:body
-                   (try (http/get (str api-url lists-endpoint) auth)
+                   (try (http/get (str api-url lists-endpoint)
+                                  (merge auth lists-query-params))
                         (catch Exception e
                           {:message (:message (json/parse-string
                                                (:body (ex-data e)) true))
