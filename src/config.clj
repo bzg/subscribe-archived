@@ -15,7 +15,7 @@
     :host                           "smtp.mailgun.org"
     :api-url                        "https://api.mailgun.net/v3"
     :lists-endpoint                 "/lists/pages"
-    :lists-query-params             {:query-params {"limit" "1000"}}
+    :lists-query-params             {:query-params {"limit" "100"}}
     ;; :subscribe-http-verb         "POST"
     :unsubscribe-http-verb          "DELETE"
     :subscribe-endpoint-fn          #(str "/lists/" (:mailing-list %) "/members")
