@@ -1,18 +1,14 @@
-#  Infolettres.etalab.gouv.fr
+#  Subscribe
 
 ## Une interface web pour s'abonner à des listes de diffusion
 
-## Contexte
-
-**Infolettres** est une instance de [subscribe](https://github.com/bzg/subscribe) développée par [Bastien Guerry](https://github.com/bzg) et déployée par [Etalab](https://github.com/etalab)
-
 Si vous utilisez [mailgun.com](https://www.mailgun.com), [mailjet.com](https://www.mailjet.com) ou [sendinblue.com](https://www.sendinblue.com) pour gérer des listes de diffusion mais que vous ne souhaitez pas que vos utilisateurs partagent leurs données avec un formulaire d'inscription tiers
 
-- **Infolettres** peut vous aider !
+- **Subscribe** peut vous aider !
 
 Si vous avez plusieurs listes de diffusion (éventuellement gérées par plusieurs différents fournisseurs parmi mailgun/mailjet/sendinblue) et que vous voulez répertorier les différentes options d'abonnement à une liste sur une seule page
 
-- **Infolettres** peut vous aider !
+- **Subscribe** peut vous aider !
 
 ![](subscribe.png)
 
@@ -28,7 +24,7 @@ Si vous avez plusieurs listes de diffusion (éventuellement gérées par plusieu
 
 ## Configuration
 
-La configuration d'**Infolettres** se fait en deux étapes :
+La configuration d'**Subscribe** se fait en deux étapes :
 - Définir des variables d'environnement pour les options globales (y compris les informations d'identification par défaut pour les courriers électroniques transactionnels)
 - Éditer le fichier `config.edn` pour les listes de diffusion
 
@@ -125,4 +121,4 @@ Si vous aimez Clojure, pensez à soutenir les mainteneurs en faisant un don à [
 
 ## Licence
 
-**Infolettres** est soumis à la licence Eclipse Public License 2.0
+**Subscribe** est soumis à la licence Eclipse Public License 2.0
