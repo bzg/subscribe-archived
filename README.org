@@ -1,5 +1,7 @@
 #+title: Subscribe: a web interface for subscribing to mailing lists
 
+ℹ️ *The development repository is hosted on [[https://git.sr.ht/~bzg/subscribe][SourceHut]].*
+
 If you use [[https://www.mailgun.com/][mailgun.com]], [[https://www.mailjet.com][mailjet.com]] or [[https://www.sendinblue.com/][sendinblue.com]] to manage
 contacts/mailing lists but do not want your users to share data with
 an third-party sign-up form, =Subscribe= can help.
