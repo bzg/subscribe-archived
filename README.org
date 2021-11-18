@@ -105,10 +105,6 @@ and you want to expose the 3000 port:
 
 Then go to http://localhost:3000.
 
-* TODOs
-
-- [ ] Catch errors before redirecting to confirmation pages
-
 * Support the Clojure ecosystem
 
 If you like Clojure(script), please consider supporting maintainers by
