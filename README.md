@@ -5,9 +5,9 @@ contacts/mailing lists but do not want your users to share data with
 an third-party sign-up form, `Subscribe` can help.
 
 If you have several mailing lists (possibly handled by several
-different providers among mailgun/mailjet/sendinblue) and want to list
-various list subscription options on a single page, `Subscribe` can
-help.
+different providers among mailgun.com/mailjet.com/sendinblue.com) and
+want to list various list subscription options on a single page,
+`Subscribe` can help.
 
 ![img](subscribe.png)
 
@@ -111,6 +111,15 @@ and you want to expose the 3000 port:
     ~$ docker run -it -p 3000:3000 --env-file=~/.subscribe_envs subscribe
 
 Then go to <http://localhost:3000>.
+
+
+# Contribute
+
+Contributions are welcome.  You can send feedback and patches to
+[~bzg/dev@lists.sr.ht](mailto:~bzg/dev@lists.sr.ht).  For patches, please configure your local copy
+of the repository to add a prefix to the subject line of your emails:
+
+    ~$ git config format.subjectPrefix 'PATCH subscribe'
 
 
 # Support the Clojure ecosystem
