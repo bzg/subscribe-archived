@@ -5,8 +5,8 @@ contacts/mailing lists but do not want your users to share data with
 an third-party sign-up form, `Subscribe` can help.
 
 If you have several mailing lists (possibly handled by several
-different providers among mailgun.com/mailjet.com/sendinblue.com) and
-want to list various list subscription options on a single page,
+different providers among mailgun.com, mailjet.com or sendinblue.com)
+and want to list various list subscription options on a single page,
 `Subscribe` can help.
 
 ![img](subscribe.png)
