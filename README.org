@@ -66,7 +66,7 @@ The mandatory configuration options are ~:admin-email~ and ~:backends~.
 
 * Test
 
-: ~$ git clone https://github.com/bzg/subscribe
+: ~$ git clone https://git.sr.ht/~bzg/subscribe
 : ~$ cd subscribe/
 : ... [Set up your environment variables and config.edn]
 : ~$ clj -M:test
@@ -76,7 +76,7 @@ The mandatory configuration options are ~:admin-email~ and ~:backends~.
 ** With ~clj -M:run~
 
 : ... [Set up environment variables]
-: ~$ git clone https://github.com/bzg/subscribe
+: ~$ git clone https://git.sr.ht/~bzg/subscribe
 : ~$ cd subscribe/
 : ... [Edit config.edn to configure mailing lists]
 : ~$ clj -M:run
@@ -86,18 +86,18 @@ Then go to http://localhost:3000 or to your custom base URL.
 ** With =java -jar=
 
 : ... [Set up environment variables]
-: ~$ git clone https://github.com/bzg/subscribe
+: ~$ git clone https://git.sr.ht/~bzg/subscribe
 : ~$ cd subscribe/
 : ... [Edit config.edn to configure mailing lists]
-: ~$ clj -M:jar
-: ~$ java -jar target/subscribe.jar
+: ~$ clj -M:uberdeps
+: ~$ java -cp target/subscribe.jar clojure.main -m core
 
 ** With docker
 
 Assuming your environments variables are stored in =~/.subscribe_envs=
 and you want to expose the 3000 port:
 
-: ~$ git clone https://github.com/bzg/subscribe
+: ~$ git clone https://git.sr.ht/~bzg/subscribe
 : ~$ cd subscribe/
 : ... [Edit config.edn to configure mailing lists]
 : ~$ docker build -t subscribe .
