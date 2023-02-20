@@ -10,6 +10,7 @@
  
  ;; :base-url                  "http://base-url"           ; base URL of the web service
  ;; :locale                    "en"                        ; or "fr", etc.
+ ;; :dir                       "/subdirectory"
  ;; :css                       "/css/my-stylesheet.css"    ; absolute or relative stylesheet URL
  ;; :lists-exclude-regexp      nil                         ; a regular expression
  ;; :lists-include-regexp      nil                         ; a regular expression

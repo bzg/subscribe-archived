@@ -76,11 +76,11 @@
           [:div.level-left
            [:div.level-item
             [:a.button.is-info
-             {:href (str "/subscribe/" l)}
+             {:href (str (:dir config/config) "/subscribe/" l)}
              (i lang [:subscribe-button])]]
            [:div.level-item
             [:a.button.is-danger
-             {:href (str "/unsubscribe/" l)}
+             {:href (str (:dir config/config) "/unsubscribe/" l)}
              (i lang [:unsubscribe-button])]]]]])])))
 
 (defn subscribe-to-mailing-list [{:keys [address name description]}]
@@ -94,7 +94,7 @@
      lang
      [:div.container
       [:form
-       {:action "/subscribe" :method "post"}
+       {:action (str (:dir config/config) "/subscribe") :method "post"}
        (afu/anti-forgery-field)
        [:input {:name "mailing-list" :type "hidden" :value address}]
        [:div.field
@@ -124,7 +124,7 @@
      lang
      [:div.container
       [:form
-       {:action "/unsubscribe" :method "post"}
+       {:action (str (:dir config/config) "/unsubscribe") :method "post"}
        (afu/anti-forgery-field)
        [:input {:name  "mailing-list" :type "hidden"
                 :value address}]
