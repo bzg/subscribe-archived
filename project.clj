@@ -9,21 +9,21 @@
   :license {:name "Eclipse Public License v2.0"
             :url  "https://www.eclipse.org/legal/epl-2.0/"}
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.10.3"]
-                 [org.clojure/core.async "1.3.610"
+  :dependencies [[org.clojure/clojure "1.11.1"]
+                 [org.clojure/core.async "1.6.681"
                   :exclusions [org.clojure/tools.reader]]
-                 [compojure "1.6.2"]
+                 [compojure "1.7.0"]
                  [hiccup "1.0.5"]
-                 [ring/ring-core "1.9.2"]
-                 [ring/ring-jetty-adapter "1.9.2"]
-                 [ring/ring-devel "1.9.2"]
-                 [ring/ring-defaults "0.3.2"]
-                 [cheshire "5.10.0"]
+                 [ring/ring-core "1.10.0"]
+                 [ring/ring-jetty-adapter "1.10.0"]
+                 [ring/ring-devel "1.10.0"]
+                 [ring/ring-defaults "0.3.4"]
+                 [cheshire "5.11.0"]
                  [org.martinklepsch/clj-http-lite "0.4.3"]
-                 [com.taoensso/tempura "1.2.1"]
-                 [com.draines/postal "2.0.4"]
-                 [com.taoensso/encore "3.12.1"]
-                 [com.taoensso/timbre "5.1.2"]
+                 [com.taoensso/tempura "1.5.3"]
+                 [com.draines/postal "2.0.5"]
+                 [com.taoensso/encore "3.64.0"]
+                 [com.taoensso/timbre "6.2.2"]
                  [commons-validator "1.7"]]
   :main core
   :jvm-opts ["-Xmx500m"]
