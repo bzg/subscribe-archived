@@ -22,7 +22,7 @@
                  [org.martinklepsch/clj-http-lite "0.4.3"]
                  [com.taoensso/tempura "1.5.3"]
                  [com.draines/postal "2.0.5"]
-                 [com.taoensso/encore "3.64.0"]
+                 [com.taoensso/encore "3.66.0"]
                  [com.taoensso/timbre "6.2.2"]
                  [commons-validator "1.7"]]
   :main core
