@@ -12,7 +12,7 @@
 ;; Backends configuration
 (def backends
   [{:backend                        "mailgun"
-    :host                           "smtp.mailgun.org"
+    :host                           (System/getenv "MAILGUN_SMTP_HOST")
     :api-url                        (System/getenv "MAILGUN_API_BASEURL")
     :lists-endpoint                 "/lists/pages"
     :lists-query-params             {:query-params {"limit" "100"}}
