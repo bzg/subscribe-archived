@@ -13,7 +13,7 @@
 (def backends
   [{:backend                        "mailgun"
     :host                           "smtp.mailgun.org"
-    :api-url                        "https://api.mailgun.net/v3"
+    :api-url                        (System/getenv "MAILGUN_API_BASEURL")
     :lists-endpoint                 "/lists/pages"
     :lists-query-params             {:query-params {"limit" "100"}}
     ;; :subscribe-http-verb         "POST"

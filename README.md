@@ -47,6 +47,7 @@ Email credentials:
 Backend-specific variables:
 
     # To handle mailgun.com mailing lists:
+    export MAILGUN_API_BASEURL="https://api.mailgun.net/v3" # or "https://api.eu.mailgun.net/v3" for EU domains
     export MAILGUN_API_KEY="your-key"
     
     # To handle sendinblue.com mailing lists:
