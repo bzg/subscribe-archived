@@ -18,7 +18,7 @@
                  [ring/ring-jetty-adapter "1.10.0"]
                  [ring/ring-devel "1.10.0"]
                  [ring/ring-defaults "0.4.0"]
-                 [cheshire "5.11.0"]
+                 [cheshire "5.12.0"]
                  [org.martinklepsch/clj-http-lite "0.4.3"]
                  [com.taoensso/tempura "1.5.3"]
                  [com.draines/postal "2.0.5"]

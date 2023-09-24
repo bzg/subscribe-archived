@@ -6,7 +6,7 @@
 
  :deps
  {
-  cheshire/cheshire                   {:mvn/version "5.11.0"}
+  cheshire/cheshire                   {:mvn/version "5.12.0"}
   org.martinklepsch/clj-http-lite     {:mvn/version "0.4.3"}
   com.draines/postal                  {:mvn/version "2.0.5"}
   com.taoensso/tempura                {:mvn/version "1.5.3"}
