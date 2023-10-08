@@ -22,8 +22,7 @@
                  [org.martinklepsch/clj-http-lite "0.4.3"]
                  [com.taoensso/tempura "1.5.3"]
                  [com.draines/postal "2.0.5"]
-                 [com.taoensso/encore "3.67.0"]
-                 [com.taoensso/timbre "6.2.2"]
+                 [com.taoensso/timbre "6.3.1"]
                  [commons-validator "1.7"]]
   :main core
   :jvm-opts ["-Xmx500m"]
