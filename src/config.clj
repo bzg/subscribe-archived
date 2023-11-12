@@ -67,6 +67,7 @@
 
 (def port (read-string (or (System/getenv "SUBSCRIBE_PORT") "3000")))
 (def base-url (or (System/getenv "SUBSCRIBE_BASEURL")
+                  (:base-url config)
                   (str "http://localhost:" port)))
 
 (def lists-exclude-regexp (:lists-exclude-regexp config))
