@@ -73,7 +73,7 @@
 (def lists-include-regexp (:lists-include-regexp config))
 (def log-file (or (not-empty (:log-file config)) "log.txt"))
 (def ui-strings (:ui-strings config))
-(def css (or (str (:dir config) (:css config))
+(def css (or (not-empty (str (:dir config) (:css config)))
              "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.2/css/bulma.min.css"))
 
 ;; Configuration for additional HTML
