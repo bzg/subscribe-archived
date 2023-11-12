@@ -45,7 +45,7 @@
             (when-let [tos (config/tos-url ml-address)]
               [:p [:a {:href tos :target "new"} (i lang [:tos])]])
             [:p (i lang [:made-with]) " "
-             [:a {:href   "https://github.com/bzg/subscribe"
+             [:a {:href   "https://git.sr.ht/~bzg/subscribe"
                   :target "new"} "Subscribe"]]]]))]))
 
 (defn error []
