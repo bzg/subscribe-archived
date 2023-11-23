@@ -86,7 +86,7 @@
     :successful-unsubscription        "Désinscription réussie !"
     :thanks                           "Merci !"
     :bye                              "À bientôt !"
-    :validation-sent                  "Vérifiez vos messages : nous venons de vous envoyer un lien pour valider votre inscription."
+    :validation-sent                  "Vérifiez vos messages : nous venons de vous envoyer un lien pour valider votre action."
     :validation-sent-to               "%s: envoi du lien de validation vers %s."
     :subscribers-added                "%s inscrits ajoutés à %s"}})
 
