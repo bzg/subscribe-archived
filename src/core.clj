@@ -195,7 +195,8 @@
      {:host (config/smtp-host mailing-list)
       :port (config/smtp-port mailing-list)
       :user (config/smtp-login mailing-list)
-      :pass (config/smtp-password mailing-list)}
+      :pass (config/smtp-password mailing-list)
+      :tls  true}
      {:from             (config/from mailing-list)
       :message-id       #(postal.support/message-id
                           (config/msg-id mailing-list))
