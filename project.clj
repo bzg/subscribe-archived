@@ -23,7 +23,7 @@
                  [com.taoensso/tempura "1.5.3"]
                  [com.draines/postal "2.0.5"]
                  [com.taoensso/timbre "6.3.1"]
-                 [commons-validator "1.7"]]
+                 [commons-validator "1.8.0"]]
   :main core
   :jvm-opts ["-Xmx500m"]
   :profiles {:uberjar {:omit-source    true

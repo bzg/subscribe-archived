@@ -11,7 +11,7 @@
   com.draines/postal                  {:mvn/version "2.0.5"}
   com.taoensso/tempura                {:mvn/version "1.5.3"}
   com.taoensso/timbre                 {:mvn/version "6.3.1"}
-  commons-validator/commons-validator {:mvn/version "1.7"}
+  commons-validator/commons-validator {:mvn/version "1.8.0"}
   compojure/compojure                 {:mvn/version "1.7.0"}
   hiccup/hiccup                       {:mvn/version "1.0.5"}
   org.clojure/clojure                 {:mvn/version "1.11.1"}
