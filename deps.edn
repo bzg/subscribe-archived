@@ -16,9 +16,9 @@
   hiccup/hiccup                       {:mvn/version "1.0.5"}
   org.clojure/clojure                 {:mvn/version "1.11.1"}
   org.clojure/core.async              {:mvn/version "1.6.681"}
-  ring/ring-core                      {:mvn/version "1.10.0"}
-  ring/ring-devel                     {:mvn/version "1.10.0"}
-  ring/ring-jetty-adapter             {:mvn/version "1.10.0"}
+  ring/ring-core                      {:mvn/version "1.11.0"}
+  ring/ring-devel                     {:mvn/version "1.11.0"}
+  ring/ring-jetty-adapter             {:mvn/version "1.11.0"}
   ring/ring-defaults                  {:mvn/version "0.4.0"}
   }
 
