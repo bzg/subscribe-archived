@@ -121,6 +121,6 @@ donating to [[https://www.clojuriststogether.org][clojuriststogether.org]].
 
 * License
 
-© 2019-2023 Bastien Guerry
+© 2019-2024 Bastien Guerry
 
 =subscribe= is licensed under the [[http://www.eclipse.org/legal/epl-v10.html][Eclipse Public License 2.0]].
