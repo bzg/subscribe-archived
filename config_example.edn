@@ -11,14 +11,10 @@
  ;; :base-url                  "http://base-url"           ; base URL of the web service
  ;; :locale                    "en"                        ; or "fr", etc.
  ;; :dir                       "/subdirectory"
- ;; :css                       "/css/my-stylesheet.css"    ; absolute or relative stylesheet URL
  ;; :lists-exclude-regexp      nil                         ; a regular expression
  ;; :lists-include-regexp      nil                         ; a regular expression
  ;; :ui-strings                {:mailing-lists "Title"}    ; custom UI strings
  ;; :log-file                  "log-filename.txt"          ; log file name
- ;; :before-head-closing-html  "<b>...</b>"                ; add content before </head>
- ;; :after-body-beginning-html "<b>...</b>"                ; add content after <body>
- ;; :footer-html               "<b>...</b>"                ; replace <footer ...> with your HTML
  
  ;;;; Global options, possibly overriden by per-list options in :lists
  
