@@ -4,26 +4,29 @@
 
 (ns core
   "Subscribe core functions."
-  (:require [ring.adapter.jetty :as jetty]
-            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
-            ;; [ring.middleware.reload :refer [wrap-reload]]
-            [ring.middleware.params :as params]
-            [ring.util.response :as response]
-            [compojure.core :as compojure :refer (GET POST defroutes)]
-            [compojure.route :as route]
-            [clj-http.lite.client :as http]
-            [clojure.set :as set]
-            [views :as views]
-            [i18n :refer [i]]
-            [config :as config]
-            [postal.core :as postal]
-            [postal.support]
-            [clojure.core.async :as async]
-            [clojure.walk :as walk]
-            [cheshire.core :as json]
-            [taoensso.timbre :as timbre]
-            [taoensso.timbre.appenders.core :as appenders]
-            [taoensso.timbre.appenders (postal :as postal-appender)])
+  (:require
+   [reitit.ring :as ring]
+   [ring.middleware.params :as params]
+   [reitit.ring.middleware.parameters :as parameters]
+   [ring.middleware.reload :as reload]
+   [ring.middleware.cors :refer [wrap-cors]]
+   ;; [integrant.core :as ig]
+   [selmer.parser :as html]
+   [selmer.filters :as filters]
+   [org.httpkit.server :as server]
+   [clj-http.lite.client :as http]
+   [clojure.set :as set]
+   [clojure.java.io :as io]
+   [i18n :refer [i]]
+   [config :as config]
+   [postal.core :as postal]
+   [postal.support]
+   [clojure.core.async :as async]
+   [clojure.walk :as walk]
+   [cheshire.core :as json]
+   [taoensso.timbre :as timbre]
+   [taoensso.timbre.appenders.core :as appenders]
+   [taoensso.timbre.appenders (postal :as postal-appender)])
   (:gen-class))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -174,18 +177,20 @@
                     (i lang [:closing]) "\n\n-- \n"
                     (or (config/team mailing-list)
                         (config/return-url mailing-list)))}
-     {:type    "text/html; charset=utf-8"
-      :content (views/default
-                short-name ml-desc mailing-list lang
-                [:div
-                 [:p (if username (format (i lang [:opening-name]) username)
-                         (i lang [:opening-no-name]))]
-                 [:p (or html-body plain-body)]
-                 [:p (i lang [:closing])]
-                 [:p [:a {:href (config/return-url mailing-list)}
-                      (or (config/team ml)
-                          (config/return-url mailing-list))]]]
-                true)}]))
+     {:type "text/html; charset=utf-8"
+      :content ;; (views/default
+      ;;  short-name ml-desc mailing-list lang
+      ;;  [:div
+      ;;   [:p (if username (format (i lang [:opening-name]) username)
+      ;;           (i lang [:opening-no-name]))]
+      ;;   [:p (or html-body plain-body)]
+      ;;   [:p (i lang [:closing])]
+      ;;   [:p [:a {:href (config/return-url mailing-list)}
+      ;;        (or (config/team ml)
+      ;;            (config/return-url mailing-list))]]]
+      ;;  true)
+      ""
+      }]))
 
 (defn send-email
   "Send a templated email."
@@ -387,69 +392,117 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Application routes
 
-(defroutes app-routes
-  (GET "/" [] (views/mailing-lists @lists))
-  (GET "/already-subscribed/:ml" [ml]
-       (let [ml-opts (get @lists ml)
-             lang    (config/locale (:address ml-opts))]
-         (views/feedback
-          (i lang [:error])
-          ml-opts
-          (i lang [:already-subscribed]))))
-  (GET "/not-subscribed/:ml" [ml]
-       (let [ml-opts (get @lists ml)
-             lang    (config/locale (:address ml-opts))]
-         (views/feedback
-          (i lang [:error])
-          ml-opts
-          (i lang [:not-subscribed]))))
-  (GET "/email-sent/:ml" [ml]
-       (let [ml-opts (get @lists ml)
-             lang    (config/locale (:address ml-opts))]
-         (views/feedback
-          (i lang [:thanks])
-          ml-opts
-          (i lang [:validation-sent]))))
-  (GET "/thanks" []
-       (views/feedback (i (config/locale nil) [:done])
-                       nil (i (config/locale nil)
-                              [:successful-subscription])))
-  (GET "/bye" []
-       (views/feedback (i (config/locale nil) [:done])
-                       nil (i (config/locale nil)
-                              [:successful-unsubscription])))
-  (GET "/subscribe/:ml" [ml] (views/subscribe-to-mailing-list
-                              (get @lists ml)))
-  (GET "/unsubscribe/:ml" [ml] (views/unsubscribe-from-mailing-list
-                                (get @lists ml)))
-  (POST "/subscribe" req
-        (let [{:keys [mailing-list] :as params}
-              (walk/keywordize-keys (:form-params req))]
-          (if (check-already-subscribed params)
-            (response/redirect (str "/already-subscribed/" mailing-list))
-            (do (async/go (async/>! subscribe-channel params))
-                (response/redirect (str "/email-sent/" mailing-list))))))
-  (POST "/unsubscribe" req
-        (let [{:keys [mailing-list] :as params}
-              (walk/keywordize-keys (:form-params req))]
-          (if-not (check-already-subscribed params)
-            (response/redirect (str "/not-subscribed/" mailing-list))
-            (do (async/go (async/>! unsubscribe-channel params))
-                (response/redirect (str "/email-sent/" mailing-list))))))
-  (GET "/confirm-subscription/:token" [token]
-       (do (async/go (async/>! subscribe-confirmation-channel token))
-           (response/redirect "/thanks")))
-  (GET "/confirm-unsubscription/:token" [token]
-       (do (async/go (async/>! unsubscribe-confirmation-channel token))
-           (response/redirect "/bye")))
-  (route/resources "/")
-  (route/not-found (views/error)))
+(defn- page-index [page]
+  {:page  "index"
+   :howto (slurp (io/resource "themes/dsfr/index.html"))})
 
-(def app (-> app-routes
-             (wrap-defaults site-defaults)
-             params/wrap-params
-             ;; wrap-reload
-             ))
+(defn- page-404 [_]
+  :page   "404")
+
+(defn- get-page [page {:keys [query-params path-params uri headers]}]
+  (let [ ;; format-params   {}
+        ;; lang            (if-let [lang (get headers "accept-language")]
+        ;;                   (subs lang 0 2) "en")
+        ;; config-defaults nil
+        html-page (condp = page
+                    :404 {:html "/404.html" :fn page-404}
+                    {:html "/index.html" :fn page-index})
+        theme     "dsfr"]
+    {:status  200
+     :headers {"Content-Type" "text/html"}
+     :body    (html/render-file
+               (io/resource (str "themes/" theme (:html html-page)))
+               ((:fn html-page) page))}))
+
+(defn- post-page [page])
+
+(def handler
+  (ring/ring-handler
+   (ring/router
+    ;; View mailing lists
+    [["/"
+      ;; (views/mailing-lists @lists))
+      ["" {:get #(get-page :index %)}]]
+     ["/already-subscribed/:ml"
+      ["" {:get #(get-page :already-subscribed %)}]]
+     ;; (let [ml-opts (get @lists ml)
+     ;;       lang    (config/locale (:address ml-opts))]
+     ;;   (views/feedback
+     ;;    (i lang [:error])
+     ;;    ml-opts
+     ;;    (i lang [:already-subscribed])))
+     ["/not-subscribed/:ml"
+      ["" {:get #(get-page :not-subscribed %)}]]
+     ;; (let [ml-opts (get @lists ml)
+     ;;       lang    (config/locale (:address ml-opts))]
+     ;;   (views/feedback
+     ;;    (i lang [:error])
+     ;;    ml-opts
+     ;;    (i lang [:not-subscribed])))
+     ["/email-sent/:ml"
+      ["" {:get #(get-page :not-subscribed %)}]]
+     ;; (let [ml-opts (get @lists ml)
+     ;;       lang    (config/locale (:address ml-opts))]
+     ;;   (views/feedback
+     ;;    (i lang [:thanks])
+     ;;    ml-opts
+     ;;    (i lang [:validation-sent])))
+     ["/thanks"
+      ["" {:get #(get-page :thanks %)}]]
+     ;; (views/feedback (i (config/locale nil) [:done])
+     ;;                 nil (i (config/locale nil)
+     ;;                        [:successful-subscription]))
+     ["/bye"
+      ["" {:get #(get-page :bye %)}]]
+     ;; (views/feedback (i (config/locale nil) [:done])
+     ;;                 nil (i (config/locale nil)
+     ;;                        [:successful-unsubscription]))
+     ["/subscribe/:ml"
+      ["" {:get  #(get-page :subscribe %)
+           :post #(post-page :confirm-subscription %)}]]
+     ;; (views/subscribe-to-mailing-list
+     ;;  (get @lists ml))
+     ["/unsubscribe/:ml"
+      ["" {:get  #(get-page :unsubscribe %)
+           :post #(post-page :confirm-unsubscription %)}]]     
+     ;; (views/unsubscribe-from-mailing-list
+     ;;  (get @lists ml))
+     ;; ["/subscribe/:ml"
+     ;;  ["" {}]]
+     ;; (let [{:keys [mailing-list] :as params}
+     ;;       (walk/keywordize-keys (:form-params req))]
+     ;;   (if (check-already-subscribed params)
+     ;;     (response/redirect (str "/already-subscribed/" mailing-list))
+     ;;     (do (async/go (async/>! subscribe-channel params))
+     ;;         (response/redirect (str "/email-sent/" mailing-list)))))
+     ["/confirm-subscription/:token"
+      ["" {:get #(get-page :confirm-subscription %)}]]
+     ;; (do (async/go (async/>! subscribe-confirmation-channel token))
+     ;;     (response/redirect "/thanks"))
+     ;; ["/unsubscribe/:ml"
+     ;;  ["" {}]]
+     ;; (let [{:keys [mailing-list] :as params}
+     ;;       (walk/keywordize-keys (:form-params req))]
+     ;;   (if-not (check-already-subscribed params)
+     ;;     (response/redirect (str "/not-subscribed/" mailing-list))
+     ;;     (do (async/go (async/>! unsubscribe-channel params))
+     ;;         (response/redirect (str "/email-sent/" mailing-list)))))
+     ["/confirm-unsubscription/:token"
+      ["" {:get #(get-page :confirm-unsubscription %)}]]
+     ;; (do (async/go (async/>! unsubscribe-confirmation-channel token))
+     ;;     (response/redirect "/bye"))
+     ]
+    {:data {:middleware [params/wrap-params]}})
+   (ring/routes
+    (ring/create-resource-handler {:path "/"})
+    (ring/create-default-handler
+     {:not-found (fn [_] (get-page :404 nil))})
+    {:middleware
+     [parameters/parameters-middleware
+      #(wrap-cors
+        %
+        :access-control-allow-origin [#"^*$"]
+        :access-control-allow-methods [:get])]})))
 
 (defn -main
   "Initialize the db, the loops and the web serveur."
@@ -459,5 +512,10 @@
   (start-unsubscription-loop)
   (start-subscribe-confirmation-loop)
   (start-unsubscribe-confirmation-loop)
-  (jetty/run-jetty #'app {:port config/port :join? false})
+  (let [port config/port server "localhost"]
+    (server/run-server
+     (reload/wrap-reload handler {:dirs ["src" "resources"]})
+     {:port port :server server})
+    (timbre/info
+     (format "Web server started on %s (port %s)" server port)))
   (println (str "Subscribe application started on localhost:" config/port)))
