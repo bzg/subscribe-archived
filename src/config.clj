@@ -74,13 +74,8 @@
 (def lists-include-regexp (:lists-include-regexp config))
 (def log-file (or (not-empty (:log-file config)) "log.txt"))
 (def ui-strings (:ui-strings config))
-(def css (or (not-empty (str (:dir config) (:css config)))
-             "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.2/css/bulma.min.css"))
 
 ;; Configuration for additional HTML
-(def before-head-closing-html (:before-head-closing-html config))
-(def after-body-beginning-html (:after-body-beginning-html config))
-(def footer-html (:footer-html config))
 (def lists (:lists config))
 
 (defn locale [ml]
