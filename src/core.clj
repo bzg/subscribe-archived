@@ -394,7 +394,7 @@
 
 (defn- page-index [page]
   {:page  "index"
-   :howto (slurp (io/resource "themes/dsfr/index.html"))})
+   :howto (slurp (io/resource (str "themes/" (:theme config/config) "/index.html")))})
 
 (defn- page-404 [_]
   :page   "404")
@@ -407,7 +407,7 @@
         html-page (condp = page
                     :404 {:html "/404.html" :fn page-404}
                     {:html "/index.html" :fn page-index})
-        theme     "dsfr"]
+        theme     (:theme config/config)]
     {:status  200
      :headers {"Content-Type" "text/html"}
      :body    (html/render-file
