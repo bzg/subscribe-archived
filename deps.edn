@@ -10,20 +10,20 @@
   cheshire/cheshire                   {:mvn/version "5.13.0"}
   com.draines/postal                  {:mvn/version "2.0.5"}
   com.taoensso/tempura                {:mvn/version "1.5.4"}
-  com.taoensso/timbre                 {:mvn/version "6.5.0"}
+  com.taoensso/timbre                 {:mvn/version "6.6.1"}
   commons-validator/commons-validator {:mvn/version "1.9.0"}
   hiccup/hiccup                       {:mvn/version "1.0.5"}
   http-kit/http-kit                   {:mvn/version "2.8.0"}
-  markdown-clj/markdown-clj           {:mvn/version "1.12.1"}
+  markdown-clj/markdown-clj           {:mvn/version "1.12.3"}
   metosin/reitit                      {:mvn/version "0.7.2"}
   metosin/reitit-middleware           {:mvn/version "0.7.2"}
   metosin/reitit-ring                 {:mvn/version "0.7.2"}
   org.clojure/clojure                 {:mvn/version "1.12.0"}
-  org.clojure/core.async              {:mvn/version "1.6.681"}
+  org.clojure/core.async              {:mvn/version "1.7.701"}
   org.martinklepsch/clj-http-lite     {:mvn/version "0.4.3"}
   ring-cors/ring-cors                 {:mvn/version "0.1.13"}
-  ring/ring-devel                     {:mvn/version "1.12.2"}
-  selmer/selmer                       {:mvn/version "1.12.61"}
+  ring/ring-devel                     {:mvn/version "1.13.0"}
+  selmer/selmer                       {:mvn/version "1.12.62"}
   }
 
  :paths ["src" "resources"]
@@ -41,6 +41,6 @@
   {:extra-paths ["test"]
    :extra-deps  {com.cognitect/test-runner
                  {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                  :sha     "9d36f36ff541dac680a05010e4348c744333f191"}}
+                  :sha     "3f288f1f16d167723ad87cc35b1dfee3c1681e10"}}
    :main-opts   ["-m" "cognitect.test-runner"
                  "-d" "test" "-n" "subscribe.test"]}}}
